@@ -1,0 +1,331 @@
+/**
+ * Team Page — Workspace management, members, roles, activity log
+ */
+import { store } from '../utils/state.js';
+import { loadWorkspace, saveWorkspace, loadTeamActivity } from '../services/firestore.js';
+import { renderSidebar, attachSidebarEvents } from '../components/header.js';
+import { showToast } from '../components/toast.js';
+import { timeAgo } from '../utils/helpers.js';
+
+const ROLE_LABELS = {
+    admin: { label: 'Admin', badge: 'badge-accent', icon: '👑' },
+    editor: { label: 'Editor', badge: 'badge-success', icon: '✏️' },
+    viewer: { label: 'Viewer', badge: 'badge-warning', icon: '👁️' },
+};
+
+export async function renderTeamPage() {
+    const app = document.getElementById('app');
+    const user = store.get('user');
+
+    app.innerHTML = `
+    ${renderSidebar()}
+    <main class="main-content page">
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h1 style="font-size: var(--font-2xl);">👥 Nhóm làm việc</h1>
+          <p class="text-muted text-sm" style="margin-top: var(--space-1);">Quản lý thành viên và phân quyền</p>
+        </div>
+        <button class="btn btn-primary" id="btn-invite">+ Mời thành viên</button>
+      </div>
+
+      <!-- Workspace Info -->
+      <div class="card" style="margin-bottom: var(--space-6); padding: var(--space-5);">
+        <div class="flex justify-between items-center">
+          <div>
+            <h3 id="workspace-name" style="margin-bottom: var(--space-1);">Workspace</h3>
+            <p class="text-sm text-muted" id="workspace-desc">Đang tải...</p>
+          </div>
+          <button class="btn btn-ghost btn-sm" id="btn-edit-workspace">✏️ Sửa</button>
+        </div>
+      </div>
+
+      <!-- Members Grid -->
+      <h3 style="margin-bottom: var(--space-4);">👤 Thành viên</h3>
+      <div class="team-members" id="team-members">
+        <div class="skeleton" style="height: 80px; margin-bottom: var(--space-3);"></div>
+      </div>
+
+      <!-- Activity Log -->
+      <h3 style="margin-top: var(--space-8); margin-bottom: var(--space-4);">📋 Hoạt động gần đây</h3>
+      <div class="activity-log" id="activity-log">
+        <div class="skeleton" style="height: 60px; margin-bottom: var(--space-2);"></div>
+      </div>
+
+      <!-- Invite Modal -->
+      <div class="modal-overlay hidden" id="invite-modal">
+        <div class="card" style="max-width: 440px; width: 90%; padding: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);">✉️ Mời thành viên</h3>
+
+          <div class="form-group" style="margin-bottom: var(--space-3);">
+            <label class="form-label">Email *</label>
+            <input type="email" class="form-input" id="invite-email" placeholder="email@example.com">
+          </div>
+
+          <div class="form-group" style="margin-bottom: var(--space-4);">
+            <label class="form-label">Quyền</label>
+            <select class="form-input" id="invite-role">
+              <option value="editor">✏️ Editor — Tạo & chỉnh sửa content</option>
+              <option value="viewer">👁️ Viewer — Chỉ xem</option>
+            </select>
+          </div>
+
+          <div class="flex gap-2">
+            <button class="btn btn-primary" id="btn-send-invite" style="flex: 1;">📩 Gửi lời mời</button>
+            <button class="btn btn-ghost" id="btn-close-invite">Huỷ</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Workspace Modal -->
+      <div class="modal-overlay hidden" id="workspace-modal">
+        <div class="card" style="max-width: 440px; width: 90%; padding: var(--space-6);">
+          <h3 style="margin-bottom: var(--space-4);">✏️ Chỉnh sửa Workspace</h3>
+
+          <div class="form-group" style="margin-bottom: var(--space-3);">
+            <label class="form-label">Tên workspace</label>
+            <input type="text" class="form-input" id="ws-name" placeholder="VD: Team Marketing ABC">
+          </div>
+
+          <div class="form-group" style="margin-bottom: var(--space-4);">
+            <label class="form-label">Mô tả</label>
+            <textarea class="form-input" id="ws-desc" rows="2" placeholder="Mô tả ngắn về nhóm"></textarea>
+          </div>
+
+          <div class="flex gap-2">
+            <button class="btn btn-primary" id="btn-save-workspace" style="flex: 1;">💾 Lưu</button>
+            <button class="btn btn-ghost" id="btn-close-ws-modal">Huỷ</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  `;
+
+    attachSidebarEvents();
+
+    // Load workspace data
+    const workspace = await loadWorkspaceData();
+
+    // Events
+    document.getElementById('btn-invite')?.addEventListener('click', () => {
+        document.getElementById('invite-modal')?.classList.remove('hidden');
+    });
+
+    document.getElementById('btn-close-invite')?.addEventListener('click', () => {
+        document.getElementById('invite-modal')?.classList.add('hidden');
+    });
+
+    document.getElementById('invite-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'invite-modal') e.target.classList.add('hidden');
+    });
+
+    document.getElementById('btn-send-invite')?.addEventListener('click', handleInvite);
+
+    document.getElementById('btn-edit-workspace')?.addEventListener('click', () => {
+        const ws = store.get('workspace') || {};
+        document.getElementById('ws-name').value = ws.name || '';
+        document.getElementById('ws-desc').value = ws.description || '';
+        document.getElementById('workspace-modal')?.classList.remove('hidden');
+    });
+
+    document.getElementById('btn-close-ws-modal')?.addEventListener('click', () => {
+        document.getElementById('workspace-modal')?.classList.add('hidden');
+    });
+
+    document.getElementById('workspace-modal')?.addEventListener('click', (e) => {
+        if (e.target.id === 'workspace-modal') e.target.classList.add('hidden');
+    });
+
+    document.getElementById('btn-save-workspace')?.addEventListener('click', handleSaveWorkspace);
+}
+
+async function loadWorkspaceData() {
+    const user = store.get('user');
+    try {
+        let workspace = await loadWorkspace();
+
+        // Auto-create workspace for new users
+        if (!workspace) {
+            workspace = {
+                name: `${user?.displayName || 'My'} Workspace`,
+                description: 'Workspace mặc định',
+                members: [{
+                    uid: user.uid,
+                    email: user.email,
+                    displayName: user.displayName,
+                    photoURL: user.photoURL,
+                    role: 'admin',
+                    joinedAt: new Date().toISOString(),
+                }],
+            };
+            await saveWorkspace(workspace);
+        }
+
+        store.set('workspace', workspace);
+
+        // Render workspace info
+        document.getElementById('workspace-name').textContent = workspace.name || 'Workspace';
+        document.getElementById('workspace-desc').textContent = workspace.description || 'Chưa có mô tả';
+
+        // Render members
+        renderMembers(workspace.members || []);
+
+        // Load activity
+        try {
+            const activity = await loadTeamActivity();
+            renderActivity(activity);
+        } catch { renderActivity([]); }
+
+        return workspace;
+    } catch {
+        document.getElementById('workspace-name').textContent = 'Workspace';
+        document.getElementById('workspace-desc').textContent = 'Chưa thiết lập';
+        renderMembers([]);
+        renderActivity([]);
+    }
+}
+
+function renderMembers(members) {
+    const container = document.getElementById('team-members');
+    if (!container) return;
+
+    if (!members.length) {
+        container.innerHTML = '<p class="text-muted text-sm">Chưa có thành viên</p>';
+        return;
+    }
+
+    const currentUser = store.get('user');
+
+    container.innerHTML = members.map(m => {
+        const r = ROLE_LABELS[m.role] || ROLE_LABELS.viewer;
+        const isMe = m.uid === currentUser?.uid;
+        return `
+      <div class="member-card card" style="padding: var(--space-4); margin-bottom: var(--space-3);">
+        <div class="flex items-center gap-4">
+          <img src="${m.photoURL || ''}" alt="" 
+               style="width: 44px; height: 44px; border-radius: 50%; background: var(--bg-tertiary);"
+               onerror="this.style.display='none'">
+          <div style="flex: 1; min-width: 0;">
+            <div class="flex items-center gap-2">
+              <strong>${m.displayName || m.email || 'Unknown'}</strong>
+              ${isMe ? '<span class="text-xs text-muted">(Bạn)</span>' : ''}
+            </div>
+            <div class="text-sm text-muted">${m.email || ''}</div>
+          </div>
+          <span class="badge ${r.badge}">${r.icon} ${r.label}</span>
+          ${!isMe && members.find(x => x.uid === currentUser?.uid)?.role === 'admin' ? `
+            <select class="form-input" style="width: auto; padding: var(--space-1) var(--space-2); font-size: var(--font-xs);" 
+                    data-uid="${m.uid}" onchange="this.dispatchEvent(new CustomEvent('role-change', {bubbles:true, detail:{uid:'${m.uid}',role:this.value}}))">
+              <option value="editor" ${m.role === 'editor' ? 'selected' : ''}>Editor</option>
+              <option value="viewer" ${m.role === 'viewer' ? 'selected' : ''}>Viewer</option>
+              <option value="admin" ${m.role === 'admin' ? 'selected' : ''}>Admin</option>
+            </select>
+          ` : ''}
+        </div>
+      </div>
+    `;
+    }).join('');
+
+    // Role change events
+    container.addEventListener('role-change', async (e) => {
+        const { uid: memberUid, role } = e.detail;
+        try {
+            const workspace = store.get('workspace');
+            const member = workspace.members.find(m => m.uid === memberUid);
+            if (member) {
+                member.role = role;
+                await saveWorkspace(workspace);
+                showToast('Đã cập nhật quyền', 'success');
+            }
+        } catch (err) {
+            showToast('Lỗi: ' + err.message, 'error');
+        }
+    });
+}
+
+function renderActivity(activities) {
+    const container = document.getElementById('activity-log');
+    if (!container) return;
+
+    if (!activities.length) {
+        container.innerHTML = `
+      <div class="card-flat text-center" style="padding: var(--space-6);">
+        <span style="font-size: 2rem;">📋</span>
+        <p class="text-sm text-muted" style="margin-top: var(--space-2);">Chưa có hoạt động nào</p>
+      </div>
+    `;
+        return;
+    }
+
+    container.innerHTML = activities.slice(0, 20).map(a => `
+    <div class="activity-item">
+      <div class="activity-dot"></div>
+      <div class="activity-content">
+        <span class="text-sm"><strong>${a.userName || 'User'}</strong> ${a.action || ''}</span>
+        <span class="text-xs text-muted">${a.createdAt ? timeAgo(a.createdAt.toDate ? a.createdAt.toDate() : new Date(a.createdAt)) : ''}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+async function handleInvite() {
+    const email = document.getElementById('invite-email')?.value?.trim();
+    const role = document.getElementById('invite-role')?.value || 'viewer';
+
+    if (!email) {
+        showToast('Vui lòng nhập email', 'error');
+        return;
+    }
+
+    try {
+        const workspace = store.get('workspace') || {};
+        const members = workspace.members || [];
+
+        // Check if already a member
+        if (members.find(m => m.email === email)) {
+            showToast('Email này đã là thành viên', 'error');
+            return;
+        }
+
+        members.push({
+            email,
+            role,
+            displayName: email.split('@')[0],
+            photoURL: '',
+            uid: `invited_${Date.now()}`,
+            joinedAt: new Date().toISOString(),
+            status: 'invited',
+        });
+
+        workspace.members = members;
+        await saveWorkspace(workspace);
+
+        showToast(`Đã mời ${email} với quyền ${role}! ✉️`, 'success');
+        document.getElementById('invite-modal')?.classList.add('hidden');
+        renderMembers(members);
+    } catch (err) {
+        showToast('Lỗi: ' + err.message, 'error');
+    }
+}
+
+async function handleSaveWorkspace() {
+    const name = document.getElementById('ws-name')?.value?.trim();
+    if (!name) {
+        showToast('Vui lòng nhập tên workspace', 'error');
+        return;
+    }
+
+    try {
+        const workspace = store.get('workspace') || {};
+        workspace.name = name;
+        workspace.description = document.getElementById('ws-desc')?.value?.trim() || '';
+        await saveWorkspace(workspace);
+        store.set('workspace', workspace);
+
+        document.getElementById('workspace-name').textContent = name;
+        document.getElementById('workspace-desc').textContent = workspace.description || 'Chưa có mô tả';
+        document.getElementById('workspace-modal')?.classList.add('hidden');
+        showToast('Đã cập nhật workspace! ✅', 'success');
+    } catch (err) {
+        showToast('Lỗi: ' + err.message, 'error');
+    }
+}

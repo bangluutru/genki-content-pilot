@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { route: 'calendar', icon: '📅', label: 'Lịch' },
   { route: 'templates', icon: '📋', label: 'Templates' },
   { route: 'brand', icon: '🎨', label: 'Brand' },
+  { route: 'team', icon: '👥', label: 'Nhóm' },
   { route: 'settings', icon: '⚙️', label: 'Kết nối' },
 ];
 

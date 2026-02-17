@@ -1604,3 +1604,56 @@ a:hover {
         grid-template-columns: 1fr;
     }
 }
+
+/* ============================================================
+   Phase 7 — Team Styles
+   ============================================================ */
+
+.member-card {
+    transition: transform var(--transition-fast);
+}
+
+.member-card:hover {
+    transform: translateX(4px);
+}
+
+.activity-log {
+    position: relative;
+    padding-left: var(--space-6);
+}
+
+.activity-item {
+    position: relative;
+    padding: var(--space-3) 0;
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+}
+
+.activity-dot {
+    position: absolute;
+    left: calc(-1 * var(--space-6) + 3px);
+    top: var(--space-4);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #8b5cf6;
+    border: 2px solid var(--bg-primary);
+    z-index: 1;
+}
+
+.activity-log::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border-color);
+}
+
+.activity-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}

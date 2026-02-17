@@ -42,6 +42,10 @@ async function loadPage(name) {
       const { renderTemplatesPage } = await import('./pages/templates.js');
       return renderTemplatesPage;
     }
+    case 'team': {
+      const { renderTeamPage } = await import('./pages/team.js');
+      return renderTeamPage;
+    }
     default:
       return null;
   }
@@ -80,6 +84,10 @@ router
   })
   .on('templates', async () => {
     const render = await loadPage('templates');
+    await render?.();
+  })
+  .on('team', async () => {
+    const render = await loadPage('team');
     await render?.();
   });
 
