@@ -38,6 +38,10 @@ async function loadPage(name) {
       const { renderCalendarPage } = await import('./pages/calendar.js');
       return renderCalendarPage;
     }
+    case 'templates': {
+      const { renderTemplatesPage } = await import('./pages/templates.js');
+      return renderTemplatesPage;
+    }
     default:
       return null;
   }
@@ -72,6 +76,10 @@ router
   })
   .on('calendar', async () => {
     const render = await loadPage('calendar');
+    await render?.();
+  })
+  .on('templates', async () => {
+    const render = await loadPage('templates');
     await render?.();
   });
 

@@ -255,6 +255,44 @@ export function renderCreatePage() {
   attachSidebarEvents();
   attachCreateEvents();
   startAutosave();
+
+  // Auto-fill from template if coming from templates page
+  const templateData = sessionStorage.getItem('cp_active_template');
+  if (templateData) {
+    try {
+      const fields = JSON.parse(templateData);
+      const templateName = sessionStorage.getItem('cp_template_name') || 'Template';
+      sessionStorage.removeItem('cp_active_template');
+      sessionStorage.removeItem('cp_template_name');
+
+      if (fields.contentType) {
+        const typeEl = document.getElementById('brief-type');
+        if (typeEl) typeEl.value = fields.contentType;
+      }
+      if (fields.product) {
+        const prodEl = document.getElementById('brief-product');
+        if (prodEl) prodEl.value = fields.product;
+      }
+      if (fields.highlight) {
+        const highEl = document.getElementById('brief-highlight');
+        if (highEl) highEl.value = fields.highlight;
+      }
+      if (fields.promotion) {
+        const promoEl = document.getElementById('brief-promotion');
+        if (promoEl) promoEl.value = fields.promotion;
+      }
+      if (fields.cta) {
+        const ctaEl = document.getElementById('brief-cta');
+        if (ctaEl) ctaEl.value = fields.cta;
+      }
+      if (fields.additionalNotes) {
+        const notesEl = document.getElementById('brief-notes');
+        if (notesEl) notesEl.value = fields.additionalNotes;
+      }
+
+      showToast(`📋 Đã áp dụng template: ${templateName}`, 'success', 3000);
+    } catch { /* ignore parse errors */ }
+  }
 }
 
 function attachCreateEvents() {
