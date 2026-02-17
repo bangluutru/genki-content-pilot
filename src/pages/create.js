@@ -7,6 +7,7 @@ import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { generateContent, checkDailyLimit, incrementUsage, generateVariation, VARIATION_TYPES } from '../services/gemini.js';
 import { openImageEditor } from '../components/image-editor.js';
+import { checkCompliance, highlightViolations, addDisclaimer, DISCLAIMER_TEMPLATES } from '../services/compliance.js';
 import { saveContent, loadConnections } from '../services/firestore.js';
 import { copyToClipboard, storage } from '../utils/helpers.js';
 import { publishToFacebook } from '../services/facebook.js';
@@ -187,6 +188,19 @@ export function renderCreatePage() {
                 <p class="text-sm text-muted">Ảnh AI sẽ hiển thị ở đây</p>
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Compliance Warning Panel -->
+        <div class="card compliance-panel hidden" id="compliance-panel" style="margin-top: var(--space-6); border-left: 4px solid var(--danger);">
+          <div class="flex justify-between items-center mb-4">
+            <h4 style="margin: 0; color: var(--danger);">⚠️ Cảnh báo tuân thủ pháp lý</h4>
+            <button class="btn btn-ghost btn-sm" id="btn-close-compliance">✕</button>
+          </div>
+          <div id="compliance-violations" class="mb-4"></div>
+          <div class="flex gap-2">
+            <button class="btn btn-outline btn-sm" id="btn-add-disclaimer">📌 Thêm disclaimer</button>
+            <button class="btn btn-ghost btn-sm" id="btn-ignore-compliance">Bỏ qua</button>
           </div>
         </div>
 
@@ -474,6 +488,9 @@ async function handleGenerate() {
     // Clear draft
     storage.remove('draft_brief');
 
+    // Run compliance check on Facebook content
+    runComplianceCheck(content.facebook);
+
     showToast('Content đã sẵn sàng! 🎉', 'success');
   } catch (error) {
     clearInterval(stepTimer);
@@ -733,3 +750,88 @@ async function handleVariation(type) {
     });
   }
 }
+
+/**
+ * Run compliance check and show warnings if violations found
+ */
+function runComplianceCheck(content) {
+  const result = checkCompliance(content);
+  const panel = document.getElementById('compliance-panel');
+  const violationsEl = document.getElementById('compliance-violations');
+
+  if (!result.isCompliant) {
+    // Show violations
+    const violationsHTML = result.violations.map(v => `
+      <div class="compliance-violation-item" style="margin-bottom: var(--space-3); padding: var(--space-3); background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-md);">
+        <div class="flex items-start gap-3">
+          <span style="font-size: 1.2rem;">⚠️</span>
+          <div style="flex: 1;">
+            <p style="margin: 0; color: var(--danger); font-weight: 600;">"${v.word}"</p>
+            <p style="margin: var(--space-1) 0 0; font-size: var(--font-sm); color: var(--text-muted);">${v.message}</p>
+            ${v.suggestion ? `<p style="margin: var(--space-1) 0 0; font-size: var(--font-sm);"><strong>Đề xuất:</strong> ${v.suggestion}</p>` : ''}
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    violationsEl.innerHTML = `
+      <div style="padding: var(--space-3); background: var(--bg-secondary); border-radius: var(--radius-md); margin-bottom: var(--space-4);">
+        <p style="margin: 0;"><strong>Phát hiện ${result.violations.length} vi phạm pháp lý</strong></p>
+        <p style="margin: var(--space-1) 0 0; font-size: var(--font-sm); color: var(--text-muted);">
+          Điểm tuân thủ: <span class="badge badge-danger">${result.score}/100</span>
+        </p>
+      </div>
+      ${violationsHTML}
+    `;
+
+    panel.classList.remove('hidden');
+
+    // Setup event handlers (remove old listeners by cloning)
+    const closeBtn = document.getElementById('btn-close-compliance');
+    const ignoreBtn = document.getElementById('btn-ignore-compliance');
+    const disclaimerBtn = document.getElementById('btn-add-disclaimer');
+
+    closeBtn?.replaceWith(closeBtn.cloneNode(true));
+    ignoreBtn?.replaceWith(ignoreBtn.cloneNode(true));
+    disclaimerBtn?.replaceWith(disclaimerBtn.cloneNode(true));
+
+    document.getElementById('btn-close-compliance')?.addEventListener('click', () => {
+      panel.classList.add('hidden');
+    });
+
+    document.getElementById('btn-ignore-compliance')?.addEventListener('click', () => {
+      panel.classList.add('hidden');
+      showToast('Đã bỏ qua cảnh báo. Vui lòng tự kiểm tra kỹ trước khi đăng.', 'warning');
+    });
+
+    document.getElementById('btn-add-disclaimer')?.addEventListener('click', () => {
+      addDisclaimerToContent();
+    });
+  } else if (result.warnings.length > 0) {
+    // Just warnings, show toast
+    showToast(`⚠️ Phát hiện ${result.warnings.length} từ cần thận trọng`, 'warning');
+  }
+}
+
+/**
+ * Add disclaimer to all content variants
+ */
+function addDisclaimerToContent() {
+  const fbContent = document.getElementById('content-facebook');
+  const blogContent = document.getElementById('content-blog');
+  const storyContent = document.getElementById('content-story');
+
+  if (fbContent) {
+    fbContent.textContent = addDisclaimer(fbContent.textContent, 'tpcn');
+  }
+  if (blogContent) {
+    blogContent.textContent = addDisclaimer(blogContent.textContent, 'tpcn');
+  }
+  if (storyContent) {
+    storyContent.textContent = addDisclaimer(storyContent.textContent, 'tpcn');
+  }
+
+  document.getElementById('compliance-panel')?.classList.add('hidden');
+  showToast('Đã thêm disclaimer vào tất cả nội dung! 📌', 'success');
+}
+
