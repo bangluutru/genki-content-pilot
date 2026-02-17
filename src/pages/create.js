@@ -10,6 +10,7 @@ import { saveContent, loadConnections } from '../services/firestore.js';
 import { copyToClipboard, storage } from '../utils/helpers.js';
 import { publishToFacebook } from '../services/facebook.js';
 import { publishToWordPress } from '../services/wordpress.js';
+import { generateImage, buildImagePrompt, getStylePresets } from '../services/image-gen.js';
 
 let currentContent = null;
 let autosaveTimer = null;
@@ -128,6 +129,7 @@ export function renderCreatePage() {
           <button class="tab active" data-tab="facebook">📱 Facebook</button>
           <button class="tab" data-tab="blog">📰 Blog</button>
           <button class="tab" data-tab="story">📸 Story</button>
+          <button class="tab" data-tab="image">🖼️ Hình ảnh</button>
         </div>
 
         <!-- Tab Content -->
@@ -153,6 +155,38 @@ export function renderCreatePage() {
             <button class="btn btn-ghost btn-sm copy-btn" data-target="story">📋 Copy</button>
           </div>
           <div id="content-story" class="content-preview" contenteditable="true"></div>
+        </div>
+
+        <div id="tab-image" class="tab-content card hidden">
+          <div class="flex justify-between items-center mb-4">
+            <span class="badge badge-accent">AI Image</span>
+          </div>
+          <div class="image-gen-panel">
+            <div class="form-group" style="margin-bottom: var(--space-3);">
+              <label class="form-label">🎨 Style</label>
+              <div class="style-presets" id="style-presets">
+                ${getStylePresets().map((s, i) => `
+                  <label class="style-option ${i === 0 ? 'selected' : ''}">
+                    <input type="radio" name="img-style" value="${s.id}" ${i === 0 ? 'checked' : ''}>
+                    <span>${s.name}</span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: var(--space-3);">
+              <label class="form-label">✏️ Prompt (tuỳ chỉnh hoặc để AI đề xuất)</label>
+              <textarea id="image-prompt" class="form-input" rows="3" placeholder="Mô tả hình ảnh muốn tạo... (để trống = AI tự đề xuất từ brief)"></textarea>
+            </div>
+            <button class="btn btn-primary" id="btn-gen-image" style="width: 100%; margin-bottom: var(--space-4);">
+              🖼️ Tạo ảnh AI
+            </button>
+            <div id="image-preview" class="image-preview-area">
+              <div class="image-placeholder">
+                <span style="font-size: 3rem;">🖼️</span>
+                <p class="text-sm text-muted">Ảnh AI sẽ hiển thị ở đây</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Publish Panel -->
@@ -256,6 +290,16 @@ function attachCreateEvents() {
     document.getElementById('step-preview').classList.add('hidden');
     document.getElementById('step-brief').classList.remove('hidden');
   });
+
+  // Image generation
+  document.querySelectorAll('.style-option').forEach(opt => {
+    opt.addEventListener('click', () => {
+      document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
+      opt.classList.add('selected');
+    });
+  });
+
+  document.getElementById('btn-gen-image')?.addEventListener('click', handleImageGen);
 
   // Save
   document.getElementById('btn-save-content')?.addEventListener('click', handleSave);
@@ -495,4 +539,67 @@ function startAutosave() {
       });
     }
   }, 30000);
+}
+
+async function handleImageGen() {
+  const btn = document.getElementById('btn-gen-image');
+  const preview = document.getElementById('image-preview');
+  if (!btn || !preview) return;
+
+  const style = document.querySelector('input[name="img-style"]:checked')?.value || 'product';
+  let prompt = document.getElementById('image-prompt')?.value?.trim();
+
+  // Build prompt from brief if empty
+  if (!prompt) {
+    const brief = {
+      product: document.getElementById('brief-product')?.value || '',
+      highlight: document.getElementById('brief-highlight')?.value || '',
+      contentType: document.getElementById('brief-type')?.selectedOptions[0]?.text || '',
+    };
+    if (!brief.product) {
+      showToast('Hãy điền sản phẩm/chủ đề trước hoặc nhập prompt', 'error');
+      return;
+    }
+    prompt = buildImagePrompt(brief, style);
+  }
+
+  // Loading
+  btn.disabled = true;
+  btn.textContent = '⏳ Đang tạo ảnh...';
+  preview.innerHTML = `
+    <div class="image-placeholder">
+      <div class="spinner"></div>
+      <p class="text-sm text-muted" style="margin-top: var(--space-3);">AI đang vẽ ảnh cho bạn...</p>
+    </div>
+  `;
+
+  try {
+    const result = await generateImage(prompt);
+    preview.innerHTML = `
+      <img src="data:${result.mimeType};base64,${result.imageData}" 
+           alt="AI Generated Image" class="gen-image">
+      <div class="flex gap-2" style="margin-top: var(--space-3);">
+        <a href="data:${result.mimeType};base64,${result.imageData}" 
+           download="contentpilot-image.png" class="btn btn-primary btn-sm" style="flex: 1;">
+          💾 Tải ảnh
+        </a>
+        <button class="btn btn-ghost btn-sm" id="btn-regen-image">🔄 Tạo lại</button>
+      </div>
+    `;
+
+    document.getElementById('btn-regen-image')?.addEventListener('click', handleImageGen);
+    showToast('Đã tạo ảnh thành công! 🖼️', 'success');
+  } catch (err) {
+    preview.innerHTML = `
+      <div class="image-placeholder">
+        <span style="font-size: 2rem;">❌</span>
+        <p class="text-sm" style="color: var(--danger);">${err.message}</p>
+        <p class="text-xs text-muted" style="margin-top: var(--space-2);">Thử đổi prompt hoặc style</p>
+      </div>
+    `;
+    showToast('Lỗi tạo ảnh: ' + err.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🖼️ Tạo ảnh AI';
+  }
 }

@@ -1488,3 +1488,81 @@ a:hover {
         font-size: 9px;
     }
 }
+
+/* ============================================================
+   Phase 5 — Image Generation Styles
+   ============================================================ */
+
+.style-presets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+}
+
+.style-option {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-size: var(--font-xs);
+    transition: all var(--transition-fast);
+}
+
+.style-option input[type="radio"] {
+    display: none;
+}
+
+.style-option:hover {
+    background: var(--bg-tertiary);
+}
+
+.style-option.selected {
+    border-color: #8b5cf6;
+    background: rgba(139, 92, 246, 0.1);
+}
+
+.image-preview-area {
+    border: 2px dashed var(--border-color);
+    border-radius: var(--radius-lg);
+    min-height: 280px;
+    overflow: hidden;
+}
+
+.image-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 280px;
+    color: var(--text-muted);
+}
+
+.gen-image {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border-color);
+    border-top-color: #8b5cf6;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 768px) {
+    .style-presets {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
