@@ -945,21 +945,21 @@ a:hover {
     transition: all var(--transition-fast);
 }
 
-.toggle-input:checked + .toggle-slider {
+.toggle-input:checked+.toggle-slider {
     background: linear-gradient(135deg, #8b5cf6, #a78bfa);
 }
 
-.toggle-input:checked + .toggle-slider::after {
+.toggle-input:checked+.toggle-slider::after {
     transform: translateX(20px);
     background: white;
 }
 
-.toggle-input:disabled + .toggle-slider {
+.toggle-input:disabled+.toggle-slider {
     opacity: 0.35;
     cursor: not-allowed;
 }
 
-.toggle-input:disabled ~ .toggle-text {
+.toggle-input:disabled~.toggle-text {
     opacity: 0.5;
 }
 
@@ -1019,6 +1019,327 @@ a:hover {
 
 @media (max-width: 768px) {
     .publish-panel .flex.gap-2 {
+        flex-direction: column;
+    }
+}
+
+/* ============================================================
+   Phase 3 — Analytics Dashboard Styles
+   ============================================================ */
+
+/* ---------- Stats Grid ---------- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-4);
+    margin-bottom: var(--space-6);
+}
+
+.stat-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--stat-color, var(--accent));
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.stat-icon {
+    font-size: 1.5rem;
+    margin-bottom: var(--space-2);
+}
+
+.stat-value {
+    font-size: var(--font-2xl);
+    font-weight: 800;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+    font-size: var(--font-xs);
+    color: var(--text-secondary);
+    margin-top: var(--space-1);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+/* ---------- Charts ---------- */
+.charts-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.chart-card {
+    padding: var(--space-5);
+    min-height: 260px;
+}
+
+.chart-title {
+    font-size: var(--font-base);
+    font-weight: 700;
+    margin-bottom: var(--space-4);
+}
+
+.chart-empty,
+.chart-skeleton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 180px;
+    color: var(--text-muted);
+    font-size: var(--font-sm);
+}
+
+/* ---------- Bar Chart ---------- */
+.bar-chart-inner {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-2);
+    height: 180px;
+    padding-top: var(--space-4);
+}
+
+.bar-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.bar-value {
+    font-size: var(--font-xs);
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-1);
+}
+
+.bar-fill {
+    width: 100%;
+    max-width: 40px;
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    background: linear-gradient(to top, #8b5cf6, #a78bfa);
+    min-height: 4px;
+    animation: barGrow 600ms ease-out forwards;
+}
+
+@keyframes barGrow {
+    from {
+        height: 0%;
+    }
+
+    to {
+        height: var(--target-height);
+    }
+}
+
+.bar-label {
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+    margin-top: var(--space-2);
+    white-space: nowrap;
+}
+
+/* ---------- Donut Chart ---------- */
+.donut-chart-layout {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+}
+
+.donut-svg {
+    width: 140px;
+    height: 140px;
+    flex-shrink: 0;
+    transform: rotate(-90deg);
+}
+
+.donut-svg text {
+    transform: rotate(90deg);
+    transform-origin: center;
+}
+
+.donut-segment {
+    animation: donutFade 500ms ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes donutFade {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.legend-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--font-xs);
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.legend-name {
+    flex: 1;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.legend-count {
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Heatmap ---------- */
+.heatmap-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: var(--space-3);
+}
+
+.heatmap-cell {
+    aspect-ratio: 1;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: transform var(--transition-fast);
+    cursor: default;
+}
+
+.heatmap-cell:hover {
+    transform: scale(1.15);
+    z-index: 1;
+}
+
+.heatmap-cell.level-0 {
+    background: var(--bg-tertiary);
+}
+
+.heatmap-cell.level-1 {
+    background: rgba(139, 92, 246, 0.2);
+    color: #c4b5fd;
+}
+
+.heatmap-cell.level-2 {
+    background: rgba(139, 92, 246, 0.4);
+    color: #ddd6fe;
+}
+
+.heatmap-cell.level-3 {
+    background: rgba(139, 92, 246, 0.6);
+    color: white;
+}
+
+.heatmap-cell.level-4 {
+    background: rgba(139, 92, 246, 0.85);
+    color: white;
+}
+
+.heatmap-cell.mini {
+    width: 14px;
+    height: 14px;
+    aspect-ratio: unset;
+}
+
+.heatmap-cell.mini span {
+    display: none;
+}
+
+.heatmap-legend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    justify-content: flex-end;
+}
+
+/* ---------- Quick Actions (compact) ---------- */
+.quick-actions-compact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.quick-action-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: var(--font-sm);
+    transition: background var(--transition-fast);
+    border: 1px solid var(--border-color);
+}
+
+.quick-action-item:hover {
+    background: var(--bg-tertiary);
+}
+
+.qa-icon {
+    font-size: 1.2rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .charts-row {
+        grid-template-columns: 1fr;
+    }
+
+    .donut-chart-layout {
         flex-direction: column;
     }
 }
