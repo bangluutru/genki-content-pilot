@@ -150,3 +150,79 @@ export function incrementUsage() {
     localStorage.setItem(key, count.toString());
     return count;
 }
+
+// ===== Content Variations =====
+
+export const VARIATION_TYPES = [
+    { id: 'shorter', name: '✂️ Ngắn hơn', desc: 'Rút gọn, giữ ý chính' },
+    { id: 'longer', name: '📝 Dài hơn', desc: 'Mở rộng, thêm chi tiết' },
+    { id: 'formal', name: '🎩 Trang trọng', desc: 'Tone nghiêm túc, chuyên nghiệp' },
+    { id: 'casual', name: '😊 Thân mật', desc: 'Tone gần gũi, vui vẻ' },
+    { id: 'question', name: '❓ Câu hỏi', desc: 'Dạng hỏi-đáp, tương tác' },
+    { id: 'story', name: '📖 Storytelling', desc: 'Dạng kể chuyện, cảm xúc' },
+];
+
+/**
+ * Generate a variation of existing content
+ * @param {string} originalContent - Original text
+ * @param {string} variationType - One of VARIATION_TYPES ids
+ * @param {string} platform - 'facebook', 'blog', or 'story'
+ * @returns {string} Variation text
+ */
+export async function generateVariation(originalContent, variationType, platform = 'facebook') {
+    const typeLabels = {
+        shorter: 'Viết lại NGẮN HƠN (giảm 40-50% độ dài), giữ ý chính và CTA',
+        longer: 'Viết lại DÀI HƠN (tăng 50-80% độ dài), thêm chi tiết và ví dụ',
+        formal: 'Viết lại với TONE TRANG TRỌNG, chuyên nghiệp, nghiêm túc',
+        casual: 'Viết lại với TONE THÂN MẬT, gần gũi, vui vẻ, nhiều emoji hơn',
+        question: 'Viết lại dạng CÂU HỎI - ĐÁP, bắt đầu bằng câu hỏi gây tò mò',
+        story: 'Viết lại dạng KỂ CHUYỆN (storytelling), có nhân vật và cảm xúc',
+    };
+
+    const instruction = typeLabels[variationType] || typeLabels.shorter;
+
+    const prompt = `Bạn là content writer chuyên nghiệp. Hãy viết lại nội dung sau theo yêu cầu.
+
+YÊU CẦU: ${instruction}
+
+PLATFORM: ${platform === 'blog' ? 'Blog article' : platform === 'story' ? 'Story caption (siêu ngắn)' : 'Facebook post'}
+
+NỘI DUNG GỐC:
+---
+${originalContent}
+---
+
+CHỈ TRẢ VỀ nội dung đã viết lại, KHÔNG giải thích hay comment gì thêm.`;
+
+    try {
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                    generationConfig: {
+                        temperature: 0.9,
+                        topP: 0.95,
+                        maxOutputTokens: 4096,
+                    }
+                })
+            }
+        );
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error?.message || 'Variation generation failed');
+        }
+
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error('No variation generated');
+
+        return text.trim();
+    } catch (error) {
+        console.error('Variation error:', error);
+        throw error;
+    }
+}

@@ -5,7 +5,7 @@
 import { store } from '../utils/state.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
-import { generateContent, checkDailyLimit, incrementUsage } from '../services/gemini.js';
+import { generateContent, checkDailyLimit, incrementUsage, generateVariation, VARIATION_TYPES } from '../services/gemini.js';
 import { saveContent, loadConnections } from '../services/firestore.js';
 import { copyToClipboard, storage } from '../utils/helpers.js';
 import { publishToFacebook } from '../services/facebook.js';
@@ -189,6 +189,26 @@ export function renderCreatePage() {
           </div>
         </div>
 
+        <!-- Variation Panel -->
+        <div class="card variation-panel" style="margin-top: var(--space-6);" id="variation-panel">
+          <h4 style="margin-bottom: var(--space-4);">🔄 Tạo phiên bản khác</h4>
+          <p class="text-sm text-muted" style="margin-bottom: var(--space-3);">Chọn kiểu viết lại để A/B test hoặc repurpose content</p>
+          <div class="variation-types" id="variation-types">
+            ${VARIATION_TYPES.map(v => `
+              <button class="variation-type-btn" data-type="${v.id}" title="${v.desc}">
+                ${v.name}
+              </button>
+            `).join('')}
+          </div>
+          <div id="variation-preview" class="hidden" style="margin-top: var(--space-4);">
+            <div class="flex justify-between items-center mb-3">
+              <span class="badge badge-accent" id="variation-label">Variation</span>
+              <button class="btn btn-ghost btn-sm" id="copy-variation">📋 Copy</button>
+            </div>
+            <div id="variation-content" class="content-preview" contenteditable="true"></div>
+          </div>
+        </div>
+
         <!-- Publish Panel -->
         <div class="publish-panel card" style="margin-top: var(--space-6);" id="publish-panel">
           <h4 style="margin-bottom: var(--space-4);">🚀 Đăng bài</h4>
@@ -338,6 +358,19 @@ function attachCreateEvents() {
   });
 
   document.getElementById('btn-gen-image')?.addEventListener('click', handleImageGen);
+
+  // Variation buttons
+  document.querySelectorAll('.variation-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => handleVariation(btn.dataset.type));
+  });
+
+  document.getElementById('copy-variation')?.addEventListener('click', async () => {
+    const text = document.getElementById('variation-content')?.textContent;
+    if (text) {
+      await copyToClipboard(text);
+      showToast('Đã copy variation! 📋', 'success');
+    }
+  });
 
   // Save
   document.getElementById('btn-save-content')?.addEventListener('click', handleSave);
@@ -639,5 +672,54 @@ async function handleImageGen() {
   } finally {
     btn.disabled = false;
     btn.textContent = '🖼️ Tạo ảnh AI';
+  }
+}
+
+async function handleVariation(type) {
+  // Get active tab content
+  const activeTab = document.querySelector('.tab.active');
+  const platform = activeTab?.dataset.tab || 'facebook';
+  const contentEl = document.getElementById(`content-${platform}`);
+  const originalContent = contentEl?.textContent?.trim();
+
+  if (!originalContent) {
+    showToast('Hãy tạo content trước rồi mới tạo variation', 'error');
+    return;
+  }
+
+  const typeName = VARIATION_TYPES.find(v => v.id === type)?.name || type;
+
+  // Highlight clicked button
+  document.querySelectorAll('.variation-type-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+    if (b.dataset.type === type) {
+      b.disabled = true;
+      b.innerHTML = '⏳ Đang tạo...';
+    }
+  });
+
+  try {
+    const variation = await generateVariation(originalContent, type, platform);
+
+    const previewEl = document.getElementById('variation-preview');
+    const contentEl = document.getElementById('variation-content');
+    const labelEl = document.getElementById('variation-label');
+
+    if (previewEl && contentEl) {
+      previewEl.classList.remove('hidden');
+      contentEl.textContent = variation;
+      labelEl.textContent = `${typeName} — ${platform}`;
+    }
+
+    showToast(`Đã tạo variation: ${typeName} 🔄`, 'success');
+  } catch (err) {
+    showToast('Lỗi: ' + err.message, 'error');
+  } finally {
+    // Reset buttons
+    document.querySelectorAll('.variation-type-btn').forEach(b => {
+      b.disabled = false;
+      const vt = VARIATION_TYPES.find(v => v.id === b.dataset.type);
+      if (vt) b.innerHTML = vt.name;
+    });
   }
 }
