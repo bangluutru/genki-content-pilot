@@ -50,6 +50,14 @@ async function loadPage(name) {
       const { renderConversionDashboard } = await import('./pages/conversion-dashboard.js');
       return renderConversionDashboard;
     }
+    case 'campaigns': {
+      const { renderCampaignsPage } = await import('./pages/campaigns.js');
+      return renderCampaignsPage;
+    }
+    case 'approvals': {
+      const { renderApprovalsPage } = await import('./pages/approvals.js');
+      return renderApprovalsPage;
+    }
     default:
       return null;
   }
@@ -96,6 +104,14 @@ router
   })
   .on('conversions', async () => {
     const render = await loadPage('conversions');
+    await render?.();
+  })
+  .on('campaigns', async () => {
+    const render = await loadPage('campaigns');
+    await render?.();
+  })
+  .on('approvals', async () => {
+    const render = await loadPage('approvals');
     await render?.();
   });
 

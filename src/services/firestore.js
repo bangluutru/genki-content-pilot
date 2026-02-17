@@ -459,3 +459,45 @@ export async function loadConversions(dateRange = null) {
         return store.get('conversions') || [];
     }
 }
+
+// ===== Campaign Management (Phase 12) =====
+
+export async function saveCampaign(campaignData) {
+    const userId = uid();
+    if (!userId) throw new Error('Not authenticated');
+
+    const campaigns = store.get('campaigns') || [];
+    const newCampaign = { ...campaignData, id: Date.now(), userId, createdAt: new Date().toISOString() };
+    campaigns.push(newCampaign);
+    store.set('campaigns', campaigns);
+    return newCampaign;
+}
+
+export async function loadCampaigns() {
+    return store.get('campaigns') || [];
+}
+
+// ===== Approval Workflow (Phase 13) =====
+
+export async function approveContent(contentId) {
+    const contents = store.get('contents') || [];
+    const content = contents.find(c => c.id === contentId);
+    if (content) {
+        content.status = 'approved';
+        content.approvedBy = store.get('user')?.email;
+        content.approvedAt = new Date().toISOString();
+        store.set('contents', contents);
+    }
+}
+
+export async function rejectContent(contentId, reason) {
+    const contents = store.get('contents') || [];
+    const content = contents.find(c => c.id === contentId);
+    if (content) {
+        content.status = 'rejected';
+        content.rejectionReason = reason;
+        content.rejectedBy = store.get('user')?.email;
+        content.rejectedAt = new Date().toISOString();
+        store.set('contents', contents);
+    }
+}
