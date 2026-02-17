@@ -1,25 +1,27 @@
 /**
- * Create Content Page — Guided brief form + AI generation + tab preview
+ * Create Content Page — Guided brief form + AI generation + tab preview + publish
  * Core feature of ContentPilot v2
  */
 import { store } from '../utils/state.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { generateContent, checkDailyLimit, incrementUsage } from '../services/gemini.js';
-import { saveContent } from '../services/firestore.js';
+import { saveContent, loadConnections } from '../services/firestore.js';
 import { copyToClipboard, storage } from '../utils/helpers.js';
+import { publishToFacebook } from '../services/facebook.js';
+import { publishToWordPress } from '../services/wordpress.js';
 
 let currentContent = null;
 let autosaveTimer = null;
 
 export function renderCreatePage() {
-    const app = document.getElementById('app');
-    const usage = checkDailyLimit();
+  const app = document.getElementById('app');
+  const usage = checkDailyLimit();
 
-    // Restore draft from localStorage
-    const draft = storage.get('draft_brief', null);
+  // Restore draft from localStorage
+  const draft = storage.get('draft_brief', null);
 
-    app.innerHTML = `
+  app.innerHTML = `
     ${renderSidebar()}
     <main class="main-content page">
       <div class="flex justify-between items-center mb-6">
@@ -152,6 +154,32 @@ export function renderCreatePage() {
           </div>
           <div id="content-story" class="content-preview" contenteditable="true"></div>
         </div>
+
+        <!-- Publish Panel -->
+        <div class="publish-panel card" style="margin-top: var(--space-6);" id="publish-panel">
+          <h4 style="margin-bottom: var(--space-4);">🚀 Đăng bài</h4>
+          <div class="publish-toggles flex flex-col gap-3" style="margin-bottom: var(--space-4);">
+            <label class="publish-toggle" id="toggle-fb-label">
+              <input type="checkbox" id="toggle-fb" class="toggle-input">
+              <span class="toggle-slider"></span>
+              <span class="toggle-text">📱 Facebook Page</span>
+              <span id="fb-conn-status" class="text-sm text-muted"></span>
+            </label>
+            <label class="publish-toggle" id="toggle-wp-label">
+              <input type="checkbox" id="toggle-wp" class="toggle-input">
+              <span class="toggle-slider"></span>
+              <span class="toggle-text">📝 WordPress</span>
+              <span id="wp-conn-status" class="text-sm text-muted"></span>
+            </label>
+          </div>
+          <div class="flex gap-2 items-center">
+            <button class="btn btn-accent btn-lg" id="btn-publish" style="flex: 1;" disabled>
+              🚀 Đăng bài
+            </button>
+            <a href="#/settings" class="btn btn-ghost btn-sm">⚙️ Cài đặt kết nối</a>
+          </div>
+          <div id="publish-results" class="hidden" style="margin-top: var(--space-4);"></div>
+        </div>
       </div>
     </main>
 
@@ -190,148 +218,281 @@ export function renderCreatePage() {
     </style>
   `;
 
-    attachSidebarEvents();
-    attachCreateEvents();
-    startAutosave();
+  attachSidebarEvents();
+  attachCreateEvents();
+  startAutosave();
 }
 
 function attachCreateEvents() {
-    // Generate button
-    document.getElementById('btn-generate')?.addEventListener('click', handleGenerate);
+  // Generate button
+  document.getElementById('btn-generate')?.addEventListener('click', handleGenerate);
 
-    // Tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
-            tab.classList.add('active');
-            document.getElementById(`tab-${tab.dataset.tab}`)?.classList.remove('hidden');
-        });
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
+      tab.classList.add('active');
+      document.getElementById(`tab-${tab.dataset.tab}`)?.classList.remove('hidden');
     });
+  });
 
-    // Copy buttons
-    document.querySelectorAll('.copy-btn').forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const target = btn.dataset.target;
-            const content = document.getElementById(`content-${target}`)?.textContent;
-            if (content) {
-                await copyToClipboard(content);
-                showToast('Đã copy! Paste lên Facebook nào 📋', 'success');
-                btn.textContent = '✅ Đã copy';
-                setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
-            }
-        });
+  // Copy buttons
+  document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const target = btn.dataset.target;
+      const content = document.getElementById(`content-${target}`)?.textContent;
+      if (content) {
+        await copyToClipboard(content);
+        showToast('Đã copy! Paste lên Facebook nào 📋', 'success');
+        btn.textContent = '✅ Đã copy';
+        setTimeout(() => { btn.textContent = '📋 Copy'; }, 2000);
+      }
     });
+  });
 
-    // Regenerate
-    document.getElementById('btn-regenerate')?.addEventListener('click', () => {
-        document.getElementById('step-preview').classList.add('hidden');
-        document.getElementById('step-brief').classList.remove('hidden');
-    });
+  // Regenerate
+  document.getElementById('btn-regenerate')?.addEventListener('click', () => {
+    document.getElementById('step-preview').classList.add('hidden');
+    document.getElementById('step-brief').classList.remove('hidden');
+  });
 
-    // Save
-    document.getElementById('btn-save-content')?.addEventListener('click', handleSave);
+  // Save
+  document.getElementById('btn-save-content')?.addEventListener('click', handleSave);
+
+  // Publish toggles
+  const toggleFb = document.getElementById('toggle-fb');
+  const toggleWp = document.getElementById('toggle-wp');
+  const publishBtn = document.getElementById('btn-publish');
+
+  const updatePublishBtn = () => {
+    const anyOn = toggleFb?.checked || toggleWp?.checked;
+    publishBtn.disabled = !anyOn;
+  };
+
+  toggleFb?.addEventListener('change', updatePublishBtn);
+  toggleWp?.addEventListener('change', updatePublishBtn);
+
+  // Publish button
+  publishBtn?.addEventListener('click', handlePublish);
+
+  // Load connection status for publish panel
+  initPublishPanel();
+}
+
+async function initPublishPanel() {
+  const connections = store.get('connections') || await loadConnections() || {};
+  const fb = connections.facebook;
+  const wp = connections.wordpress;
+
+  const fbStatus = document.getElementById('fb-conn-status');
+  const wpStatus = document.getElementById('wp-conn-status');
+  const toggleFb = document.getElementById('toggle-fb');
+  const toggleWp = document.getElementById('toggle-wp');
+
+  if (fb?.pageId) {
+    if (fbStatus) fbStatus.textContent = `(${fb.pageName || 'Connected'})`;
+  } else {
+    if (fbStatus) fbStatus.innerHTML = '(<a href="#/settings">Chưa kết nối</a>)';
+    if (toggleFb) { toggleFb.disabled = true; }
+  }
+
+  if (wp?.siteUrl) {
+    if (wpStatus) wpStatus.textContent = `(${wp.siteName || 'Connected'})`;
+  } else {
+    if (wpStatus) wpStatus.innerHTML = '(<a href="#/settings">Chưa kết nối</a>)';
+    if (toggleWp) { toggleWp.disabled = true; }
+  }
 }
 
 async function handleGenerate() {
-    const product = document.getElementById('brief-product')?.value?.trim();
-    if (!product) {
-        showToast('Vui lòng nhập sản phẩm hoặc chủ đề', 'warning');
-        document.getElementById('brief-product')?.focus();
-        return;
+  const product = document.getElementById('brief-product')?.value?.trim();
+  if (!product) {
+    showToast('Vui lòng nhập sản phẩm hoặc chủ đề', 'warning');
+    document.getElementById('brief-product')?.focus();
+    return;
+  }
+
+  const brief = {
+    contentType: document.getElementById('brief-type')?.value,
+    product,
+    highlight: document.getElementById('brief-highlight')?.value?.trim(),
+    promotion: document.getElementById('brief-promotion')?.value?.trim(),
+    cta: document.getElementById('brief-cta')?.value,
+    additionalNotes: document.getElementById('brief-notes')?.value?.trim(),
+  };
+
+  // Show loading
+  document.getElementById('step-brief').classList.add('hidden');
+  document.getElementById('step-loading').classList.remove('hidden');
+
+  // Animate steps
+  const steps = ['ai-step-1', 'ai-step-2', 'ai-step-3', 'ai-step-4'];
+  let stepIdx = 0;
+  const stepTimer = setInterval(() => {
+    if (stepIdx > 0) {
+      document.getElementById(steps[stepIdx - 1])?.classList.remove('active');
+      document.getElementById(steps[stepIdx - 1])?.classList.add('done');
     }
+    if (stepIdx < steps.length) {
+      document.getElementById(steps[stepIdx])?.classList.add('active');
+      stepIdx++;
+    }
+  }, 3000);
 
-    const brief = {
-        contentType: document.getElementById('brief-type')?.value,
-        product,
-        highlight: document.getElementById('brief-highlight')?.value?.trim(),
-        promotion: document.getElementById('brief-promotion')?.value?.trim(),
-        cta: document.getElementById('brief-cta')?.value,
-        additionalNotes: document.getElementById('brief-notes')?.value?.trim(),
-    };
+  try {
+    const content = await generateContent(brief);
+    clearInterval(stepTimer);
+    incrementUsage();
 
-    // Show loading
-    document.getElementById('step-brief').classList.add('hidden');
-    document.getElementById('step-loading').classList.remove('hidden');
+    currentContent = { ...content, brief: product, contentType: brief.contentType };
 
-    // Animate steps
-    const steps = ['ai-step-1', 'ai-step-2', 'ai-step-3', 'ai-step-4'];
-    let stepIdx = 0;
-    const stepTimer = setInterval(() => {
-        if (stepIdx > 0) {
-            document.getElementById(steps[stepIdx - 1])?.classList.remove('active');
-            document.getElementById(steps[stepIdx - 1])?.classList.add('done');
-        }
-        if (stepIdx < steps.length) {
-            document.getElementById(steps[stepIdx])?.classList.add('active');
-            stepIdx++;
-        }
-    }, 3000);
+    // Show preview
+    document.getElementById('step-loading').classList.add('hidden');
+    document.getElementById('step-preview').classList.remove('hidden');
 
+    document.getElementById('content-facebook').textContent = content.facebook;
+    document.getElementById('content-blog').textContent = content.blog;
+    document.getElementById('content-story').textContent = content.story;
+
+    // Clear draft
+    storage.remove('draft_brief');
+
+    showToast('Content đã sẵn sàng! 🎉', 'success');
+  } catch (error) {
+    clearInterval(stepTimer);
+    console.error('Generate error:', error);
+    document.getElementById('step-loading').classList.add('hidden');
+    document.getElementById('step-brief').classList.remove('hidden');
+    showToast(`Lỗi: ${error.message}. Vui lòng thử lại.`, 'error', 5000);
+  }
+}
+
+async function handlePublish() {
+  if (!currentContent) return;
+
+  const connections = store.get('connections') || {};
+  const publishFb = document.getElementById('toggle-fb')?.checked;
+  const publishWp = document.getElementById('toggle-wp')?.checked;
+  const publishBtn = document.getElementById('btn-publish');
+  const resultsEl = document.getElementById('publish-results');
+
+  if (!publishFb && !publishWp) {
+    showToast('Vui lòng chọn ít nhất 1 platform', 'warning');
+    return;
+  }
+
+  // Get latest edited content
+  const facebook = document.getElementById('content-facebook')?.textContent || '';
+  const blog = document.getElementById('content-blog')?.textContent || '';
+
+  // Disable button + show loading
+  publishBtn.disabled = true;
+  publishBtn.innerHTML = '⏳ Đang đăng bài...';
+  resultsEl.classList.remove('hidden');
+  resultsEl.innerHTML = '<span class="text-muted">🔄 Đang xử lý...</span>';
+
+  const results = [];
+  const publishedTo = [];
+  const publishedUrls = {};
+
+  // Publish to Facebook
+  if (publishFb && connections.facebook) {
+    const fb = connections.facebook;
+    const fbResult = await publishToFacebook(facebook, fb.pageId, fb.accessToken);
+    if (fbResult.success) {
+      results.push(`<div class="publish-result-item text-success">✅ Facebook: <a href="${fbResult.postUrl}" target="_blank" rel="noopener">Xem bài viết →</a></div>`);
+      publishedTo.push('facebook');
+      publishedUrls.facebook = fbResult.postUrl;
+    } else {
+      results.push(`<div class="publish-result-item text-danger">❌ Facebook: ${fbResult.error}</div>`);
+    }
+  }
+
+  // Publish to WordPress
+  if (publishWp && connections.wordpress) {
+    const wp = connections.wordpress;
+    const wpResult = await publishToWordPress({
+      title: currentContent.brief || 'ContentPilot Post',
+      content: blog,
+      status: 'publish',
+      siteUrl: wp.siteUrl,
+      username: wp.username,
+      appPassword: wp.appPassword,
+    });
+    if (wpResult.success) {
+      results.push(`<div class="publish-result-item text-success">✅ WordPress: <a href="${wpResult.postUrl}" target="_blank" rel="noopener">Xem bài viết →</a></div>`);
+      publishedTo.push('wordpress');
+      publishedUrls.wordpress = wpResult.postUrl;
+    } else {
+      results.push(`<div class="publish-result-item text-danger">❌ WordPress: ${wpResult.error}</div>`);
+    }
+  }
+
+  // Show results
+  resultsEl.innerHTML = results.join('');
+
+  // Auto-save content with published status
+  if (publishedTo.length > 0) {
     try {
-        const content = await generateContent(brief);
-        clearInterval(stepTimer);
-        incrementUsage();
-
-        currentContent = { ...content, brief: product, contentType: brief.contentType };
-
-        // Show preview
-        document.getElementById('step-loading').classList.add('hidden');
-        document.getElementById('step-preview').classList.remove('hidden');
-
-        document.getElementById('content-facebook').textContent = content.facebook;
-        document.getElementById('content-blog').textContent = content.blog;
-        document.getElementById('content-story').textContent = content.story;
-
-        // Clear draft
-        storage.remove('draft_brief');
-
-        showToast('Content đã sẵn sàng! 🎉', 'success');
-    } catch (error) {
-        clearInterval(stepTimer);
-        console.error('Generate error:', error);
-        document.getElementById('step-loading').classList.add('hidden');
-        document.getElementById('step-brief').classList.remove('hidden');
-        showToast(`Lỗi: ${error.message}. Vui lòng thử lại.`, 'error', 5000);
+      const story = document.getElementById('content-story')?.textContent || '';
+      await saveContent({
+        ...currentContent,
+        facebook,
+        blog,
+        story,
+        status: 'published',
+        publishedTo,
+        publishedUrls,
+        publishedAt: new Date().toISOString(),
+      });
+      showToast(`Đã đăng thành công lên ${publishedTo.join(' + ')}! 🎉`, 'success');
+    } catch (e) {
+      console.error('Auto-save after publish error:', e);
     }
+  }
+
+  // Reset button
+  publishBtn.disabled = false;
+  publishBtn.innerHTML = '🚀 Đăng bài';
 }
 
 async function handleSave() {
-    if (!currentContent) return;
+  if (!currentContent) return;
 
-    try {
-        // Get edited content from contenteditable
-        const facebook = document.getElementById('content-facebook')?.textContent || '';
-        const blog = document.getElementById('content-blog')?.textContent || '';
-        const story = document.getElementById('content-story')?.textContent || '';
+  try {
+    // Get edited content from contenteditable
+    const facebook = document.getElementById('content-facebook')?.textContent || '';
+    const blog = document.getElementById('content-blog')?.textContent || '';
+    const story = document.getElementById('content-story')?.textContent || '';
 
-        await saveContent({
-            ...currentContent,
-            facebook,
-            blog,
-            story,
-            status: 'draft',
-        });
+    await saveContent({
+      ...currentContent,
+      facebook,
+      blog,
+      story,
+      status: 'draft',
+    });
 
-        showToast('Đã lưu vào thư viện! 📚', 'success');
-    } catch (error) {
-        console.error('Save error:', error);
-        showToast('Lỗi lưu bài. Vui lòng thử lại.', 'error');
-    }
+    showToast('Đã lưu vào thư viện! 📚', 'success');
+  } catch (error) {
+    console.error('Save error:', error);
+    showToast('Lỗi lưu bài. Vui lòng thử lại.', 'error');
+  }
 }
 
 /** Autosave brief to localStorage every 30s */
 function startAutosave() {
-    clearInterval(autosaveTimer);
-    autosaveTimer = setInterval(() => {
-        const product = document.getElementById('brief-product')?.value;
-        if (product) {
-            storage.set('draft_brief', {
-                product,
-                highlight: document.getElementById('brief-highlight')?.value || '',
-                promotion: document.getElementById('brief-promotion')?.value || '',
-                additionalNotes: document.getElementById('brief-notes')?.value || '',
-            });
-        }
-    }, 30000);
+  clearInterval(autosaveTimer);
+  autosaveTimer = setInterval(() => {
+    const product = document.getElementById('brief-product')?.value;
+    if (product) {
+      storage.set('draft_brief', {
+        product,
+        highlight: document.getElementById('brief-highlight')?.value || '',
+        promotion: document.getElementById('brief-promotion')?.value || '',
+        additionalNotes: document.getElementById('brief-notes')?.value || '',
+      });
+    }
+  }, 30000);
 }

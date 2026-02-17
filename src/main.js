@@ -30,6 +30,10 @@ async function loadPage(name) {
       const { renderLibraryPage } = await import('./pages/library.js');
       return renderLibraryPage;
     }
+    case 'settings': {
+      const { renderSettingsPage } = await import('./pages/settings.js');
+      return renderSettingsPage;
+    }
     default:
       return null;
   }
@@ -56,6 +60,10 @@ router
   })
   .on('library', async () => {
     const render = await loadPage('library');
+    await render?.();
+  })
+  .on('settings', async () => {
+    const render = await loadPage('settings');
     await render?.();
   });
 

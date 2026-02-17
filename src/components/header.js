@@ -5,24 +5,25 @@ import { store } from '../utils/state.js';
 import { router } from '../utils/router.js';
 
 const NAV_ITEMS = [
-    { route: 'dashboard', icon: '🏠', label: 'Dashboard' },
-    { route: 'create', icon: '✨', label: 'Tạo bài' },
-    { route: 'library', icon: '📚', label: 'Thư viện' },
-    { route: 'brand', icon: '🎨', label: 'Brand' },
+  { route: 'dashboard', icon: '🏠', label: 'Dashboard' },
+  { route: 'create', icon: '✨', label: 'Tạo bài' },
+  { route: 'library', icon: '📚', label: 'Thư viện' },
+  { route: 'brand', icon: '🎨', label: 'Brand' },
+  { route: 'settings', icon: '⚙️', label: 'Kết nối' },
 ];
 
 export function renderSidebar() {
-    const user = store.get('user');
-    if (!user) return '';
+  const user = store.get('user');
+  if (!user) return '';
 
-    const navItems = NAV_ITEMS.map(item => `
+  const navItems = NAV_ITEMS.map(item => `
     <a class="nav-item" data-route="${item.route}" href="#/${item.route}">
       <span class="nav-icon">${item.icon}</span>
       <span class="nav-label">${item.label}</span>
     </a>
   `).join('');
 
-    return `
+  return `
     <nav class="sidebar" id="sidebar">
       <div class="logo-section" style="margin-bottom: var(--space-8);">
         <div class="flex items-center gap-4" style="padding: var(--space-2) var(--space-4);">
@@ -54,11 +55,11 @@ export function renderSidebar() {
 }
 
 export function attachSidebarEvents() {
-    const logoutBtn = document.getElementById('btn-logout');
-    if (logoutBtn) {
-        logoutBtn.addEventListener('click', async () => {
-            const { signOutUser } = await import('../services/auth.js');
-            await signOutUser();
-        });
-    }
+  const logoutBtn = document.getElementById('btn-logout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      const { signOutUser } = await import('../services/auth.js');
+      await signOutUser();
+    });
+  }
 }

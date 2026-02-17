@@ -867,3 +867,158 @@ a:hover {
         padding: 0;
     }
 }
+
+/* ============================================================
+   Phase 2 — Publish & Settings Styles
+   ============================================================ */
+
+/* ---------- Accent Button ---------- */
+.btn-accent {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    color: white;
+    box-shadow: var(--shadow-sm), 0 0 0 0 rgba(139, 92, 246, 0.3);
+}
+
+.btn-accent:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md), 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.btn-accent:active {
+    transform: translateY(0);
+}
+
+/* ---------- Publish Panel ---------- */
+.publish-panel {
+    border: 1px solid rgba(139, 92, 246, 0.2);
+    background: rgba(139, 92, 246, 0.05);
+}
+
+.publish-panel h4 {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ---------- Toggle Switches ---------- */
+.publish-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    cursor: pointer;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    transition: background var(--transition-fast);
+}
+
+.publish-toggle:hover {
+    background: var(--bg-tertiary);
+}
+
+.toggle-input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+}
+
+.toggle-slider::after {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 18px;
+    height: 18px;
+    background: var(--text-secondary);
+    border-radius: 50%;
+    transition: all var(--transition-fast);
+}
+
+.toggle-input:checked + .toggle-slider {
+    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+}
+
+.toggle-input:checked + .toggle-slider::after {
+    transform: translateX(20px);
+    background: white;
+}
+
+.toggle-input:disabled + .toggle-slider {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.toggle-input:disabled ~ .toggle-text {
+    opacity: 0.5;
+}
+
+.toggle-text {
+    font-weight: 500;
+    font-size: var(--font-sm);
+}
+
+/* ---------- Publish Results ---------- */
+.publish-result-item {
+    padding: var(--space-2) 0;
+    font-size: var(--font-sm);
+}
+
+.publish-result-item a {
+    font-weight: 600;
+}
+
+.text-success {
+    color: var(--success);
+}
+
+.text-danger {
+    color: var(--danger);
+}
+
+/* ---------- Connection Cards (Settings) ---------- */
+.connection-card {
+    transition: border-color var(--transition-base);
+}
+
+.connection-card:hover {
+    border-color: rgba(139, 92, 246, 0.3);
+}
+
+.connection-form small {
+    font-size: var(--font-xs);
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.connection-form small a {
+    color: var(--accent);
+}
+
+.connection-result {
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--bg-tertiary);
+    font-size: var(--font-sm);
+}
+
+/* ---------- Extra Utilities ---------- */
+.gap-3 {
+    gap: var(--space-3);
+}
+
+@media (max-width: 768px) {
+    .publish-panel .flex.gap-2 {
+        flex-direction: column;
+    }
+}
