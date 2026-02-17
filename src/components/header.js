@@ -53,6 +53,30 @@ export function renderSidebar() {
           <button class="btn btn-ghost btn-icon" id="btn-logout" title="Đăng xuất">🚪</button>
         </div>
       </div>
+      </div>
+    </nav>
+
+    <!-- Bottom Nav (Mobile) -->
+    <nav class="bottom-nav" id="bottom-nav">
+      <a href="#/dashboard" class="nav-item-mobile" data-route="dashboard">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Home</span>
+      </a>
+      <a href="#/calendar" class="nav-item-mobile" data-route="calendar">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Lịch</span>
+      </a>
+      <a href="#/create" class="nav-item-mobile star-btn" data-route="create">
+        <span class="nav-icon">✨</span>
+      </a>
+      <a href="#/library" class="nav-item-mobile" data-route="library">
+        <span class="nav-icon">📚</span>
+        <span class="nav-label">Kho</span>
+      </a>
+      <a href="#/settings" class="nav-item-mobile" data-route="settings">
+        <span class="nav-icon">⚙️</span>
+        <span class="nav-label">Menu</span>
+      </a>
     </nav>
   `;
 }

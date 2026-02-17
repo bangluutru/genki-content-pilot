@@ -72,6 +72,12 @@ class Router {
             const route = item.dataset.route;
             item.classList.toggle('active', route === this.currentRoute);
         });
+
+        // Mobile nav
+        document.querySelectorAll('.nav-item-mobile').forEach(item => {
+            const route = item.dataset.route;
+            item.classList.toggle('router-link-active', route === this.currentRoute);
+        });
     }
 
     /** Start the router */

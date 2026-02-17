@@ -6,6 +6,7 @@ import { store } from '../utils/state.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { generateContent, checkDailyLimit, incrementUsage, generateVariation, VARIATION_TYPES } from '../services/gemini.js';
+import { openImageEditor } from '../components/image-editor.js';
 import { saveContent, loadConnections } from '../services/firestore.js';
 import { copyToClipboard, storage } from '../utils/helpers.js';
 import { publishToFacebook } from '../services/facebook.js';
@@ -648,15 +649,24 @@ async function handleImageGen() {
     const result = await generateImage(prompt);
     preview.innerHTML = `
       <img src="data:${result.mimeType};base64,${result.imageData}" 
-           alt="AI Generated Image" class="gen-image">
+           alt="AI Generated Image" class="gen-image" id="generated-image">
       <div class="flex gap-2" style="margin-top: var(--space-3);">
+        <button class="btn btn-primary btn-sm" id="btn-edit-image" style="flex: 1;">✏️ Sửa ảnh</button>
         <a href="data:${result.mimeType};base64,${result.imageData}" 
-           download="contentpilot-image.png" class="btn btn-primary btn-sm" style="flex: 1;">
-          💾 Tải ảnh
+           download="contentpilot-image.png" class="btn btn-outline btn-sm" id="btn-download-image">
+          💾 Tải
         </a>
         <button class="btn btn-ghost btn-sm" id="btn-regen-image">🔄 Tạo lại</button>
       </div>
     `;
+
+    document.getElementById('btn-edit-image')?.addEventListener('click', () => {
+      const img = document.getElementById('generated-image');
+      openImageEditor(img.src, (newSrc) => {
+        img.src = newSrc;
+        document.getElementById('btn-download-image').href = newSrc;
+      });
+    });
 
     document.getElementById('btn-regen-image')?.addEventListener('click', handleImageGen);
     showToast('Đã tạo ảnh thành công! 🖼️', 'success');
