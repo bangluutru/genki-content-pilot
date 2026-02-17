@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { route: 'dashboard', icon: '🏠', label: 'Dashboard' },
   { route: 'create', icon: '✨', label: 'Tạo bài' },
   { route: 'library', icon: '📚', label: 'Thư viện' },
+  { route: 'calendar', icon: '📅', label: 'Lịch' },
   { route: 'brand', icon: '🎨', label: 'Brand' },
   { route: 'settings', icon: '⚙️', label: 'Kết nối' },
 ];

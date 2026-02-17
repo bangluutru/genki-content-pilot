@@ -34,6 +34,10 @@ async function loadPage(name) {
       const { renderSettingsPage } = await import('./pages/settings.js');
       return renderSettingsPage;
     }
+    case 'calendar': {
+      const { renderCalendarPage } = await import('./pages/calendar.js');
+      return renderCalendarPage;
+    }
     default:
       return null;
   }
@@ -64,6 +68,10 @@ router
   })
   .on('settings', async () => {
     const render = await loadPage('settings');
+    await render?.();
+  })
+  .on('calendar', async () => {
+    const render = await loadPage('calendar');
     await render?.();
   });
 
