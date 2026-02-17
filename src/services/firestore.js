@@ -1,0 +1,145 @@
+/**
+ * Firestore Service — CRUD operations for ContentPilot
+ * Uses lazy Firebase initialization to prevent crashes when config is missing
+ */
+import { initFirebase, hasFirebaseConfig } from '../config/firebase.js';
+import { store } from '../utils/state.js';
+
+/** Get current user ID */
+function uid() {
+    return store.get('user')?.uid;
+}
+
+/** Get Firestore instance and modules lazily */
+async function getFirestore() {
+    if (!hasFirebaseConfig()) {
+        throw new Error('Firebase not configured');
+    }
+    const { db } = await initFirebase();
+    if (!db) throw new Error('Firestore not available');
+    const firestoreModule = await import('firebase/firestore');
+    return { db, ...firestoreModule };
+}
+
+// ===== Brand Profile =====
+
+/** Save or update brand profile */
+export async function saveBrand(brandData) {
+    const userId = uid();
+    if (!userId) throw new Error('Not authenticated');
+
+    const { db, doc, setDoc, serverTimestamp } = await getFirestore();
+    const ref = doc(db, 'brands', userId);
+    await setDoc(ref, {
+        ...brandData,
+        userId,
+        updatedAt: serverTimestamp(),
+    }, { merge: true });
+
+    store.set('brand', brandData);
+    return brandData;
+}
+
+/** Load brand profile */
+export async function loadBrand() {
+    const userId = uid();
+    if (!userId) return null;
+
+    try {
+        const { db, doc, getDoc } = await getFirestore();
+        const ref = doc(db, 'brands', userId);
+        const snap = await getDoc(ref);
+
+        if (snap.exists()) {
+            const brand = snap.data();
+            store.set('brand', brand);
+            return brand;
+        }
+    } catch {
+        console.warn('Could not load brand (Firebase may not be configured)');
+    }
+    return null;
+}
+
+// ===== Content =====
+
+/** Save content to Firestore */
+export async function saveContent(content) {
+    const userId = uid();
+    if (!userId) throw new Error('Not authenticated');
+
+    const { db, doc, collection, setDoc, serverTimestamp } = await getFirestore();
+    const ref = doc(collection(db, 'contents'));
+    const data = {
+        ...content,
+        id: ref.id,
+        userId,
+        status: content.status || 'draft',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+    };
+
+    await setDoc(ref, data);
+
+    // Update local state
+    const contents = store.get('contents') || [];
+    store.set('contents', [{ ...data, createdAt: new Date(), updatedAt: new Date() }, ...contents]);
+
+    return data;
+}
+
+/** Update existing content */
+export async function updateContent(contentId, updates) {
+    const { db, doc, updateDoc, serverTimestamp } = await getFirestore();
+    const ref = doc(db, 'contents', contentId);
+    await updateDoc(ref, {
+        ...updates,
+        updatedAt: serverTimestamp(),
+    });
+
+    // Update local state
+    const contents = store.get('contents') || [];
+    store.set('contents', contents.map(c =>
+        c.id === contentId ? { ...c, ...updates, updatedAt: new Date() } : c
+    ));
+}
+
+/** Delete content */
+export async function deleteContent(contentId) {
+    const { db, doc, deleteDoc } = await getFirestore();
+    const ref = doc(db, 'contents', contentId);
+    await deleteDoc(ref);
+
+    const contents = store.get('contents') || [];
+    store.set('contents', contents.filter(c => c.id !== contentId));
+}
+
+/** Load all contents for current user */
+export async function loadContents(limitCount = 50) {
+    const userId = uid();
+    if (!userId) return [];
+
+    try {
+        const { db, collection, query, where, orderBy, limit, getDocs } = await getFirestore();
+        const q = query(
+            collection(db, 'contents'),
+            where('userId', '==', userId),
+            orderBy('createdAt', 'desc'),
+            limit(limitCount)
+        );
+
+        const snap = await getDocs(q);
+        const contents = snap.docs.map(d => ({
+            ...d.data(),
+            id: d.id,
+            createdAt: d.data().createdAt?.toDate() || new Date(),
+            updatedAt: d.data().updatedAt?.toDate() || new Date(),
+        }));
+
+        store.set('contents', contents);
+        return contents;
+    } catch {
+        console.warn('Could not load contents (Firebase may not be configured)');
+        return [];
+    }
+}
