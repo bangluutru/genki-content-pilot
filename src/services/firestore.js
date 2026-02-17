@@ -404,3 +404,58 @@ export async function loadTeamActivity() {
         createdAt: c.createdAt,
     }));
 }
+
+// ===== Conversion Tracking (Phase 11) =====
+
+/** Save conversion data for a content piece */
+export async function saveConversion(conversionData) {
+    const userId = uid();
+    if (!userId) throw new Error('Not authenticated');
+
+    try {
+        const { db, collection, addDoc, serverTimestamp } = await getFirestore();
+        const ref = collection(db, 'conversions');
+        await addDoc(ref, {
+            ...conversionData,
+            userId,
+            createdAt: serverTimestamp(),
+        });
+
+        // Update local cache
+        const conversions = store.get('conversions') || [];
+        conversions.push({ ...conversionData, id: Date.now() });
+        store.set('conversions', conversions);
+
+        return conversionData;
+    } catch (e) {
+        // Fallback to localStorage
+        const conversions = store.get('conversions') || [];
+        const newConversion = { ...conversionData, id: Date.now(), userId };
+        conversions.push(newConversion);
+        store.set('conversions', conversions);
+        return newConversion;
+    }
+}
+
+/** Load conversion data */
+export async function loadConversions(dateRange = null) {
+    const userId = uid();
+    if (!userId) return [];
+
+    try {
+        const { db, collection, query, where, getDocs } = await getFirestore();
+        const q = query(
+            collection(db, 'conversions'),
+            where('userId', '==', userId)
+        );
+
+        const snapshot = await getDocs(q);
+        const conversions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        store.set('conversions', conversions);
+        return conversions;
+    } catch (e) {
+        // Fallback to localStorage
+        return store.get('conversions') || [];
+    }
+}

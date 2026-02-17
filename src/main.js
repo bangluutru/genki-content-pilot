@@ -46,6 +46,10 @@ async function loadPage(name) {
       const { renderTeamPage } = await import('./pages/team.js');
       return renderTeamPage;
     }
+    case 'conversions': {
+      const { renderConversionDashboard } = await import('./pages/conversion-dashboard.js');
+      return renderConversionDashboard;
+    }
     default:
       return null;
   }
@@ -88,6 +92,10 @@ router
   })
   .on('team', async () => {
     const render = await loadPage('team');
+    await render?.();
+  })
+  .on('conversions', async () => {
+    const render = await loadPage('conversions');
     await render?.();
   });
 
