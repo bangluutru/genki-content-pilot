@@ -207,3 +207,200 @@ setParam('page', '3')      // cập nhật hash URL
 3. **Top assets**: Nhập ≥ 2 records với assetId → verify Top CTR / Best CPA / Top Retention cards
 4. **Experiment**: Click "🧪 Tạo Experiment" → nhập hook gốc → "🤖 Tạo 3 variants" → preview → lưu → verify 3 draft assets
 5. **Learning log**: Click "📝 Learning Log" → fill hypothesis/result/insight/next → save → verify hiện trong logs
+
+---
+
+## Production Firebase Setup (Step-by-step)
+
+### 1. Tạo Firebase Project
+
+1. Vào [Firebase Console](https://console.firebase.google.com/) → **Add project**
+2. Đặt tên (ví dụ: `genki-content-pilot`) → bỏ chọn Analytics nếu không cần → **Create project**
+3. Trong Project Overview → click icon **Web (</>)** → đặt nickname (ví dụ: "ContentPilot Web")
+4. Copy `firebaseConfig` object → paste vào `.env`:
+
+```bash
+VITE_FIREBASE_API_KEY=AIzaSy...
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your-project
+VITE_FIREBASE_STORAGE_BUCKET=your-project.firebasestorage.app
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+VITE_FIREBASE_APP_ID=1:123456789:web:abc123
+```
+
+### 2. Tạo Firestore Database
+
+1. Firebase Console → **Build → Firestore Database** → **Create database**
+2. Chọn region gần nhất (ví dụ: `asia-southeast1` cho Việt Nam)
+3. Chọn **Start in test mode** (sẽ set rules sau)
+
+### 3. Bật Authentication
+
+1. Firebase Console → **Build → Authentication** → **Get started**
+2. Tab **Sign-in method** → Enable **Google**
+3. Nhập support email → **Save**
+
+### 4. Firestore Security Rules
+
+Vào **Firestore → Rules** → paste rules sau:
+
+```
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: user đã đăng nhập
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    // Helper: user sở hữu document
+    function isOwner() {
+      return request.auth.uid == resource.data.userId;
+    }
+
+    // Helper: user tạo document với userId = mình
+    function isCreator() {
+      return request.auth.uid == request.resource.data.userId;
+    }
+
+    // ─── Core Collections ───
+    match /brands/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /contents/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /settings/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+
+    // ─── Campaign Collections ───
+    match /campaigns/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /briefs/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /vocEntries/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /vocClusters/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /hookBanks/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+
+    // ─── Ideas & Assets ───
+    match /ideas/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /ideaScores/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /assets/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /brandAssets/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+
+    // ─── Performance ───
+    match /performanceMetrics/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /learningLogs/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /experiments/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+
+    // ─── Schedules & Conversions ───
+    match /schedules/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+    match /conversions/{docId} {
+      allow read, write: if isAuth() && (isOwner() || isCreator());
+    }
+  }
+}
+```
+
+> **Note:** Rules này enforce `userId` ownership — mỗi user chỉ CRUD được data của chính mình. Khi deploy production, review kỹ trước khi publish.
+
+### 5. Firestore Indexes
+
+Các query dùng `where()` + `orderBy()` trên field khác nhau cần **composite index**.
+
+**Cách tạo:**
+1. Khi app gặp lỗi "requires an index", Firebase sẽ log ra một URL trực tiếp
+2. Click URL đó → tự động tạo index trong Firebase Console
+3. Hoặc vào: **Firestore → Indexes → Composite → Add index**
+
+**Index thường cần:**
+| Collection | Fields | Order |
+|---|---|---|
+| `contents` | `userId` (Asc) + `createdAt` (Desc) | — |
+| `campaigns` | `userId` (Asc) + `createdAt` (Desc) | — |
+| `assets` | `campaignId` (Asc) + `status` (Asc) | — |
+| `performanceMetrics` | `campaignId` (Asc) + `date` (Desc) | — |
+
+### 6. Local Setup
+
+```bash
+# 1. Clone repo
+git clone https://github.com/bangluutru/genki-content-pilot.git
+cd genki-content-pilot
+
+# 2. Copy env template
+cp .env.example .env
+
+# 3. Fill .env với Firebase config + Gemini API key
+#    (xem comments trong .env.example để biết lấy ở đâu)
+
+# 4. Install & run
+npm install
+npm run dev
+
+# 5. Mở http://localhost:5173 → đăng nhập Google
+```
+
+### 7. Troubleshooting
+
+| Lỗi | Nguyên nhân | Cách fix |
+|---|---|---|
+| **Banner "Offline/Demo mode"** | Thiếu env vars | Kiểm tra `.env` có đủ 6 `VITE_FIREBASE_*` keys |
+| **"Firebase not configured"** | `.env` chưa được load | Restart dev server sau khi sửa `.env` |
+| **"permission-denied"** | Firestore rules chặn | Paste rules ở mục 4 vào Console → Publish |
+| **"requires an index"** | Thiếu composite index | Click URL trong error message → tạo index |
+| **Auth popup blocked** | Browser chặn popup | Cho phép popup cho `localhost` / domain |
+| **"auth/popup-closed-by-user"** | User đóng popup | Thử đăng nhập lại |
+| **Build fails** | Dependencies thiếu | Chạy `npm install` rồi `npm run build` |
+
+### 8. Firebase Hosting Deploy
+
+```bash
+# 1. Cài Firebase CLI
+npm install -g firebase-tools
+
+# 2. Đăng nhập
+firebase login
+
+# 3. Init hosting (chỉ cần 1 lần)
+firebase init hosting
+#   → Chọn project đã tạo
+#   → Public directory: dist
+#   → Single-page app (rewrite all URLs to /index.html): Yes
+#   → Overwrite dist/index.html: No
+
+# 4. Build production
+npm run build
+
+# 5. Deploy
+firebase deploy --only hosting
+
+# → App sẽ live tại: https://your-project.web.app
+```

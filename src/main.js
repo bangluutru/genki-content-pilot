@@ -6,6 +6,7 @@ import './styles/index.css';
 import { router } from './utils/router.js';
 import { store } from './utils/state.js';
 import { initAuthListener, authGuard } from './services/auth.js';
+import { showOfflineBanner } from './utils/firebaseStatus.js';
 
 // Pages (lazy-loaded)
 async function loadPage(name) {
@@ -118,6 +119,9 @@ router
 // Initialize app
 async function init() {
   console.log('🚀 ContentPilot v2 initializing...');
+
+  // Show offline banner if Firebase not configured
+  showOfflineBanner(document.body);
 
   try {
     // Wait for auth state with timeout (Firebase may not have config in dev)
