@@ -1,387 +1,209 @@
-# ContentPilot v2 - AI Content Automation Platform
+# ContentPilot
 
-AI-powered content creation and management platform with multi-language support, dark mode theming, and enterprise-grade design system.
+AI-powered content creation & publishing cho Facebook + WordPress.
 
-## ✨ Features
+## Cấu trúc
 
-- 🤖 **AI Content Generation** - Generate high-quality content with Google Gemini API
-- 🌍 **Internationalization (i18n)** - Full support for Vietnamese and English
-- 🎨 **Color Proof Design System** - Beautiful, accessible color palette with light/dark modes
-- 📱 **Responsive Design** - Mobile-first UI that works on all devices
-- 🔐 **Firebase Authentication** - Secure user authentication with Google Sign-In
-- 💾 **Cloud Storage** - Store content, brand assets, and user preferences in Firestore
-- 📊 **Content Analytics** - Track content performance and publishing metrics
-- 🗓️ **Content Calendar** - Schedule and manage content publishing
-- ✅ **Approval Workflow** - Multi-level content approval system
-- 🎯 **Campaign Management** - Organize content into marketing campaigns
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 16+ and npm
-- Firebase project with Firestore and Storage enabled
-- Google Gemini API key
-
-### Installation
-
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd content-pilot-v2
+```
+content-pilot/
+├── css/                        ← Design system
+│   ├── variables.css           — Design tokens (colors, spacing)
+│   ├── base.css                — Reset, typography
+│   ├── layout.css              — App shell layout
+│   └── components.css          — UI component styles
+├── js/
+│   ├── app.js                  — Entry point, init
+│   ├── config.js               — Constants
+│   ├── firebase.js             — Firebase init (Auth, Firestore, Analytics)
+│   ├── auth.js                 — Google auth
+│   ├── state.js                — Re-export wrapper (backward compat) ←──┐
+│   ├── router.js               — SPA routing + query param utils      │
+│   ├── services/                                                       │
+│   │   ├── db/                 — Domain-based Firestore CRUD ──────────┘
+│   │   │   ├── index.js        — Barrel: re-exports db + all modules
+│   │   │   ├── collections.js  — Collection name constants
+│   │   │   ├── common.js       — Shared helpers (validation, metadata, errors)
+│   │   │   ├── brands.js       — Brand CRUD
+│   │   │   ├── contents.js     — Content CRUD
+│   │   │   └── settings.js     — Settings CRUD
+│   │   ├── gemini.js           — AI content generation
+│   │   ├── facebook.js         — FB Page publishing
+│   │   └── wordpress.js        — WP blog publishing
+│   ├── pages/                  — Page renderers
+│   │   ├── login.js
+│   │   ├── dashboard.js
+│   │   ├── create.js
+│   │   ├── library.js
+│   │   └── brand.js
+│   ├── components/             — Reusable UI
+│   │   ├── content-card.js
+│   │   ├── content-editor.js
+│   │   ├── preview-panel.js
+│   │   ├── publish-modal.js
+│   │   ├── template-picker.js
+│   │   └── toast.js            — Toast notifications (showToast + convenience)
+│   └── utils/                  — Helpers
+│       ├── dom.js
+│       ├── format.js
+│       └── storage.js
+├── scripts/
+│   └── verify.js               — Smoke test: module exports + parsing
+└── assets/templates/            — Visual templates
 ```
 
-2. Install dependencies:
+## Cách chạy
+
 ```bash
 npm install
-```
-
-3. Configure environment variables:
-```bash
-cp .env.example .env
-```
-
-Edit `.env` and add your credentials:
-```
-VITE_FIREBASE_API_KEY=your-firebase-api-key
-VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
-VITE_FIREBASE_APP_ID=your-app-id
-VITE_GEMINI_API_KEY=your-gemini-api-key
-```
-
-4. Start the development server:
-```bash
 npm run dev
 ```
 
-5. Open [http://localhost:5173](http://localhost:5173) in your browser
-
----
-
-## 🌍 Internationalization (i18n)
-
-ContentPilot supports multiple languages out of the box. Currently supported: **Vietnamese (vi)** and **English (en)**.
-
-### Using Translations in Code
-
-Import the translation function:
-```javascript
-import { t } from './utils/i18n.js';
-```
-
-Use it in your components:
-```javascript
-// Simple translation
-const title = t('dashboard.title'); // "Dashboard" or "Tổng quan"
-
-// Translation with variables
-const greeting = t('dashboard.greeting', { name: 'John' }); // "Hello, John"
-
-// Nested keys
-const label = t('settings.profile.email'); // Access nested translation
-```
-
-### Adding New Translations
-
-1. Add keys to `/src/locales/vi.json`:
-```json
-{
-  "myFeature": {
-    "title": "Tiêu đề tính năng",
-    "description": "Mô tả chi tiết"
-  }
-}
-```
-
-2. Add English translations to `/src/locales/en.json`:
-```json
-{
-  "myFeature": {
-    "title": "Feature Title",
-    "description": "Detailed description"
-  }
-}
-```
-
-3. Use in code:
-```javascript
-const title = t('myFeature.title');
-const desc = t('myFeature.description');
-```
-
-### Switching Languages
-
-Users can switch languages using the language toggle button in the sidebar (🇻🇳 VI / 🇺🇸 EN).
-
-Programmatically:
-```javascript
-import { setLocale } from './utils/i18n.js';
-
-await setLocale('en'); // Switch to English
-await setLocale('vi'); // Switch to Vietnamese
-```
-
-Language preference is automatically saved to:
-- **Firestore** - For authenticated users
-- **localStorage** - For offline/fallback storage
-
----
-
-## 🎨 Theming System
-
-ContentPilot uses the **Color Proof** design system with full light/dark mode support.
-
-### Using Themes
-
-Switch themes using the theme toggle button in the sidebar (☀️/🌙).
-
-Programmatically:
-```javascript
-import { toggleTheme, getTheme } from './utils/theme.js';
-
-await toggleTheme(); // Switch between light/dark
-const current = getTheme(); // Returns 'light' or 'dark'
-```
-
-Theme preference is persisted to Firestore and localStorage.
-
-### Design Tokens
-
-All colors, spacing, and typography use CSS custom properties defined in `/src/styles/tokens.css`.
-
-#### Color System
-
-```css
-/* Use semantic color tokens */
-.my-component {
-  background-color: var(--surface);
-  color: var(--text);
-  border: 1px solid var(--border);
-}
-
-/* Available tokens */
---bg                /* Page background */
---surface           /* Card/panel background */
---surface-hover     /* Hover state */
---text              /* Primary text */
---text-muted        /* Secondary text */
---border            /* Border color */
---primary           /* Brand color */
---success           /* Success state */
---warning           /* Warning state */
---error             /* Error state */
-```
-
-#### Spacing
-
-```css
-.my-component {
-  padding: var(--space-4);
-  margin-bottom: var(--space-6);
-  gap: var(--space-2);
-}
-
-/* Available spacing scale: --space-1 through --space-12 */
-```
-
-#### Typography
-
-```css
-.title {
-  font-size: var(--font-2xl);
-  font-weight: 700;
-}
-
-.body {
-  font-size: var(--font-base);
-  line-height: 1.6;
-}
-
-/* Available sizes: --font-xs, --font-sm, --font-base, --font-lg, --font-xl, --font-2xl */
-```
-
-### Dark Mode Implementation
-
-The dark mode class (`.dark`) is applied to the `<html>` element and tokens automatically adjust:
-
-```css
-/* tokens.css handles this automatically */
-:root {
-  --bg: white;
-  --text: #1a1a1a;
-}
-
-.dark {
-  --bg: #0f0f0f;
-  --text: #e5e5e5;
-}
-```
-
-No need to manually handle dark mode in components—just use the tokens!
-
----
-
-## 🏗️ Architecture
-
-### Project Structure
-
-```
-content-pilot-v2/
-├── src/
-│   ├── components/        # Reusable UI components
-│   │   └── header.js      # Sidebar with nav, theme, language toggles
-│   ├── pages/             # Page components (12 total)
-│   │   ├── login.js       # Authentication page
-│   │   ├── dashboard.js   # Analytics dashboard
-│   │   ├── create.js      # AI content creation
-│   │   ├── library.js     # Content library
-│   │   ├── calendar.js    # Publishing calendar
-│   │   ├── settings.js    # Platform connections & brand settings
-│   │   └── ...            # Other pages
-│   ├── utils/             # Utility functions
-│   │   ├── i18n.js        # Translation system
-│   │   ├── theme.js       # Theme management
-│   │   ├── state.js       # Global state management
-│   │   └── router.js      # Client-side routing
-│   ├── services/          # External integrations
-│   │   ├── firebase.js    # Firebase config
-│   │   ├── auth.js        # Authentication
-│   │   ├── firestore.js   # Database operations
-│   │   └── ai.js          # Gemini AI integration
-│   ├── locales/           # Translation files
-│   │   ├── vi.json        # Vietnamese translations
-│   │   └── en.json        # English translations
-│   ├── styles/            # CSS files
-│   │   ├── tokens.css     # Design tokens (Color Proof)
-│   │   └── index.css      # Global styles
-│   └── main.js            # Application entry point
-├── index.html             # HTML template
-├── package.json           # Dependencies
-└── .env                   # Environment variables
-```
-
-### State Management
-
-Simple reactive state using `state.js`:
-
-```javascript
-import { store } from './utils/state.js';
-
-// Get state
-const user = store.get('user');
-const theme = store.get('theme');
-
-// Set state (triggers re-render)
-store.set('locale', 'en');
-
-// Subscribe to changes
-store.subscribe('theme', (newTheme) => {
-  console.log('Theme changed to:', newTheme);
-});
-```
-
-### Routing
-
-Client-side routing with hash-based URLs:
-
-```javascript
-import { router } from './utils/router.js';
-
-// Register routes
-router.on('/dashboard', () => import('./pages/dashboard.js'));
-router.on('/create', () => import('./pages/create.js'));
-
-// Navigate programmatically
-window.location.hash = '#/create';
-```
-
----
-
-## 🔧 Development
-
-### Available Scripts
+### Smoke test
 
 ```bash
-# Start development server
-npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
+node scripts/verify.js
 ```
 
-### Adding a New Page
+## Service Layer — `js/services/db/`
 
-1. Create page file in `/src/pages/`:
-```javascript
-// src/pages/mypage.js
-import { t } from '../utils/i18n.js';
+### Tổng quan
 
-export async function render() {
-  return `
-    <div class="page">
-      <h1>${t('mypage.title')}</h1>
-      <p>${t('mypage.description')}</p>
-    </div>
-  `;
+Tất cả Firestore CRUD được tổ chức theo domain:
+
+| Module | Chức năng |
+|---|---|
+| `collections.js` | Collection name constants |
+| `common.js` | Shared helpers: validation, metadata, error normalization |
+| `brands.js` | Brand profile CRUD |
+| `contents.js` | Content (bài viết) CRUD |
+| `settings.js` | User settings CRUD |
+| `index.js` | Barrel re-export — import tất cả từ đây |
+
+### Cách thêm domain service mới
+
+1. Tạo file `js/services/db/<domain>.js`
+2. Import helpers từ `common.js` và constants từ `collections.js`
+3. Sử dụng patterns:
+
+```js
+import { db } from '../../firebase.js';
+import { COLLECTIONS } from './collections.js';
+import { assertUser, withMeta, updateMeta, normalizeError } from './common.js';
+import { collection, doc, addDoc, ... } from 'firebase/firestore';
+
+// Create — dùng withMeta()
+export async function createItem(data) {
+    const docData = withMeta(data, data.userId);
+    const ref = await addDoc(collection(db, COLLECTIONS.MY_COLLECTION), docData);
+    return ref.id;
+}
+
+// Update — dùng updateMeta()
+export async function updateItem(id, updates) {
+    await updateDoc(doc(db, COLLECTIONS.MY_COLLECTION, id), {
+        ...updates,
+        ...updateMeta(),
+    });
 }
 ```
 
-2. Add translations to locale files
-3. Register route in `main.js`
-4. Add navigation item to `header.js`
+4. Thêm collection name vào `collections.js`
+5. Re-export trong `index.js`
+6. (Optional) Re-export trong `state.js` cho backward compat
 
-### Code Style
+### Firestore document conventions
 
-- Use ES6+ features (modules, async/await, template literals)
-- Follow functional programming patterns
-- Use design tokens for all styling
-- All user-facing text must use `t()` function
-- Keep components small and focused
+Mọi document nên có:
 
----
+| Field | Mô tả | Khi nào |
+|---|---|---|
+| `userId` | ID của user tạo document | Create (via `withMeta()`) |
+| `createdAt` | Thời gian tạo (`serverTimestamp()`) | Create |
+| `updatedAt` | Thời gian cập nhật (`serverTimestamp()`) | Create + Update |
 
-## 📱 Browser Support
+### Validation helpers
 
-- Chrome/Edge 90+
-- Firefox 88+
-- Safari 14+
-- Mobile browsers (iOS Safari, Chrome Mobile)
+```js
+assertUser(userId)              // Throw nếu userId falsy
+assertRequired(['name'], obj)   // Throw nếu thiếu field bắt buộc
+```
 
----
+### Error handling
 
-## 🤝 Contributing
+```js
+normalizeError(err) // → { code, message, details? }
+```
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+### Router query params
 
----
+```js
+import { getQueryParams, getParam, setParam } from './router.js';
 
-## 📄 License
+getQueryParams()           // { status: 'draft', page: '2' }
+getParam('status', 'all')  // 'draft'
+setParam('page', '3')      // cập nhật hash URL
+```
 
-This project is proprietary and confidential.
+## Setup
 
----
+1. Tạo Firebase project → lấy config → paste vào `.env`
+2. Bật Google Auth trong Firebase Console
+3. Lấy Gemini API key từ Google AI Studio
+4. Deploy lên Cloudflare Pages
 
-## 🆘 Support
+## Tech Stack
 
-For questions or issues, please contact the development team.
+- **Frontend**: Vite + Vanilla JS
+- **Auth**: Firebase Auth (Google)
+- **Database**: Cloud Firestore
+- **AI**: Gemini API
+- **Publishing**: Facebook Graph API + WordPress REST API
+- **Hosting**: Cloudflare Pages
 
----
+## How to Test — Manual Checklist (5 bước)
 
-## 🙏 Acknowledgments
+1. **Tạo chiến dịch**: Vào `#campaigns` → điền form → bấm "Tạo chiến dịch" → xác nhận hiện trong danh sách
+2. **Tạo content**: Vào `#create` → nhập brief → AI tạo content → xác nhận draft lưu thành công
+3. **Xem content theo campaign**: Trang campaigns → bấm "📚 Xem bài viết" → xác nhận library lọc theo campaignId, hiện badge chiến dịch
+4. **Duyệt bài**: Vào `#approvals` → bấm "✅ Duyệt" hoặc "❌ Từ chối" (nhập lý do) → xác nhận status cập nhật
+5. **Kiểm tra tương thích**: Dashboard, Library (không filter), Brand page vẫn hoạt động bình thường
 
-- **Color Proof** - Design system and color palette
-- **Google Gemini** - AI content generation
-- **Firebase** - Backend infrastructure
-- **Vite** - Build tool and dev server
+## Campaign Brief — Test Checklist (5 bước)
+
+1. **Tạo brief**: Campaigns → "📋 Chi tiết" → Brief tab → fill form → save draft
+2. **Versioning**: Click "📝 Tạo version mới" → xác nhận version tăng + data clone
+3. **Review flow**: Bấm "📤 Gửi duyệt" → status "Đang duyệt" → Approve/Reject → verify
+4. **AI integration**: Tạo content với approved brief (`#create?campaignId=...`) → xác nhận prompt bao gồm SMP, RTB, CTA
+5. **Fallback**: Tạo content không có campaign → xác nhận flow cũ hoạt động bình thường
+
+## VOC Hub — Test Checklist (5 bước)
+
+1. **Add VOC entry**: Campaign → VOC tab → "➕ Thêm mới" → fill → save → verify in list
+2. **CSV import**: Chuẩn bị file CSV (sourceType,content,tags) → import → verify entries xuất hiện
+3. **AI Cluster**: Click "🤖 AI Cluster" → verify clusters hiển thị theo 4 nhóm (pain/desire/objection/trigger)
+4. **Hook Bank**: Verify 30 hooks + 20 câu xử lý phản đối → lưu Firestore
+5. **Persistence**: Refresh trang → verify entries, clusters, hooks vẫn load đúng
+
+## Ideas System — Test Checklist (5 bước)
+
+1. **Create idea**: Campaign → Ideas tab → "➕ Thêm idea" → fill title/angle/funnel → save → verify in Kanban backlog
+2. **Kanban move**: Click ◀▶ arrows → idea moves between columns (backlog → shortlisted → in_production)
+3. **Scoring**: Click 📊 → set 4 sliders (painLevel, proofPotential, productionFit, conversionFit) → save → verify score shows on card
+4. **Content Pack**: Click 📦 → verify 5 assets generated (TikTok, FB, Carousel, Email, Landing) → "Lưu vào Library" → verify in Library page
+5. **Ranking**: Click 🏆 → verify ideas sorted by total score desc
+
+## Content Assets — Test Checklist (5 bước)
+
+1. **Create asset**: Campaign → Assets tab → "➕ Thêm asset" → fill type/channel/content → verify in pipeline draft column
+2. **QA gate**: Click "🔍 QA" → "✅ QA" checklist → pass tất cả → verify asset chuyển sang approved
+3. **Schedule**: Click 📅 → chọn ngày → verify asset chuyển sang scheduled + hiện trong Calendar
+4. **Repurpose**: Click 🔄 → chọn channels → verify child assets tạo với template content + "↳ repurposed" label
+5. **Brand assets**: Click 🏷️ Brand Assets → thêm proof/certificate → verify persist sau refresh
+
+## Performance & Learning — Test Checklist (5 bước)
+
+1. **Nhập số liệu**: Campaign → Performance tab → "➕ Nhập số liệu" → fill 10 fields → save → verify trong table
+2. **CSV import**: Chuẩn bị CSV (date,assetId,views,watchTime,retention3s,ctr,leads,sales,spend,cpa) → import → verify
+3. **Top assets**: Nhập ≥ 2 records với assetId → verify Top CTR / Best CPA / Top Retention cards
+4. **Experiment**: Click "🧪 Tạo Experiment" → nhập hook gốc → "🤖 Tạo 3 variants" → preview → lưu → verify 3 draft assets
+5. **Learning log**: Click "📝 Learning Log" → fill hypothesis/result/insight/next → save → verify hiện trong logs
