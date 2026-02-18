@@ -7,6 +7,7 @@ import { showToast } from '../components/toast.js';
 import { saveConnections, loadConnections, deleteConnection } from '../services/firestore.js';
 import { testFacebookConnection } from '../services/facebook.js';
 import { testWordPressConnection } from '../services/wordpress.js';
+import { t } from '../utils/i18n.js';
 
 export async function renderSettingsPage() {
   const app = document.getElementById('app');
@@ -19,9 +20,9 @@ export async function renderSettingsPage() {
     ${renderSidebar()}
     <main class="main-content page">
       <div class="mb-6">
-        <h1 style="font-size: var(--font-2xl);">⚙️ Kết nối Platform</h1>
+        <h1 style="font-size: var(--font-2xl);">⚙️ ${t('settings.title')}</h1>
         <p class="text-muted text-sm" style="margin-top: var(--space-1);">
-          Cấu hình Facebook Page và WordPress để đăng bài tự động
+          ${t('settings.subtitle')}
         </p>
       </div>
 
@@ -31,39 +32,39 @@ export async function renderSettingsPage() {
           <div class="flex items-center gap-4">
             <span style="font-size: 2rem;">📱</span>
             <div>
-              <h3 style="margin: 0;">Facebook Page</h3>
-              <p class="text-sm text-muted">Đăng bài trực tiếp lên Facebook Page</p>
+              <h3 style="margin: 0;">${t('settings.facebookTitle')}</h3>
+              <p class="text-sm text-muted">${t('settings.facebookDesc')}</p>
             </div>
           </div>
           <span id="fb-status" class="badge ${fb.pageId ? 'badge-success' : 'badge-warning'}">
-            ${fb.pageName ? `✅ ${fb.pageName}` : '❌ Chưa kết nối'}
+            ${fb.pageName ? `✅ ${fb.pageName}` : '❌ ' + t('settings.notConnected')}
           </span>
         </div>
 
         <div class="connection-form flex flex-col gap-4" id="fb-form">
           <div class="input-group">
-            <label for="fb-page-id">Page ID</label>
+            <label for="fb-page-id">${t('settings.pageId')}</label>
             <input type="text" id="fb-page-id" class="input" 
-                   placeholder="VD: 123456789012345" 
+                   placeholder="${t('settings.pageIdPlaceholder')}" 
                    value="${fb.pageId || ''}">
-            <small class="text-muted">Tìm Page ID tại: Settings → About → Page ID</small>
+            <small class="text-muted">${t('settings.pageIdHelp')}</small>
           </div>
 
           <div class="input-group">
-            <label for="fb-token">Page Access Token</label>
+            <label for="fb-token">${t('settings.accessToken')}</label>
             <input type="password" id="fb-token" class="input" 
-                   placeholder="Paste access token từ Facebook Developer..."
+                   placeholder="${t('settings.accessTokenPlaceholder')}"
                    value="${fb.accessToken || ''}">
             <small class="text-muted">
-              Lấy token tại <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a> 
-              → chọn Page → quyền pages_manage_posts
+              ${t('settings.accessTokenHelp')} 
+              <a href="https://developers.facebook.com/tools/explorer/" target="_blank" rel="noopener">Graph API Explorer</a>
             </small>
           </div>
 
           <div class="flex gap-2">
-            <button class="btn btn-secondary btn-sm" id="btn-test-fb">🔍 Test kết nối</button>
-            <button class="btn btn-primary btn-sm" id="btn-save-fb">💾 Lưu</button>
-            ${fb.pageId ? '<button class="btn btn-ghost btn-sm" id="btn-disconnect-fb" style="color: var(--danger);">Ngắt kết nối</button>' : ''}
+            <button class="btn btn-secondary btn-sm" id="btn-test-fb">🔍 ${t('settings.testConnection')}</button>
+            <button class="btn btn-primary btn-sm" id="btn-save-fb">💾 ${t('settings.saveConnection')}</button>
+            ${fb.pageId ? `<button class="btn btn-ghost btn-sm" id="btn-disconnect-fb" style="color: var(--danger);">${t('settings.disconnect')}</button>` : ''}
           </div>
 
           <div id="fb-result" class="hidden connection-result"></div>
@@ -76,88 +77,56 @@ export async function renderSettingsPage() {
           <div class="flex items-center gap-4">
             <span style="font-size: 2rem;">📝</span>
             <div>
-              <h3 style="margin: 0;">WordPress</h3>
-              <p class="text-sm text-muted">Đăng blog article lên WordPress site</p>
+              <h3 style="margin: 0;">${t('settings.wordpressTitle')}</h3>
+              <p class="text-sm text-muted">${t('settings.wordpressDesc')}</p>
             </div>
           </div>
           <span id="wp-status" class="badge ${wp.siteUrl ? 'badge-success' : 'badge-warning'}">
-            ${wp.siteName ? `✅ ${wp.siteName}` : '❌ Chưa kết nối'}
+            ${wp.siteName ? `✅ ${wp.siteName}` : '❌ ' + t('settings.notConnected')}
           </span>
         </div>
 
         <div class="connection-form flex flex-col gap-4" id="wp-form">
           <div class="input-group">
-            <label for="wp-url">WordPress Site URL</label>
+            <label for="wp-url">${t('settings.siteUrl')}</label>
             <input type="url" id="wp-url" class="input" 
-                   placeholder="VD: https://yourblog.com"
+                   placeholder="${t('settings.siteUrlPlaceholder')}"
                    value="${wp.siteUrl || ''}">
           </div>
 
           <div class="input-group">
-            <label for="wp-user">Username</label>
+            <label for="wp-user">${t('settings.username')}</label>
             <input type="text" id="wp-user" class="input" 
-                   placeholder="WordPress admin username"
+                   placeholder="${t('settings.usernamePlaceholder')}"
                    value="${wp.username || ''}">
           </div>
 
           <div class="input-group">
-            <label for="wp-password">Application Password</label>
+            <label for="wp-password">${t('settings.appPassword')}</label>
             <input type="password" id="wp-password" class="input" 
-                   placeholder="Paste Application Password..."
+                   placeholder="${t('settings.appPasswordPlaceholder')}"
                    value="${wp.appPassword || ''}">
-            <small class="text-muted">
-              Tạo tại WordPress → Users → Profile → Application Passwords
-            </small>
+            <small class="text-muted">${t('settings.appPasswordHelp')}</small>
           </div>
 
           <div class="flex gap-2">
-            <button class="btn btn-secondary btn-sm" id="btn-test-wp">🔍 Test kết nối</button>
-            <button class="btn btn-primary btn-sm" id="btn-save-wp">💾 Lưu</button>
-            ${wp.siteUrl ? '<button class="btn btn-ghost btn-sm" id="btn-disconnect-wp" style="color: var(--danger);">Ngắt kết nối</button>' : ''}
+            <button class="btn btn-secondary btn-sm" id="btn-test-wp">🔍 ${t('settings.testConnection')}</button>
+            <button class="btn btn-primary btn-sm" id="btn-save-wp">💾 ${t('settings.saveConnection')}</button>
+            ${wp.siteUrl ? `<button class="btn btn-ghost btn-sm" id="btn-disconnect-wp" style="color: var(--danger);">${t('settings.disconnect')}</button>` : ''}
           </div>
 
           <div id="wp-result" class="hidden connection-result"></div>
         </div>
-      </div>
 
-      <!-- Backup Section -->
-      <div class="card connection-card" style="margin-bottom: var(--space-6);">
-        <div class="flex justify-between items-center mb-4">
-          <div class="flex items-center gap-4">
-            <span style="font-size: 2rem;">💾</span>
-            <div>
-              <h3 style="margin: 0;">Sao lưu dữ liệu</h3>
-              <p class="text-sm text-muted">Export dữ liệu ra file JSON để backup</p>
-            </div>
-          </div>
-        </div>
-        <div class="flex gap-2">
-            <button class="btn btn-primary" id="btn-export-data">⬇️ Tải file Backup (.json)</button>
-        </div>
-      </div>
-
-      <!-- Help Section -->
-      <div class="card-flat" style="padding: var(--space-6); background: var(--bg-secondary); border-radius: var(--radius-lg);">
-        <h4 style="margin-bottom: var(--space-3);">💡 Hướng dẫn nhanh</h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-6);">
-          <div>
-            <strong>Facebook Page</strong>
-            <ol class="text-sm text-muted" style="padding-left: var(--space-4); margin-top: var(--space-2); line-height: 1.8;">
-              <li>Tạo App tại <a href="https://developers.facebook.com" target="_blank">developers.facebook.com</a></li>
-              <li>Vào Graph API Explorer</li>
-              <li>Chọn Page, thêm quyền <code>pages_manage_posts</code></li>
-              <li>Generate Access Token → Copy Page ID + Token</li>
-            </ol>
-          </div>
-          <div>
-            <strong>WordPress</strong>
-            <ol class="text-sm text-muted" style="padding-left: var(--space-4); margin-top: var(--space-2); line-height: 1.8;">
-              <li>Đăng nhập WordPress Admin</li>
-              <li>Users → Profile → Application Passwords</li>
-              <li>Nhập tên app "ContentPilot" → Generate</li>
-              <li>Copy password (chỉ hiện 1 lần!)</li>
-            </ol>
-          </div>
+        <!-- WordPress Setup Guide -->
+        <div class="mt-6 p-4" style="background: var(--bg-tertiary); border-radius: var(--radius-md);">
+          <p class="text-sm" style="margin-bottom: var(--space-2);"><strong>💡 ${t('settings.appPasswordHelp')}</strong></p>
+          <ol class="text-sm text-muted" style="margin: 0; padding-left: var(--space-5);">
+            <li>${t('login.title')} WordPress Admin</li>
+            <li>Users → Profile → Application Passwords</li>
+            <li>${t('create.notesLabel')} "ContentPilot" → Generate</li>
+            <li>Copy password (${t('common.notes')}!)</li>
+          </ol>
         </div>
       </div>
     </main>
@@ -175,18 +144,18 @@ function attachSettingsEvents() {
     const resultEl = document.getElementById('fb-result');
 
     if (!pageId || !token) {
-      showToast('Vui lòng nhập Page ID và Access Token', 'warning');
+      showToast(t('settings.fillAllFields'), 'warning');
       return;
     }
 
     resultEl.classList.remove('hidden');
-    resultEl.innerHTML = '<span class="text-muted">🔄 Đang test kết nối...</span>';
+    resultEl.innerHTML = `<span class="text-muted">🔄 ${t('settings.testing')}</span>`;
 
     const result = await testFacebookConnection(pageId, token);
 
     if (result.success) {
       resultEl.innerHTML = `
-                <span class="text-success">✅ Kết nối thành công!</span><br>
+                <span class="text-success">✅ ${t('settings.testSuccess')}</span><br>
                 <span class="text-sm text-muted">Page: <strong>${result.pageName}</strong> · ${result.fanCount?.toLocaleString() || 0} followers</span>
             `;
       document.getElementById('fb-status').className = 'badge badge-success';
@@ -202,7 +171,7 @@ function attachSettingsEvents() {
     const token = document.getElementById('fb-token')?.value?.trim();
 
     if (!pageId || !token) {
-      showToast('Vui lòng nhập Page ID và Access Token', 'warning');
+      showToast(t('settings.fillAllFields'), 'warning');
       return;
     }
 
@@ -217,9 +186,9 @@ function attachSettingsEvents() {
         connectedAt: new Date().toISOString(),
       };
       await saveConnections(connections);
-      showToast('Đã lưu kết nối Facebook! ✅', 'success');
+      showToast(t('settings.connectionSaved'), 'success');
     } catch (error) {
-      showToast('Lỗi lưu: ' + error.message, 'error');
+      showToast(t('settings.saveConnectionError') + ': ' + error.message, 'error');
     }
   });
 
@@ -230,11 +199,11 @@ function attachSettingsEvents() {
       document.getElementById('fb-page-id').value = '';
       document.getElementById('fb-token').value = '';
       document.getElementById('fb-status').className = 'badge badge-warning';
-      document.getElementById('fb-status').textContent = '❌ Chưa kết nối';
+      document.getElementById('fb-status').textContent = '❌ ' + t('settings.notConnected');
       document.getElementById('fb-result')?.classList.add('hidden');
-      showToast('Đã ngắt kết nối Facebook', 'info');
+      showToast(t('settings.disconnected'), 'info');
     } catch (error) {
-      showToast('Lỗi: ' + error.message, 'error');
+      showToast(t('settings.disconnectError') + ': ' + error.message, 'error');
     }
   });
 
@@ -246,22 +215,22 @@ function attachSettingsEvents() {
     const resultEl = document.getElementById('wp-result');
 
     if (!siteUrl || !username || !appPassword) {
-      showToast('Vui lòng nhập đầy đủ thông tin WordPress', 'warning');
+      showToast(t('settings.fillAllFields'), 'warning');
       return;
     }
 
     resultEl.classList.remove('hidden');
-    resultEl.innerHTML = '<span class="text-muted">🔄 Đang test kết nối...</span>';
+    resultEl.innerHTML = `<span class="text-muted">🔄 ${t('settings.testing')}</span>`;
 
     const result = await testWordPressConnection(siteUrl, username, appPassword);
 
     if (result.success) {
       resultEl.innerHTML = `
-                <span class="text-success">✅ Kết nối thành công!</span><br>
+                <span class="text-success">✅ ${t('settings.testSuccess')}</span><br>
                 <span class="text-sm text-muted">Site: <strong>${result.siteName || siteUrl}</strong> · User: ${result.userName}</span>
             `;
       document.getElementById('wp-status').className = 'badge badge-success';
-      document.getElementById('wp-status').textContent = `✅ ${result.siteName || 'Connected'}`;
+      document.getElementById('wp-status').textContent = `✅ ${result.siteName || t('settings.connected')}`;
     } else {
       resultEl.innerHTML = `<span class="text-danger">❌ ${result.error}</span>`;
     }
@@ -274,7 +243,7 @@ function attachSettingsEvents() {
     const appPassword = document.getElementById('wp-password')?.value?.trim();
 
     if (!siteUrl || !username || !appPassword) {
-      showToast('Vui lòng nhập đầy đủ thông tin', 'warning');
+      showToast(t('settings.fillAllFields'), 'warning');
       return;
     }
 
@@ -289,9 +258,9 @@ function attachSettingsEvents() {
         connectedAt: new Date().toISOString(),
       };
       await saveConnections(connections);
-      showToast('Đã lưu kết nối WordPress! ✅', 'success');
+      showToast(t('settings.connectionSaved'), 'success');
     } catch (error) {
-      showToast('Lỗi lưu: ' + error.message, 'error');
+      showToast(t('settings.saveConnectionError') + ': ' + error.message, 'error');
     }
   });
 
@@ -316,9 +285,9 @@ function attachSettingsEvents() {
       downloadAnchorNode.click();
       downloadAnchorNode.remove();
 
-      showToast('Đã tải file backup thành công! 💾', 'success');
+      showToast(t('toasts.saved') + '! 💾', 'success');
     } catch (err) {
-      showToast('Lỗi backup: ' + err.message, 'error');
+      showToast(t('common.error') + ': ' + err.message, 'error');
     }
   });
 
@@ -330,11 +299,161 @@ function attachSettingsEvents() {
       document.getElementById('wp-user').value = '';
       document.getElementById('wp-password').value = '';
       document.getElementById('wp-status').className = 'badge badge-warning';
-      document.getElementById('wp-status').textContent = '❌ Chưa kết nối';
+      document.getElementById('wp-status').textContent = '❌ ' + t('settings.notConnected');
       document.getElementById('wp-result')?.classList.add('hidden');
-      showToast('Đã ngắt kết nối WordPress', 'info');
+      showToast(t('settings.disconnected'), 'info');
     } catch (error) {
-      showToast('Lỗi: ' + error.message, 'error');
+      showToast(t('settings.disconnectError') + ': ' + error.message, 'error');
+    }
+  });
+
+  // === Brand Settings ===
+
+  // Logo file preview
+  document.getElementById('brand-logo')?.addEventListener('change', (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml'];
+    if (!validTypes.includes(file.type)) {
+      showToast(t('validation.fileTypeNotAllowed') + ': PNG, JPG, SVG', 'warning');
+      e.target.value = '';
+      return;
+    }
+
+    // Validate file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      showToast(t('validation.fileTooLarge', { maxSize: '2MB' }), 'warning');
+      e.target.value = '';
+      return;
+    }
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const previewEl = document.getElementById('logo-preview');
+      previewEl.outerHTML = `
+        <img src="${event.target.result}" id="logo-preview" alt="Brand Logo Preview" 
+             style="width: 64px; height: 64px; object-fit: contain; border-radius: var(--radius-md); border: 1px solid var(--border); background: white; padding: var(--space-2);" />
+      `;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Save Brand
+  document.getElementById('btn-save-brand')?.addEventListener('click', async () => {
+    const brandName = document.getElementById('brand-name')?.value?.trim();
+    const logoFile = document.getElementById('brand-logo')?.files?.[0];
+
+    if (!brandName) {
+      showToast(t('brand.nameRequired'), 'warning');
+      return;
+    }
+
+    try {
+      const user = store.get('user');
+      if (!user) {
+        showToast(t('errors.unauthorized'), 'error');
+        return;
+      }
+
+      let logoUrl = store.get('brand')?.logoUrl || '';
+
+      // Upload logo if new file selected
+      if (logoFile) {
+        showToast(t('common.loading') + '...', 'info');
+
+        const { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } = await import('firebase/storage');
+        const storage = getStorage();
+
+        // Delete old logo if exists
+        if (logoUrl) {
+          try {
+            const oldRef = ref(storage, `brands/${user.uid}/logo`);
+            await deleteObject(oldRef);
+          } catch (err) {
+            console.warn('Old logo deletion failed:', err);
+          }
+        }
+
+        // Upload new logo
+        const fileExt = logoFile.name.split('.').pop();
+        const logoRef = ref(storage, `brands/${user.uid}/logo.${fileExt}`);
+        await uploadBytes(logoRef, logoFile);
+        logoUrl = await getDownloadURL(logoRef);
+      }
+
+      // Save to Firestore
+      const { getFirestore, doc, setDoc } = await import('firebase/firestore');
+      const db = getFirestore();
+      const brandData = {
+        name: brandName,
+        logoUrl,
+        updatedAt: new Date().toISOString()
+      };
+
+      await setDoc(doc(db, 'users', user.uid, 'preferences', 'brand'), brandData);
+
+      // Update state
+      store.set('brand', brandData);
+
+      showToast(t('toasts.saved') + '! ✅', 'success');
+
+      // Re-render to update header
+      setTimeout(async () => {
+        const { router } = await import('../utils/router.js');
+        router.resolve();
+      }, 500);
+    } catch (error) {
+      console.error('Brand save error:', error);
+      showToast(t('common.error') + ': ' + error.message, 'error');
+    }
+  });
+
+  // Remove Logo
+  document.getElementById('btn-remove-logo')?.addEventListener('click', async () => {
+    try {
+      const user = store.get('user');
+      if (!user) return;
+
+      const { getStorage, ref, deleteObject } = await import('firebase/storage');
+      const storage = getStorage();
+
+      // Delete from Firebase Storage
+      try {
+        const logoRef = ref(storage, `brands/${user.uid}/logo`);
+        await deleteObject(logoRef);
+      } catch (err) {
+        console.warn('Logo deletion from storage failed:', err);
+      }
+
+      // Update Firestore
+      const { getFirestore, doc, updateDoc } = await import('firebase/firestore');
+      const db = getFirestore();
+      await updateDoc(doc(db, 'users', user.uid, 'preferences', 'brand'), {
+        logoUrl: '',
+        updatedAt: new Date().toISOString()
+      });
+
+      // Update state
+      const currentBrand = store.get('brand') || {};
+      currentBrand.logoUrl = '';
+      store.set('brand', currentBrand);
+
+      // Reset preview
+      document.getElementById('logo-preview').outerHTML = `
+        <div id="logo-preview" style="width: 64px; height: 64px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 2rem;">✈️</div>
+      `;
+      document.getElementById('brand-logo').value = '';
+
+      showToast(t('toasts.deleted'), 'info');
+
+      // Re-render header
+      const { router } = await import('../utils/router.js');
+      setTimeout(() => router.resolve(), 500);
+    } catch (error) {
+      showToast(t('common.error') + ': ' + error.message, 'error');
     }
   });
 }

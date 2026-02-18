@@ -3,12 +3,13 @@
  */
 import { signInWithGoogle } from '../services/auth.js';
 import { store } from '../utils/state.js';
+import { t } from '../utils/i18n.js';
 
 export function renderLoginPage() {
-    const app = document.getElementById('app');
-    const isLoading = store.get('isLoading');
+  const app = document.getElementById('app');
+  const isLoading = store.get('isLoading');
 
-    app.innerHTML = `
+  app.innerHTML = `
     <div class="login-page">
       <div class="login-bg"></div>
       <div class="login-container">
@@ -18,10 +19,10 @@ export function renderLoginPage() {
               <span style="font-size: 3rem;">✈️</span>
             </div>
             <h1 style="font-size: var(--font-3xl); margin-top: var(--space-4);">
-              <span class="logo-text">ContentPilot</span>
+              <span class="logo-text">${t('login.title')}</span>
             </h1>
             <p style="margin-top: var(--space-2); color: var(--text-secondary);">
-              AI tạo content cho Facebook & Website trong 5 phút
+              ${t('login.tagline')}
             </p>
           </div>
 
@@ -29,35 +30,35 @@ export function renderLoginPage() {
             <div class="feature-item">
               <span class="feature-icon">✨</span>
               <div>
-                <strong>AI viết bài tiếng Việt</strong>
-                <span class="text-muted text-sm"> — Brief ngắn, 3 phiên bản content</span>
+                <strong>${t('login.feature1Title')}</strong>
+                <span class="text-muted text-sm"> — ${t('login.feature1Desc')}</span>
               </div>
             </div>
             <div class="feature-item">
               <span class="feature-icon">🎨</span>
               <div>
-                <strong>Brand Voice</strong>
-                <span class="text-muted text-sm"> — AI nhớ tone thương hiệu</span>
+                <strong>${t('login.feature2Title')}</strong>
+                <span class="text-muted text-sm"> — ${t('login.feature2Desc')}</span>
               </div>
             </div>
             <div class="feature-item">
               <span class="feature-icon">📋</span>
               <div>
-                <strong>Copy & Publish</strong>
-                <span class="text-muted text-sm"> — 1-click copy cho Facebook</span>
+                <strong>${t('login.feature3Title')}</strong>
+                <span class="text-muted text-sm"> — ${t('login.feature3Desc')}</span>
               </div>
             </div>
           </div>
 
           <button class="btn btn-primary btn-full btn-lg" id="btn-google-login" ${isLoading ? 'disabled' : ''}>
             ${isLoading
-            ? '<span class="loading-spinner" style="width:20px;height:20px;border-width:2px;"></span> Đang đăng nhập...'
-            : '<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg> Đăng nhập bằng Google'
-        }
+      ? `<span class="loading-spinner" style="width:20px;height:20px;border-width:2px;"></span> ${t('auth.signingIn')}`
+      : `<svg width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg> ${t('auth.signInWithGoogle')}`
+    }
           </button>
 
           <p class="text-center text-sm text-muted" style="margin-top: var(--space-4);">
-            Miễn phí cho team nhỏ • Bảo mật bởi Firebase
+            ${t('login.footer')}
           </p>
         </div>
       </div>
@@ -122,6 +123,6 @@ export function renderLoginPage() {
     </style>
   `;
 
-    // Attach event
-    document.getElementById('btn-google-login')?.addEventListener('click', signInWithGoogle);
+  // Attach event
+  document.getElementById('btn-google-login')?.addEventListener('click', signInWithGoogle);
 }

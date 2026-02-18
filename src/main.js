@@ -124,6 +124,15 @@ async function init() {
     const timeout = new Promise((resolve) => setTimeout(() => resolve(null), 3000));
     const user = await Promise.race([initAuthListener(), timeout]);
     console.log('Auth state:', user ? `Logged in as ${user.displayName}` : 'Not logged in');
+
+    // Initialize i18n and theme systems
+    const { initI18n } = await import('./utils/i18n.js');
+    const { initTheme } = await import('./utils/theme.js');
+
+    await Promise.all([
+      initI18n(user),
+      initTheme(user)
+    ]);
   } catch (error) {
     console.error('Init error:', error);
   }

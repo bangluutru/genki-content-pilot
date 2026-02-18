@@ -9,6 +9,7 @@ import { copyToClipboard, timeAgo, truncate } from '../utils/helpers.js';
 import { confirm } from '../components/modal.js';
 import { publishToFacebook } from '../services/facebook.js';
 import { publishToWordPress } from '../services/wordpress.js';
+import { t } from '../utils/i18n.js';
 
 export async function renderLibraryPage() {
   const app = document.getElementById('app');
@@ -18,30 +19,30 @@ export async function renderLibraryPage() {
     <main class="main-content page">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 style="font-size: var(--font-2xl);">📚 Thư viện content</h1>
+          <h1 style="font-size: var(--font-2xl);">📚 ${t('library.title')}</h1>
           <p class="text-muted text-sm" style="margin-top: var(--space-1);">
-            Tất cả bài viết đã tạo
+            ${t('library.subtitle')}
           </p>
         </div>
-        <a href="#/create" class="btn btn-primary btn-sm">✨ Tạo mới</a>
+        <a href="#/create" class="btn btn-primary btn-sm">✨ ${t('library.createNew')}</a>
       </div>
 
       <!-- Search & Filter -->
       <div class="flex gap-4 mb-6" style="flex-wrap: wrap;">
         <div style="flex: 1; min-width: 200px;">
-          <input type="search" id="search-input" class="input" placeholder="🔍 Tìm kiếm bài viết...">
+          <input type="search" id="search-input" class="input" placeholder="🔍 ${t('library.searchPlaceholder')}">
         </div>
         <select id="filter-status" class="select" style="width: auto; min-width: 150px;">
-          <option value="all">Tất cả</option>
-          <option value="draft">Nháp</option>
-          <option value="published">Đã đăng</option>
+          <option value="all">${t('common.all')}</option>
+          <option value="draft">${t('status.draft')}</option>
+          <option value="published">${t('status.published')}</option>
         </select>
         <select id="filter-type" class="select" style="width: auto; min-width: 150px;">
-          <option value="all">Mọi loại</option>
-          <option value="product">Sản phẩm</option>
-          <option value="promotion">Khuyến mãi</option>
-          <option value="education">Kiến thức</option>
-          <option value="news">Tin tức</option>
+          <option value="all">${t('library.allTypes')}</option>
+          <option value="product">${t('library.typeProduct')}</option>
+          <option value="promotion">${t('library.typePromotion')}</option>
+          <option value="education">${t('library.typeEducation')}</option>
+          <option value="news">${t('library.typeNews')}</option>
         </select>
       </div>
 
@@ -54,8 +55,8 @@ export async function renderLibraryPage() {
 
       <div id="library-empty" class="hidden card-flat text-center" style="padding: var(--space-12);">
         <div style="font-size: 3rem; margin-bottom: var(--space-4);">📭</div>
-        <p class="text-muted">Chưa có bài viết nào</p>
-        <a href="#/create" class="btn btn-primary" style="margin-top: var(--space-4);">✨ Tạo bài đầu tiên</a>
+        <p class="text-muted">${t('library.empty')}</p>
+        <a href="#/create" class="btn btn-primary" style="margin-top: var(--space-4);">✨ ${t('library.createFirst')}</a>
       </div>
     </main>
   `;
@@ -69,7 +70,7 @@ export async function renderLibraryPage() {
     attachLibraryEvents(contents);
   } catch (error) {
     console.error('Library load error:', error);
-    showToast('Lỗi tải thư viện', 'error');
+    showToast(t('library.loadError'), 'error');
     renderContentList([]);
   }
 }
@@ -94,9 +95,9 @@ function renderContentList(contents) {
       <div class="flex justify-between items-center" style="margin-bottom: var(--space-2);">
         <div class="flex items-center gap-2">
           <span class="badge ${c.status === 'published' ? 'badge-success' : 'badge-accent'}">
-            ${c.status === 'published' ? '✅ Đã đăng' : '📝 Nháp'}
+            ${c.status === 'published' ? '✅ ' + t('status.published') : '📝 ' + t('status.draft')}
           </span>
-          <span class="badge badge-warning" style="text-transform: none;">${c.contentType || 'Bài viết'}</span>
+          <span class="badge badge-warning" style="text-transform: none;">${c.contentType || t('library.post')}</span>
         </div>
         <span class="text-sm text-muted">${timeAgo(c.createdAt)}</span>
       </div>
@@ -110,10 +111,10 @@ function renderContentList(contents) {
       </p>
 
       <div class="flex gap-2" style="flex-wrap: wrap;">
-        <button class="btn btn-ghost btn-sm copy-fb-btn" data-id="${c.id}">📋 Copy FB</button>
-        <button class="btn btn-ghost btn-sm copy-blog-btn" data-id="${c.id}">📋 Copy Blog</button>
-        <button class="btn btn-accent btn-sm publish-btn" data-id="${c.id}">🚀 Đăng</button>
-        <button class="btn btn-ghost btn-sm btn-delete" data-id="${c.id}" style="margin-left: auto; color: var(--danger);">🗑️ Xoá</button>
+        <button class="btn btn-ghost btn-sm copy-fb-btn" data-id="${c.id}">📋 ${t('library.copyFB')}</button>
+        <button class="btn btn-ghost btn-sm copy-blog-btn" data-id="${c.id}">📋 ${t('library.copyBlog')}</button>
+        <button class="btn btn-accent btn-sm publish-btn" data-id="${c.id}">🚀 ${t('actions.publish')}</button>
+        <button class="btn btn-ghost btn-sm btn-delete" data-id="${c.id}" style="margin-left: auto; color: var(--danger);">🗑️ ${t('actions.delete')}</button>
       </div>
 
       <div class="publish-result hidden" id="publish-result-${c.id}" style="margin-top: var(--space-3);"></div>
@@ -141,24 +142,24 @@ function attachLibraryEvents(allContents) {
 
     if (btn.classList.contains('copy-fb-btn') && content) {
       await copyToClipboard(content.facebook || '');
-      showToast('Đã copy Facebook post! 📋', 'success');
+      showToast(t('library.copiedFB'), 'success');
     }
 
     if (btn.classList.contains('copy-blog-btn') && content) {
       await copyToClipboard(content.blog || '');
-      showToast('Đã copy Blog article! 📋', 'success');
+      showToast(t('library.copiedBlog'), 'success');
     }
 
     if (btn.classList.contains('btn-delete') && content) {
-      const confirmed = await confirm('Bạn có chắc muốn xoá bài viết này?');
+      const confirmed = await confirm(t('library.deleteConfirm'));
       if (confirmed) {
         try {
           await deleteContent(id);
           allContents = allContents.filter(c => c.id !== id);
           renderContentList(allContents);
-          showToast('Đã xoá', 'info');
+          showToast(t('toasts.deleted'), 'info');
         } catch {
-          showToast('Lỗi xoá bài', 'error');
+          showToast(t('library.deleteError'), 'error');
         }
       }
     }
@@ -201,21 +202,21 @@ async function handleQuickPublish(content, btn) {
   const wp = connections.wordpress;
 
   if (!fb?.pageId && !wp?.siteUrl) {
-    showToast('Chưa kết nối platform nào. Vào ⚙️ Cài đặt để kết nối.', 'warning', 4000);
+    showToast(t('library.noConnections'), 'warning', 4000);
     return;
   }
 
   const confirmed = await confirm(
-    `Đăng bài lên ${[fb?.pageId ? 'Facebook' : '', wp?.siteUrl ? 'WordPress' : ''].filter(Boolean).join(' + ')}?`
+    t('library.publishConfirm', { platforms: [fb?.pageId ? 'Facebook' : '', wp?.siteUrl ? 'WordPress' : ''].filter(Boolean).join(' + ') })
   );
   if (!confirmed) return;
 
   const resultEl = document.getElementById(`publish-result-${content.id}`);
   btn.disabled = true;
-  btn.textContent = '⏳ Đang đăng...';
+  btn.textContent = '⏳ ' + t('library.publishing');
   if (resultEl) {
     resultEl.classList.remove('hidden');
-    resultEl.innerHTML = '<span class="text-muted">🔄 Đang xử lý...</span>';
+    resultEl.innerHTML = `<span class="text-muted">🔄 ${t('library.processing')}</span>`;
   }
 
   const results = [];
@@ -225,7 +226,7 @@ async function handleQuickPublish(content, btn) {
   if (fb?.pageId) {
     const fbResult = await publishToFacebook(content.facebook || '', fb.pageId, fb.accessToken);
     if (fbResult.success) {
-      results.push(`✅ FB: <a href="${fbResult.postUrl}" target="_blank">Xem →</a>`);
+      results.push(`✅ FB: <a href="${fbResult.postUrl}" target="_blank">${t('library.view')} →</a>`);
       publishedTo.push('facebook');
     } else {
       results.push(`❌ FB: ${fbResult.error}`);
@@ -243,7 +244,7 @@ async function handleQuickPublish(content, btn) {
       appPassword: wp.appPassword,
     });
     if (wpResult.success) {
-      results.push(`✅ WP: <a href="${wpResult.postUrl}" target="_blank">Xem →</a>`);
+      results.push(`✅ WP: <a href="${wpResult.postUrl}" target="_blank">${t('library.view')} →</a>`);
       publishedTo.push('wordpress');
     } else {
       results.push(`❌ WP: ${wpResult.error}`);
@@ -261,9 +262,9 @@ async function handleQuickPublish(content, btn) {
         publishedAt: new Date().toISOString(),
       });
     } catch { /* silent */ }
-    showToast(`Đã đăng lên ${publishedTo.join(' + ')}! 🎉`, 'success');
+    showToast(t('library.publishSuccess', { platforms: publishedTo.join(' + ') }), 'success');
   }
 
   btn.disabled = false;
-  btn.textContent = '🚀 Đăng';
+  btn.textContent = '🚀 ' + t('actions.publish');
 }

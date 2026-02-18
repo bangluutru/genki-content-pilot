@@ -88,6 +88,11 @@ class Router {
             this.resolve();
         }
     }
+
+    /** Get current route name */
+    getCurrentRoute() {
+        return this.currentRoute || this.getPath();
+    }
 }
 
 export const router = new Router();

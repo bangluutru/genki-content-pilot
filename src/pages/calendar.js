@@ -6,6 +6,7 @@ import { loadContents, saveSchedule, loadSchedules, deleteSchedule } from '../se
 import { timeAgo, truncate } from '../utils/helpers.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
+import { t } from '../utils/i18n.js';
 
 let currentYear, currentMonth;
 
@@ -20,19 +21,19 @@ export async function renderCalendarPage() {
     <main class="main-content page">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 style="font-size: var(--font-2xl);">📅 Lịch nội dung</h1>
-          <p class="text-muted text-sm" style="margin-top: var(--space-1);">Lên lịch đăng bài theo ngày</p>
+          <h1 style="font-size: var(--font-2xl);">📅 ${t('calendar.title')}</h1>
+          <p class="text-muted text-sm" style="margin-top: var(--space-1);">${t('calendar.subtitle')}</p>
         </div>
         <div class="flex gap-2">
-          <button class="btn btn-ghost" id="btn-prev-month">← Trước</button>
+          <button class="btn btn-ghost" id="btn-prev-month">← ${t('calendar.prev')}</button>
           <span class="btn btn-ghost" id="month-label" style="min-width: 150px; text-align: center; font-weight: 700;"></span>
-          <button class="btn btn-ghost" id="btn-next-month">Sau →</button>
+          <button class="btn btn-ghost" id="btn-next-month">${t('calendar.next')} →</button>
         </div>
       </div>
 
       <div class="calendar-grid-wrap">
         <div class="calendar-weekdays">
-          <div>CN</div><div>T2</div><div>T3</div><div>T4</div><div>T5</div><div>T6</div><div>T7</div>
+          <div>${t('calendar.sun')}</div><div>${t('calendar.mon')}</div><div>${t('calendar.tue')}</div><div>${t('calendar.wed')}</div><div>${t('calendar.thu')}</div><div>${t('calendar.fri')}</div><div>${t('calendar.sat')}</div>
         </div>
         <div class="calendar-grid" id="calendar-grid"></div>
       </div>
@@ -45,9 +46,9 @@ export async function renderCalendarPage() {
           <div id="modal-schedules" style="margin-bottom: var(--space-4);"></div>
 
           <div class="form-group" style="margin-bottom: var(--space-4);">
-            <label class="form-label">Chọn bài viết</label>
+            <label class="form-label">${t('calendar.selectContent')}</label>
             <select class="form-input" id="schedule-content-select">
-              <option value="">— Chọn từ thư viện —</option>
+              <option value="">— ${t('calendar.selectFromLibrary')} —</option>
             </select>
           </div>
 
@@ -56,15 +57,15 @@ export async function renderCalendarPage() {
             <select class="form-input" id="schedule-platform">
               <option value="facebook">📱 Facebook</option>
               <option value="blog">📝 Blog</option>
-              <option value="all">📱📝 Tất cả</option>
+              <option value="all">📱📝 ${t('calendar.allPlatforms')}</option>
             </select>
           </div>
 
           <div class="form-group" style="margin-bottom: var(--space-4);">
-            <label class="form-label">Giờ đăng</label>
+            <label class="form-label">${t('calendar.publishTime')}</label>
             <input type="time" class="form-input" id="schedule-time" value="09:00">
             <div class="quick-times" style="margin-top: var(--space-2); display: flex; gap: var(--space-2);">
-              <span class="text-xs text-muted" style="align-self: center;">Gợi ý:</span>
+              <span class="text-xs text-muted" style="align-self: center;">${t('calendar.suggestions')}:</span>
               <button class="btn btn-ghost btn-xs quick-time-btn" data-time="09:00">☀️ 09:00</button>
               <button class="btn btn-ghost btn-xs quick-time-btn" data-time="11:30">🍽️ 11:30</button>
               <button class="btn btn-ghost btn-xs quick-time-btn" data-time="20:00">🌙 20:00</button>
@@ -72,8 +73,8 @@ export async function renderCalendarPage() {
           </div>
 
           <div class="flex gap-2">
-            <button class="btn btn-primary" id="btn-add-schedule" style="flex: 1;">📅 Thêm lịch</button>
-            <button class="btn btn-ghost" id="btn-close-modal">Đóng</button>
+            <button class="btn btn-primary" id="btn-add-schedule" style="flex: 1;">📅 ${t('calendar.addSchedule')}</button>
+            <button class="btn btn-ghost" id="btn-close-modal">${t('actions.close')}</button>
           </div>
         </div>
       </div>
@@ -153,7 +154,7 @@ async function renderMonth() {
 
     const scheduleChips = daySchedules.slice(0, 3).map(s => {
       const icon = s.platform === 'facebook' ? '📱' : s.platform === 'blog' ? '📝' : '📱📝';
-      return `<div class="schedule-chip ${isPast && s.status !== 'published' ? 'overdue' : ''}" title="${s.title || 'Bài viết'}">${icon} ${truncate(s.title || '', 12)}</div>`;
+      return `<div class="schedule-chip ${isPast && s.status !== 'published' ? 'overdue' : ''}" title="${s.title || t('calendar.untitledPost')}">${icon} ${truncate(s.title || '', 12)}</div>`;
     }).join('');
 
     const moreCount = daySchedules.length > 3 ? `<div class="schedule-more">+${daySchedules.length - 3}</div>` : '';
@@ -191,7 +192,7 @@ function openModal(date, schedules) {
   if (daySchedules.length > 0) {
     schedulesEl.innerHTML = `
       <div style="margin-bottom: var(--space-3);">
-        <strong class="text-sm">Lịch đã đặt:</strong>
+        <strong class="text-sm">${t('calendar.scheduledPosts')}:</strong>
       </div>
       ${daySchedules.map(s => `
         <div class="existing-schedule">
@@ -206,22 +207,22 @@ function openModal(date, schedules) {
         e.stopPropagation();
         try {
           await deleteSchedule(btn.dataset.id);
-          showToast('Đã xoá lịch', 'success');
+          showToast(t('calendar.scheduleDeleted'), 'success');
           closeModal();
           renderMonth();
         } catch (err) {
-          showToast('Lỗi: ' + err.message, 'error');
+          showToast(t('common.error') + ': ' + err.message, 'error');
         }
       });
     });
   } else {
-    schedulesEl.innerHTML = '<p class="text-sm text-muted">Chưa có lịch nào cho ngày này</p>';
+    schedulesEl.innerHTML = `<p class="text-sm text-muted">${t('calendar.noSchedulesYet')}</p>`;
   }
 
   // Populate content dropdown
   const select = document.getElementById('schedule-content-select');
   const contents = store.get('contents') || [];
-  select.innerHTML = '<option value="">— Chọn từ thư viện —</option>' +
+  select.innerHTML = `<option value="">— ${t('calendar.selectFromLibrary')} —</option>` +
     contents.map(c => `<option value="${c.id}" data-title="${(c.brief || c.facebook || 'Untitled').slice(0, 50)}">${truncate(c.brief || c.facebook || 'Untitled', 60)}</option>`).join('');
 
   modal.classList.remove('hidden');
@@ -239,7 +240,7 @@ async function handleAddSchedule() {
   const time = document.getElementById('schedule-time')?.value || '09:00';
 
   if (!contentId) {
-    showToast('Vui lòng chọn bài viết', 'error');
+    showToast(t('calendar.selectContentRequired'), 'error');
     return;
   }
 
@@ -257,10 +258,10 @@ async function handleAddSchedule() {
       status: 'scheduled',
     });
 
-    showToast('Đã thêm lịch đăng bài! 📅', 'success');
+    showToast(t('calendar.scheduleAdded'), 'success');
     closeModal();
     renderMonth();
   } catch (err) {
-    showToast('Lỗi: ' + err.message, 'error');
+    showToast(t('common.error') + ': ' + err.message, 'error');
   }
 }
