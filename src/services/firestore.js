@@ -459,6 +459,8 @@ export async function loadConversions(dateRange = null) {
 
         store.set('conversions', conversions);
         return conversions;
+    } catch (error) {
+        console.warn('Failed to load conversions from Firestore, falling back to local:', error);
         // Fallback to localStorage
         return store.get('conversions') || [];
     }
