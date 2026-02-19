@@ -100,6 +100,7 @@
                 "wordpress": "Website (WordPress)"
         },
         "status": {
+                "active": "Active",
                 "draft": "Draft",
                 "inReview": "In review",
                 "approved": "Approved",
@@ -291,6 +292,18 @@
                         "generateAngles": "Generate angles",
                         "hint": "Keep it short. You can refine later."
                 }
+        },
+        "campaignDetail": {
+                "pillarsEmpty": "Create content pillars for your campaign. AI will suggest based on your brief.",
+                "generateAnglesFor": "Generate angles",
+                "generateAllAngles": "Generate angles for all pillars",
+                "needPillarsFirst": "Create Pillars first",
+                "pillarsFirstDesc": "Create at least 1 pillar in the Pillars tab before generating angles.",
+                "noAnglesForPillars": "No angles yet. Click 'Generate angles' in the Pillars tab.",
+                "postsComingSoon": "Create Posts",
+                "postsDesc": "Select angles in step 2, then go to Create page to write posts.",
+                "pillarDescPrompt": "Brief description of this pillar",
+                "selectPillar": "Select a pillar (enter number)"
         },
         "conversion": {
                 "title": "Conversion Tracking",

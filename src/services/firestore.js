@@ -653,6 +653,62 @@ export async function deleteCampaign(campaignId) {
     }
 }
 
+/**
+ * Update Campaign Pillars
+ * @param {string} campaignId
+ * @param {Array} pillars - Array of pillar objects
+ */
+export async function updateCampaignPillars(campaignId, pillars) {
+    const userId = uid();
+    if (!userId) throw new Error('Not authenticated');
+
+    const updatedData = { pillars, updatedAt: new Date().toISOString() };
+
+    try {
+        const { db, doc, setDoc } = await getFirestore();
+        await setDoc(doc(db, 'campaigns', campaignId), updatedData, { merge: true });
+    } catch (error) {
+        console.warn('Firestore updateCampaignPillars failed, updating local:', error);
+    }
+
+    // Always update local store
+    const campaigns = store.get('campaigns') || [];
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (campaign) {
+        campaign.pillars = pillars;
+        campaign.updatedAt = updatedData.updatedAt;
+        store.set('campaigns', campaigns);
+    }
+}
+
+/**
+ * Update Campaign Angles
+ * @param {string} campaignId
+ * @param {Array} angles - Array of angle objects
+ */
+export async function updateCampaignAngles(campaignId, angles) {
+    const userId = uid();
+    if (!userId) throw new Error('Not authenticated');
+
+    const updatedData = { angles, updatedAt: new Date().toISOString() };
+
+    try {
+        const { db, doc, setDoc } = await getFirestore();
+        await setDoc(doc(db, 'campaigns', campaignId), updatedData, { merge: true });
+    } catch (error) {
+        console.warn('Firestore updateCampaignAngles failed, updating local:', error);
+    }
+
+    // Always update local store
+    const campaigns = store.get('campaigns') || [];
+    const campaign = campaigns.find(c => c.id === campaignId);
+    if (campaign) {
+        campaign.angles = angles;
+        campaign.updatedAt = updatedData.updatedAt;
+        store.set('campaigns', campaigns);
+    }
+}
+
 // ===== Approval Workflow (Phase 13) =====
 
 export async function approveContent(contentId) {

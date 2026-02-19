@@ -324,3 +324,144 @@ Mỗi ý tưởng phải phù hợp với Archetype và Voice của thương hi�
         throw error;
     }
 }
+
+/**
+ * Generate Content Pillars from Campaign Brief
+ * @param {Object} brand - Brand Identity
+ * @param {string} campaignBrief - Campaign name/description
+ * @returns {Array} List of pillar objects
+ */
+export async function generatePillars(brand, campaignBrief) {
+    const systemPrompt = `Bạn là Content Strategist chuyên nghiệp.
+Nhiệm vụ: Tạo các Content Pillars (trụ cột nội dung) cho chiến dịch marketing.
+
+THÔNG TIN THƯƠNG HIỆU:
+- Tên: ${brand.name}
+- Ngành: ${brand.industry}
+- Archetype: ${brand.archetype || 'N/A'}
+- Khách hàng: ${brand.avatars || brand.targetAudience || 'N/A'}
+
+Content Pillar = chủ đề lớn mà thương hiệu sẽ xoay quanh trong chiến dịch.
+Mỗi pillar phải rõ ràng, không trùng lặp, và phục vụ mục tiêu chiến dịch.
+
+OUTPUT FORMAT:
+Trả về JSON array thuần túy (không markdown block):
+[
+  {
+    "name": "Tên pillar ngắn gọn (3-5 từ)",
+    "description": "Mô tả pillar và tại sao nó quan trọng cho chiến dịch (1-2 câu)",
+    "priority": "high|medium|low",
+    "suggestedCadence": "Tần suất đăng gợi ý (ví dụ: 3 bài/tuần)"
+  }
+]`;
+
+    const userPrompt = `CHIẾN DỊCH: "${campaignBrief}"
+
+Hãy tạo 4 Content Pillars khác biệt, phù hợp với chiến dịch trên.
+Sắp xếp theo priority từ cao xuống thấp.`;
+
+    try {
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [
+                        { role: 'user', parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] }
+                    ],
+                    generationConfig: {
+                        temperature: 0.8,
+                        responseMimeType: "application/json"
+                    }
+                })
+            }
+        );
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error?.message || 'Pillar generation failed');
+        }
+
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error('No pillars generated');
+
+        return JSON.parse(text);
+    } catch (error) {
+        console.error('Pillar AI error:', error);
+        throw error;
+    }
+}
+
+/**
+ * Generate Angles from a Content Pillar
+ * @param {Object} brand - Brand Identity
+ * @param {Object} pillar - { name, description }
+ * @param {string} campaignBrief - Campaign context
+ * @returns {Array} List of angle objects
+ */
+export async function generateAngles(brand, pillar, campaignBrief) {
+    const systemPrompt = `Bạn là Creative Director chuyên content marketing.
+Nhiệm vụ: Tạo các Content Angles (góc tiếp cận) từ một Content Pillar.
+
+THÔNG TIN THƯƠNG HIỆU:
+- Tên: ${brand.name}
+- Ngành: ${brand.industry}
+- Voice: ${brand.voice || 'N/A'}
+- Khách hàng: ${brand.avatars || brand.targetAudience || 'N/A'}
+
+Content Angle = cách triển khai cụ thể từ một pillar. Mỗi angle là một bài viết tiềm năng.
+Các angle phải đa dạng về tone, format, và góc nhìn.
+
+OUTPUT FORMAT:
+Trả về JSON array thuần túy (không markdown block):
+[
+  {
+    "name": "Tên angle ngắn gọn",
+    "type": "educational|storytelling|social-proof|fomo|problem-solution|behind-the-scenes",
+    "hook": "Câu hook mẫu để bắt đầu bài viết (1 câu thu hút)",
+    "keyMessage": "Thông điệp chính của angle",
+    "suggestedFormat": "Facebook Post|Blog|Reels|Story"
+  }
+]`;
+
+    const userPrompt = `CHIẾN DỊCH: "${campaignBrief}"
+PILLAR: "${pillar.name}" — ${pillar.description}
+
+Hãy tạo 4 Content Angles đa dạng từ pillar trên.
+Mỗi angle phải có hook hấp dẫn và thông điệp rõ ràng.`;
+
+    try {
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [
+                        { role: 'user', parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] }
+                    ],
+                    generationConfig: {
+                        temperature: 0.9,
+                        responseMimeType: "application/json"
+                    }
+                })
+            }
+        );
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error?.message || 'Angle generation failed');
+        }
+
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error('No angles generated');
+
+        return JSON.parse(text);
+    } catch (error) {
+        console.error('Angle AI error:', error);
+        throw error;
+    }
+}

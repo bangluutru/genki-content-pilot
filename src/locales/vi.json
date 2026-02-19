@@ -100,6 +100,7 @@
                 "wordpress": "Website (WordPress)"
         },
         "status": {
+                "active": "Đang chạy",
                 "draft": "Nháp",
                 "inReview": "Đang duyệt",
                 "approved": "Đã duyệt",
@@ -284,6 +285,18 @@
                         "generateAngles": "Tạo angle",
                         "hint": "Viết ngắn gọn. Có thể chỉnh sau."
                 }
+        },
+        "campaignDetail": {
+                "pillarsEmpty": "Tạo các trụ cột nội dung (pillar) cho chiến dịch. AI sẽ gợi ý dựa trên brief.",
+                "generateAnglesFor": "Tạo angle",
+                "generateAllAngles": "Tạo angle cho tất cả pillars",
+                "needPillarsFirst": "Cần tạo Pillar trước",
+                "pillarsFirstDesc": "Hãy tạo ít nhất 1 pillar trong tab Pillars trước khi tạo angle.",
+                "noAnglesForPillars": "Chưa có angle nào. Bấm 'Tạo angle' trong tab Pillars.",
+                "postsComingSoon": "Tạo bài viết",
+                "postsDesc": "Chọn angle ở bước 2, rồi qua trang Tạo nội dung để viết bài.",
+                "pillarDescPrompt": "Mô tả ngắn về pillar này",
+                "selectPillar": "Chọn pillar (nhập số)"
         },
         "conversion": {
                 "title": "Theo dõi chuyển đổi",

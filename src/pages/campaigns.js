@@ -85,7 +85,7 @@ function renderCampaignList(campaigns) {
   }
 
   return campaigns.map(c => `
-    <div class="card campaign-card relative">
+    <div class="card campaign-card relative" style="cursor: pointer;" data-campaign-id="${c.id}">
       <div class="flex justify-between items-start">
         <div>
           <div class="flex items-center gap-2 mb-2">
@@ -197,10 +197,21 @@ function attachCampaignEvents() {
   // Delete
   document.querySelectorAll('.btn-delete-campaign').forEach(btn => {
     btn.addEventListener('click', async (e) => {
+      e.stopPropagation(); // Prevent card click
       if (!confirm(t('common.confirm'))) return;
-      const id = e.target.dataset.id;
+      const id = e.currentTarget.dataset.id;
       await deleteCampaign(id);
       renderCampaignsPage();
+    });
+  });
+
+  // Click campaign card → detail page
+  document.querySelectorAll('.campaign-card[data-campaign-id]').forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Don't navigate if clicking a button inside the card
+      if (e.target.closest('button')) return;
+      const id = card.dataset.campaignId;
+      window.location.hash = `#/campaign-detail?id=${id}`;
     });
   });
 }

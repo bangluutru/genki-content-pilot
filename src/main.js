@@ -63,6 +63,10 @@ async function loadPage(name) {
       const { renderStrategyPage } = await import('./pages/strategy.js');
       return renderStrategyPage;
     }
+    case 'campaign-detail': {
+      const { renderCampaignDetailPage } = await import('./pages/campaign-detail.js');
+      return renderCampaignDetailPage;
+    }
     default:
       return null;
   }
@@ -122,6 +126,10 @@ router
   .on('strategy', async () => {
     const render = await loadPage('strategy');
     await render?.();
+  })
+  .on('campaign-detail', async (params) => {
+    const render = await loadPage('campaign-detail');
+    await render?.(params);
   });
 
 // Initialize app
