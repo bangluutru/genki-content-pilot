@@ -44,33 +44,16 @@ export function showOfflineBanner(container) {
     const missing = getFirebaseConfigMissingKeys();
     const banner = document.createElement('div');
     banner.id = 'firebase-offline-banner';
-    banner.style.cssText = `
-        background: linear-gradient(135deg, #f59e0b, #d97706);
-        color: #fff;
-        padding: 12px 20px;
-        text-align: center;
-        font-size: 14px;
-        font-weight: 500;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 9999;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    `;
+    banner.className = 'firebase-offline-banner';
     banner.innerHTML = `
         ⚠️ <strong>Offline/Demo mode</strong>: Firebase chưa cấu hình
         (thiếu: ${missing.join(', ')})
         &nbsp;—&nbsp;
         <a href="https://github.com/bangluutru/genki-content-pilot#production-firebase-setup-step-by-step"
-           target="_blank"
-           style="color:#fff;text-decoration:underline;font-weight:700;">
+           target="_blank">
             📖 Xem hướng dẫn setup
         </a>
-        <button onclick="this.parentElement.remove()"
-                style="margin-left:12px;background:rgba(255,255,255,0.2);border:none;color:#fff;cursor:pointer;padding:2px 8px;border-radius:4px;">
-            ✕
-        </button>
+        <button onclick="this.parentElement.remove()">✕</button>
     `;
 
     // Push body content down

@@ -1,26 +1,32 @@
 /**
  * Create Content Page — Guided brief form + AI generation + tab preview + publish
  * Core feature of ContentPilot v2
+ *
+ * Handlers split into:
+ *  - create/ai-handler.js       (generate, variation, image)
+ *  - create/publish-handler.js  (publish, save, init panel)
+ *  - create/compliance-handler.js (compliance check, disclaimer)
  */
 import { store } from '../utils/state.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
-import { generateContent, checkDailyLimit, incrementUsage, generateVariation, VARIATION_TYPES } from '../services/gemini.js';
-import {
-  openImageEditor
-
-} from '../components/image-editor.js';
-import { checkCompliance, highlightViolations, addDisclaimer, DISCLAIMER_TEMPLATES } from '../services/compliance.js';
-import { saveContent, loadConnections } from '../services/firestore.js';
+import { checkDailyLimit, VARIATION_TYPES } from '../services/gemini.js';
+import { getStylePresets } from '../services/image-gen.js';
 import { copyToClipboard, storage } from '../utils/helpers.js';
-import { publishToFacebook } from '../services/facebook.js';
-import { publishToWordPress } from '../services/wordpress.js';
-import { generateImage, buildImagePrompt, getStylePresets } from '../services/image-gen.js';
 import { icon } from '../utils/icons.js';
 import { t } from '../utils/i18n.js';
 
+// Handler imports
+import { handleGenerate, handleVariation, handleImageGen } from './create/ai-handler.js';
+import { handlePublish, handleSave, initPublishPanel } from './create/publish-handler.js';
+import { runComplianceCheck } from './create/compliance-handler.js';
+
 let currentContent = null;
 let autosaveTimer = null;
+
+/** State getter/setter for handler modules */
+const getCurrentContent = () => currentContent;
+const setCurrentContent = (val) => { currentContent = val; };
 
 export function renderCreatePage() {
   const app = document.getElementById('app');
@@ -337,8 +343,10 @@ export function renderCreatePage() {
 }
 
 function attachCreateEvents() {
-  // Generate button
-  document.getElementById('btn-generate')?.addEventListener('click', handleGenerate);
+  // Generate button — delegates to ai-handler
+  document.getElementById('btn-generate')?.addEventListener('click', () => {
+    handleGenerate(setCurrentContent, runComplianceCheck);
+  });
 
   // Tab switching
   document.querySelectorAll('.tab').forEach(tab => {
@@ -370,7 +378,7 @@ function attachCreateEvents() {
     document.getElementById('step-brief').classList.remove('hidden');
   });
 
-  // Image generation
+  // Image generation — delegates to ai-handler
   document.querySelectorAll('.style-option').forEach(opt => {
     opt.addEventListener('click', () => {
       document.querySelectorAll('.style-option').forEach(o => o.classList.remove('selected'));
@@ -380,7 +388,7 @@ function attachCreateEvents() {
 
   document.getElementById('btn-gen-image')?.addEventListener('click', handleImageGen);
 
-  // Variation buttons
+  // Variation buttons — delegates to ai-handler
   document.querySelectorAll('.variation-type-btn').forEach(btn => {
     btn.addEventListener('click', () => handleVariation(btn.dataset.type));
   });
@@ -393,8 +401,8 @@ function attachCreateEvents() {
     }
   });
 
-  // Save
-  document.getElementById('btn-save-content')?.addEventListener('click', handleSave);
+  // Save — delegates to publish-handler
+  document.getElementById('btn-save-content')?.addEventListener('click', () => handleSave(getCurrentContent));
 
   // Publish toggles
   const toggleFb = document.getElementById('toggle-fb');
@@ -409,215 +417,11 @@ function attachCreateEvents() {
   toggleFb?.addEventListener('change', updatePublishBtn);
   toggleWp?.addEventListener('change', updatePublishBtn);
 
-  // Publish button
-  publishBtn?.addEventListener('click', handlePublish);
+  // Publish button — delegates to publish-handler
+  publishBtn?.addEventListener('click', () => handlePublish(getCurrentContent));
 
-  // Load connection status for publish panel
+  // Load connection status
   initPublishPanel();
-}
-
-async function initPublishPanel() {
-  const connections = store.get('connections') || await loadConnections() || {};
-  const fb = connections.facebook;
-  const wp = connections.wordpress;
-
-  const fbStatus = document.getElementById('fb-conn-status');
-  const wpStatus = document.getElementById('wp-conn-status');
-  const toggleFb = document.getElementById('toggle-fb');
-  const toggleWp = document.getElementById('toggle-wp');
-
-  if (fb?.pageId) {
-    if (fbStatus) fbStatus.textContent = `(${fb.pageName || t('settings.connected')})`;
-  } else {
-    if (fbStatus) fbStatus.innerHTML = `(<a href="#/settings">${t('create.notConnected')}</a>)`;
-    if (toggleFb) { toggleFb.disabled = true; }
-  }
-
-  if (wp?.siteUrl) {
-    if (wpStatus) wpStatus.textContent = `(${wp.siteName || t('settings.connected')})`;
-  } else {
-    if (wpStatus) wpStatus.innerHTML = `(<a href="#/settings">${t('create.notConnected')}</a>)`;
-    if (toggleWp) { toggleWp.disabled = true; }
-  }
-}
-
-async function handleGenerate() {
-  const product = document.getElementById('brief-product')?.value?.trim();
-  if (!product) {
-    showToast(t('create.productRequired'), 'warning');
-    document.getElementById('brief-product')?.focus();
-    return;
-  }
-
-  const brief = {
-    contentType: document.getElementById('brief-type')?.value,
-    product,
-    highlight: document.getElementById('brief-highlight')?.value?.trim(),
-    promotion: document.getElementById('brief-promotion')?.value?.trim(),
-    cta: document.getElementById('brief-cta')?.value,
-    additionalNotes: document.getElementById('brief-notes')?.value?.trim(),
-  };
-
-  // Show loading
-  document.getElementById('step-brief').classList.add('hidden');
-  document.getElementById('step-loading').classList.remove('hidden');
-
-  // Animate steps
-  const steps = ['ai-step-0', 'ai-step-1', 'ai-step-2', 'ai-step-3', 'ai-step-4'];
-  let stepIdx = 0;
-  const stepTimer = setInterval(() => {
-    if (stepIdx > 0) {
-      document.getElementById(steps[stepIdx - 1])?.classList.remove('active');
-      document.getElementById(steps[stepIdx - 1])?.classList.add('done');
-    }
-    if (stepIdx < steps.length) {
-      document.getElementById(steps[stepIdx])?.classList.add('active');
-      stepIdx++;
-    }
-  }, 3000);
-
-  try {
-    const content = await generateContent(brief);
-    clearInterval(stepTimer);
-    incrementUsage();
-
-    currentContent = { ...content, brief: product, contentType: brief.contentType };
-
-    // Show preview
-    document.getElementById('step-loading').classList.add('hidden');
-    document.getElementById('step-preview').classList.remove('hidden');
-
-    document.getElementById('content-facebook').textContent = content.facebook;
-    document.getElementById('content-blog').textContent = content.blog;
-    document.getElementById('content-story').textContent = content.story;
-
-    // Clear draft
-    storage.remove('draft_brief');
-
-    // Run compliance check on Facebook content
-    runComplianceCheck(content.facebook);
-
-    showToast(t('create.contentReadyToast'), 'success');
-  } catch (error) {
-    clearInterval(stepTimer);
-    console.error('Generate error:', error);
-    document.getElementById('step-loading').classList.add('hidden');
-    document.getElementById('step-brief').classList.remove('hidden');
-    showToast(t('create.generateError', { error: error.message }), 'error', 5000);
-  }
-}
-
-async function handlePublish() {
-  if (!currentContent) return;
-
-  const connections = store.get('connections') || {};
-  const publishFb = document.getElementById('toggle-fb')?.checked;
-  const publishWp = document.getElementById('toggle-wp')?.checked;
-  const publishBtn = document.getElementById('btn-publish');
-  const resultsEl = document.getElementById('publish-results');
-
-  if (!publishFb && !publishWp) {
-    showToast(t('create.selectPlatform'), 'warning');
-    return;
-  }
-
-  // Get latest edited content
-  const facebook = document.getElementById('content-facebook')?.textContent || '';
-  const blog = document.getElementById('content-blog')?.textContent || '';
-
-  // Disable button + show loading
-  publishBtn.disabled = true;
-  publishBtn.innerHTML = '⏳ ' + t('create.publishing');
-  resultsEl.classList.remove('hidden');
-  resultsEl.innerHTML = `<span class="text-muted">${icon('refresh', 16)} ${t('create.processing')}</span>`;
-
-  const results = [];
-  const publishedTo = [];
-  const publishedUrls = {};
-
-  // Publish to Facebook
-  if (publishFb && connections.facebook) {
-    const fb = connections.facebook;
-    const fbResult = await publishToFacebook(facebook, fb.pageId, fb.accessToken);
-    if (fbResult.success) {
-      results.push(`<div class="publish-result-item text-success">${icon('check', 14)} Facebook: <a href="${fbResult.postUrl}" target="_blank" rel="noopener">${t('create.viewPost')}</a></div>`);
-      publishedTo.push('facebook');
-      publishedUrls.facebook = fbResult.postUrl;
-    } else {
-      results.push(`<div class="publish-result-item text-danger">${icon('cross', 14)} Facebook: ${fbResult.error}</div>`);
-    }
-  }
-
-  // Publish to WordPress
-  if (publishWp && connections.wordpress) {
-    const wp = connections.wordpress;
-    const wpResult = await publishToWordPress({
-      title: currentContent.brief || 'ContentPilot Post',
-      content: blog,
-      status: 'publish',
-      siteUrl: wp.siteUrl,
-      username: wp.username,
-      appPassword: wp.appPassword,
-    });
-    if (wpResult.success) {
-      results.push(`<div class="publish-result-item text-success">${icon('check', 14)} WordPress: <a href="${wpResult.postUrl}" target="_blank" rel="noopener">${t('create.viewPost')}</a></div>`);
-      publishedTo.push('wordpress');
-      publishedUrls.wordpress = wpResult.postUrl;
-    } else {
-      results.push(`<div class="publish-result-item text-danger">${icon('cross', 14)} WordPress: ${wpResult.error}</div>`);
-    }
-  }
-
-  // Show results
-  resultsEl.innerHTML = results.join('');
-
-  // Auto-save content with published status
-  if (publishedTo.length > 0) {
-    try {
-      const story = document.getElementById('content-story')?.textContent || '';
-      await saveContent({
-        ...currentContent,
-        facebook,
-        blog,
-        story,
-        status: 'published',
-        publishedTo,
-        publishedUrls,
-        publishedAt: new Date().toISOString(),
-      });
-      showToast(t('create.publishSuccess', { platforms: publishedTo.join(' + ') }), 'success');
-    } catch (e) {
-      console.error('Auto-save after publish error:', e);
-    }
-  }
-
-  // Reset button
-  publishBtn.disabled = false;
-  publishBtn.innerHTML = icon('publish', 16) + ' ' + t('create.publishButton');
-}
-
-async function handleSave() {
-  if (!currentContent) return;
-
-  try {
-    // Get edited content from contenteditable
-    const facebook = document.getElementById('content-facebook')?.textContent || '';
-    const blog = document.getElementById('content-blog')?.textContent || '';
-    const story = document.getElementById('content-story')?.textContent || '';
-
-    await saveContent({
-      ...currentContent,
-      facebook,
-      blog,
-      story,
-      status: 'draft',
-    });
-
-    showToast(t('create.savedToLibrary'), 'success');
-  } catch (error) {
-    console.error('Save error:', error);
-    showToast(t('create.saveError'), 'error');
-  }
 }
 
 /** Autosave brief to localStorage every 30s */
@@ -634,209 +438,4 @@ function startAutosave() {
       });
     }
   }, 30000);
-}
-
-async function handleImageGen() {
-  const btn = document.getElementById('btn-gen-image');
-  const preview = document.getElementById('image-preview');
-  if (!btn || !preview) return;
-
-  const style = document.querySelector('input[name="img-style"]:checked')?.value || 'product';
-  let prompt = document.getElementById('image-prompt')?.value?.trim();
-
-  // Build prompt from brief if empty
-  if (!prompt) {
-    const brief = {
-      product: document.getElementById('brief-product')?.value || '',
-      highlight: document.getElementById('brief-highlight')?.value || '',
-      contentType: document.getElementById('brief-type')?.selectedOptions[0]?.text || '',
-    };
-    if (!brief.product) {
-      showToast(t('create.fillProductFirst'), 'error');
-      return;
-    }
-    prompt = buildImagePrompt(brief, style);
-  }
-
-  // Loading
-  btn.disabled = true;
-  btn.textContent = '⏳ ' + t('create.generatingImage');
-  preview.innerHTML = `
-    <div class="image-placeholder">
-      <div class="spinner"></div>
-      <p class="text-sm text-muted" style="margin-top: var(--space-3);">${t('create.aiDrawing')}</p>
-    </div>
-  `;
-
-  try {
-    const result = await generateImage(prompt);
-    preview.innerHTML = `
-      <img src="data:${result.mimeType};base64,${result.imageData}" 
-           alt="AI Generated Image" class="gen-image" id="generated-image">
-      <div class="flex gap-2" style="margin-top: var(--space-3);">
-        <button class="btn btn-primary btn-sm" id="btn-edit-image" style="flex: 1;">${icon('pencil', 14)} ${t('create.editImage')}</button>
-        <a href="data:${result.mimeType};base64,${result.imageData}" 
-           download="contentpilot-image.png" class="btn btn-outline btn-sm" id="btn-download-image">
-          ${icon('save', 14)} ${t('create.downloadImage')}
-        </a>
-        <button class="btn btn-ghost btn-sm" id="btn-regen-image">${icon('refresh', 14)} ${t('create.regenerateImage')}</button>
-      </div>
-    `;
-
-    document.getElementById('btn-edit-image')?.addEventListener('click', () => {
-      const img = document.getElementById('generated-image');
-      openImageEditor(img.src, (newSrc) => {
-        img.src = newSrc;
-        document.getElementById('btn-download-image').href = newSrc;
-      });
-    });
-
-    document.getElementById('btn-regen-image')?.addEventListener('click', handleImageGen);
-    showToast(t('create.imageGenerated'), 'success');
-  } catch (err) {
-    preview.innerHTML = `
-      <div class="image-placeholder">
-        <span style="color: var(--text-muted);">${icon('cross', 32)}</span>
-        <p class="text-sm" style="color: var(--danger);">${err.message}</p>
-        <p class="text-xs text-muted" style="margin-top: var(--space-2);">${t('create.tryDifferentPrompt')}</p>
-      </div>
-    `;
-    showToast(t('create.imageError', { error: err.message }), 'error');
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = icon('image', 16) + ' ' + t('create.generateImage');
-  }
-}
-
-async function handleVariation(type) {
-  // Get active tab content
-  const activeTab = document.querySelector('.tab.active');
-  const platform = activeTab?.dataset.tab || 'facebook';
-  const contentEl = document.getElementById(`content-${platform}`);
-  const originalContent = contentEl?.textContent?.trim();
-
-  if (!originalContent) {
-    showToast(t('create.createVariationFirst'), 'error');
-    return;
-  }
-
-  const typeName = VARIATION_TYPES.find(v => v.id === type)?.name || type;
-
-  // Highlight clicked button
-  document.querySelectorAll('.variation-type-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.type === type);
-    if (b.dataset.type === type) {
-      b.disabled = true;
-      b.innerHTML = '⏳ ' + t('create.creatingVariation');
-    }
-  });
-
-  try {
-    const variation = await generateVariation(originalContent, type, platform);
-
-    const previewEl = document.getElementById('variation-preview');
-    const contentEl = document.getElementById('variation-content');
-    const labelEl = document.getElementById('variation-label');
-
-    if (previewEl && contentEl) {
-      previewEl.classList.remove('hidden');
-      contentEl.textContent = variation;
-      labelEl.textContent = `${typeName} — ${platform}`;
-    }
-
-    showToast(t('create.variationCreated', { type: typeName }), 'success');
-  } catch (err) {
-    showToast(t('common.error') + ': ' + err.message, 'error');
-  } finally {
-    // Reset buttons
-    document.querySelectorAll('.variation-type-btn').forEach(b => {
-      b.disabled = false;
-      const vt = VARIATION_TYPES.find(v => v.id === b.dataset.type);
-      if (vt) b.innerHTML = vt.name;
-    });
-  }
-}
-
-/**
- * Run compliance check and show warnings if violations found
- */
-function runComplianceCheck(content) {
-  const result = checkCompliance(content);
-  const panel = document.getElementById('compliance-panel');
-  const violationsEl = document.getElementById('compliance-violations');
-
-  if (!result.isCompliant) {
-    // Show violations
-    const violationsHTML = result.violations.map(v => `
-      <div class="compliance-violation-item" style="margin-bottom: var(--space-3); padding: var(--space-3); background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-md);">
-        <div class="flex items-start gap-3">
-          <span style="display: inline-flex;">${icon('warning', 16)}</span>
-          <div style="flex: 1;">
-            <p style="margin: 0; color: var(--danger); font-weight: 600;">"${v.word}"</p>
-            <p style="margin: var(--space-1) 0 0; font-size: var(--font-sm); color: var(--text-muted);">${v.message}</p>
-            ${v.suggestion ? `<p style="margin: var(--space-1) 0 0; font-size: var(--font-sm);"><strong>${t('create.suggestion')}</strong> ${v.suggestion}</p>` : ''}
-          </div>
-        </div>
-      </div>
-    `).join('');
-
-    violationsEl.innerHTML = `
-      <div style="padding: var(--space-3); background: var(--bg-secondary); border-radius: var(--radius-md); margin-bottom: var(--space-4);">
-        <p style="margin: 0;"><strong>${t('create.violationsFound', { count: result.violations.length })}</strong></p>
-        <p style="margin: var(--space-1) 0 0; font-size: var(--font-sm); color: var(--text-muted);">
-          ${t('create.complianceScore')} <span class="badge badge-danger">${result.score}/100</span>
-        </p>
-      </div>
-      ${violationsHTML}
-    `;
-
-    panel.classList.remove('hidden');
-
-    // Setup event handlers (remove old listeners by cloning)
-    const closeBtn = document.getElementById('btn-close-compliance');
-    const ignoreBtn = document.getElementById('btn-ignore-compliance');
-    const disclaimerBtn = document.getElementById('btn-add-disclaimer');
-
-    closeBtn?.replaceWith(closeBtn.cloneNode(true));
-    ignoreBtn?.replaceWith(ignoreBtn.cloneNode(true));
-    disclaimerBtn?.replaceWith(disclaimerBtn.cloneNode(true));
-
-    document.getElementById('btn-close-compliance')?.addEventListener('click', () => {
-      panel.classList.add('hidden');
-    });
-
-    document.getElementById('btn-ignore-compliance')?.addEventListener('click', () => {
-      panel.classList.add('hidden');
-      showToast(t('common.warning') + ': ' + t('create.ignoreCompliance'), 'warning');
-    });
-
-    document.getElementById('btn-add-disclaimer')?.addEventListener('click', () => {
-      addDisclaimerToContent();
-    });
-  } else if (result.warnings.length > 0) {
-    // Just warnings, show toast
-    showToast(`${icon('warning', 14)} ${t('create.violationsFound', { count: result.warnings.length })}`, 'warning');
-  }
-}
-
-/**
- * Add disclaimer to all content variants
- */
-function addDisclaimerToContent() {
-  const fbContent = document.getElementById('content-facebook');
-  const blogContent = document.getElementById('content-blog');
-  const storyContent = document.getElementById('content-story');
-
-  if (fbContent) {
-    fbContent.textContent = addDisclaimer(fbContent.textContent, 'tpcn');
-  }
-  if (blogContent) {
-    blogContent.textContent = addDisclaimer(blogContent.textContent, 'tpcn');
-  }
-  if (storyContent) {
-    storyContent.textContent = addDisclaimer(storyContent.textContent, 'tpcn');
-  }
-
-  document.getElementById('compliance-panel')?.classList.add('hidden');
-  showToast(t('create.addDisclaimer') + '!', 'success');
 }

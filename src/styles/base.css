@@ -1,0 +1,148 @@
+/* ============================================================
+   Base Styles — Reset, Typography, Focus, iOS Fixes
+   ============================================================ */
+
+/* ---------- CSS Reset ---------- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* NOTE: Typography, spacing, borders, transitions, and layout tokens
+   are now defined in tokens.css. Components below reference those vars. */
+
+/* ---------- Base Styles ---------- */
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+    overscroll-behavior: none;
+    scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* ---------- Enhanced Keyboard Focus Indicators ---------- */
+/* High-visibility focus states for accessibility (WCAG 2.4.7) */
+*:focus {
+    outline: none;
+    /* Remove default outline */
+}
+
+*:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 2px;
+    transition: outline-offset 0.2s ease;
+}
+
+button:focus-visible,
+a:focus-visible,
+[role="button"]:focus-visible {
+    outline: 3px solid var(--primary);
+    outline-offset: 3px;
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 20%, transparent);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 1px;
+    border-color: var(--primary);
+}
+
+/* Ensure focus is visible in dark mode too */
+.dark *:focus-visible {
+    outline-color: var(--primary);
+}
+
+
+body {
+    font-family: var(--font-family);
+    font-size: var(--font-base);
+    line-height: 1.6;
+    color: var(--text);
+    background: var(--bg);
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    padding-top: var(--safe-top);
+    padding-bottom: var(--safe-bottom);
+}
+
+/* ---------- iOS Safari Fixes (CRITICAL) ---------- */
+input,
+select,
+textarea {
+    font-size: 16px !important;
+    /* Prevent iOS auto-zoom */
+    font-family: var(--font-family);
+}
+
+/* Remove tap highlight */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Touch optimization */
+html {
+    touch-action: manipulation;
+}
+
+/* ---------- Typography ---------- */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--text);
+}
+
+h1 {
+    font-size: var(--font-4xl);
+    letter-spacing: -0.02em;
+}
+
+h2 {
+    font-size: var(--font-3xl);
+    letter-spacing: -0.01em;
+}
+
+h3 {
+    font-size: var(--font-2xl);
+}
+
+h4 {
+    font-size: var(--font-xl);
+}
+
+p {
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+a {
+    color: var(--link);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--link-hover);
+}

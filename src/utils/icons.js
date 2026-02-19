@@ -14,7 +14,6 @@ const ICONS = {
 
     create: `<polygon class="duo-f" points="16.5 3.5 21 8 7 19 3 20 4 16 16.5 3.5"/><path class="duo-s" d="M12 20h9"/><path class="duo-s" d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>`,
 
-    library: `<path class="duo-f" d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path class="duo-s" d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path class="duo-s" d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>`,
 
     calendar: `<rect class="duo-f" x="3" y="4" width="18" height="18" rx="2"/><rect class="duo-s" x="3" y="4" width="18" height="18" rx="2"/><line class="duo-s" x1="16" y1="2" x2="16" y2="6"/><line class="duo-s" x1="8" y1="2" x2="8" y2="6"/><line class="duo-s" x1="3" y1="10" x2="21" y2="10"/>`,
 
@@ -39,8 +38,6 @@ const ICONS = {
 
     image: `<rect class="duo-f" x="3" y="3" width="18" height="18" rx="2" ry="2"/><rect class="duo-s" x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle class="duo-s" cx="8.5" cy="8.5" r="1.5"/><polyline class="duo-s" points="21 15 16 10 5 21"/>`,
 
-    chart: `<rect class="duo-f" x="18" y="3" width="4" height="18" rx="1"/><rect class="duo-s" x="18" y="3" width="4" height="18" rx="1"/><rect class="duo-f" x="10" y="8" width="4" height="13" rx="1"/><rect class="duo-s" x="10" y="8" width="4" height="13" rx="1"/><rect class="duo-f" x="2" y="13" width="4" height="8" rx="1"/><rect class="duo-s" x="2" y="13" width="4" height="8" rx="1"/>`,
-
     pin: `<path class="duo-f" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><path class="duo-s" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle class="duo-s" cx="12" cy="10" r="3"/>`,
 
     target: `<circle class="duo-f" cx="12" cy="12" r="10"/><circle class="duo-s" cx="12" cy="12" r="10"/><circle class="duo-s" cx="12" cy="12" r="6"/><circle class="duo-s" cx="12" cy="12" r="2"/>`,
@@ -52,7 +49,7 @@ const ICONS = {
     // ── Role Icons ──────────────────────────────────────
     crown: `<path class="duo-f" d="M2 17l3-10 5 5 2-8 2 8 5-5 3 10z"/><path class="duo-s" d="M2 17l3-10 5 5 2-8 2 8 5-5 3 10z"/><rect class="duo-f" x="2" y="17" width="20" height="4" rx="1"/><rect class="duo-s" x="2" y="17" width="20" height="4" rx="1"/>`,
 
-    pencil: `<path class="duo-s" d="M12 20h9"/><path class="duo-s" d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>`,
+
 
     eye: `<path class="duo-f" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><path class="duo-s" d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle class="duo-s" cx="12" cy="12" r="3"/>`,
 

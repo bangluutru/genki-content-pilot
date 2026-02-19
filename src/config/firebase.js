@@ -3,6 +3,7 @@
  * All Firebase config values from environment variables
  * Gracefully handles missing config (dev mode without .env)
  */
+import { hasFirebaseConfig } from '../utils/firebaseStatus.js';
 
 let app = null;
 let auth = null;
@@ -18,10 +19,7 @@ const firebaseConfig = {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-/** Check if Firebase config is present */
-export function hasFirebaseConfig() {
-    return !!(firebaseConfig.apiKey && firebaseConfig.projectId);
-}
+export { hasFirebaseConfig };
 
 /** Lazily initialize Firebase (only when needed) */
 export async function initFirebase() {

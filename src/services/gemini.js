@@ -9,6 +9,55 @@ import { getTopPerformingContent } from './firestore.js';
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const MODEL = 'gemini-2.0-flash';
 
+// ===== Internal Helper — Shared Gemini API call =====
+
+/**
+ * Call Gemini API with a prompt and configuration
+ * @param {string} prompt - The full prompt text
+ * @param {Object} config - Generation config overrides
+ * @param {string} [config.model] - Model override (default: MODEL)
+ * @param {number} [config.temperature] - Temperature (default: 0.8)
+ * @param {number} [config.topP] - Top-P (default: 0.95)
+ * @param {number} [config.maxOutputTokens] - Max tokens (default: 4096)
+ * @param {string} [config.responseMimeType] - Response MIME type (e.g., 'application/json')
+ * @returns {string} Generated text content
+ */
+async function callGemini(prompt, config = {}) {
+    const model = config.model || MODEL;
+    const generationConfig = {
+        temperature: config.temperature ?? 0.8,
+        topP: config.topP ?? 0.95,
+        maxOutputTokens: config.maxOutputTokens ?? 4096,
+    };
+    if (config.responseMimeType) {
+        generationConfig.responseMimeType = config.responseMimeType;
+    }
+
+    const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`,
+        {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                generationConfig,
+            }),
+        }
+    );
+
+    if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.error?.message || 'API request failed');
+    }
+
+    const data = await response.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error('No content generated');
+    return text;
+}
+
+// ===== Content Generation =====
+
 /**
  * Generate content from a brief using Gemini AI
  * @param {Object} brief - Structured brief from guided form
@@ -30,34 +79,11 @@ export async function generateContent(brief) {
     const userPrompt = buildUserPrompt(brief);
 
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        { role: 'user', parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] }
-                    ],
-                    generationConfig: {
-                        temperature: 0.8,
-                        topP: 0.95,
-                        maxOutputTokens: 4096,
-                    }
-                })
-            }
-        );
-
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'API request failed');
-        }
-
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (!text) throw new Error('No content generated');
-
+        const text = await callGemini(`${systemPrompt}\n\n---\n\n${userPrompt}`, {
+            temperature: 0.8,
+            topP: 0.95,
+            maxOutputTokens: 4096,
+        });
         return parseGeneratedContent(text);
     } catch (error) {
         console.error('Gemini error:', error);
@@ -221,37 +247,15 @@ ${originalContent}
 CHỈ TRẢ VỀ nội dung đã viết lại, KHÔNG giải thích hay comment gì thêm.`;
 
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        temperature: 0.9,
-                        topP: 0.95,
-                        maxOutputTokens: 4096,
-                    }
-                })
-            }
-        );
-
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'Variation generation failed');
-        }
-
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) throw new Error('No variation generated');
-
+        const text = await callGemini(prompt, { temperature: 0.9 });
         return text.trim();
     } catch (error) {
         console.error('Variation error:', error);
         throw error;
     }
 }
+
+// ===== Strategy & Campaign AI =====
 
 /**
  * Generate Strategy Ideas based on Brand Identity & Business Goal
@@ -289,36 +293,11 @@ Hãy đề xuât 3 ý tưởng chiến dịch (Campaign Concepts) khác biệt n
 Mỗi ý tưởng phải phù hợp với Archetype và Voice của thương hiệu.`;
 
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        { role: 'user', parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] }
-                    ],
-                    generationConfig: {
-                        temperature: 1.0, // Creativity high for ideation
-                        responseMimeType: "application/json"
-                    }
-                })
-            }
-        );
-
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'Strategy generation failed');
-        }
-
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-        if (!text) throw new Error('No strategy generated');
-
-        // Parse JSON
+        const text = await callGemini(`${systemPrompt}\n\n---\n\n${userPrompt}`, {
+            temperature: 1.0,
+            responseMimeType: 'application/json',
+        });
         return JSON.parse(text);
-
     } catch (error) {
         console.error('Strategy AI error:', error);
         throw error;
@@ -361,32 +340,10 @@ Hãy tạo 4 Content Pillars khác biệt, phù hợp với chiến dịch trên
 Sắp xếp theo priority từ cao xuống thấp.`;
 
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        { role: 'user', parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] }
-                    ],
-                    generationConfig: {
-                        temperature: 0.8,
-                        responseMimeType: "application/json"
-                    }
-                })
-            }
-        );
-
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'Pillar generation failed');
-        }
-
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) throw new Error('No pillars generated');
-
+        const text = await callGemini(`${systemPrompt}\n\n---\n\n${userPrompt}`, {
+            temperature: 0.8,
+            responseMimeType: 'application/json',
+        });
         return JSON.parse(text);
     } catch (error) {
         console.error('Pillar AI error:', error);
@@ -433,32 +390,10 @@ Hãy tạo 4 Content Angles đa dạng từ pillar trên.
 Mỗi angle phải có hook hấp dẫn và thông điệp rõ ràng.`;
 
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [
-                        { role: 'user', parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] }
-                    ],
-                    generationConfig: {
-                        temperature: 0.9,
-                        responseMimeType: "application/json"
-                    }
-                })
-            }
-        );
-
-        if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'Angle generation failed');
-        }
-
-        const data = await response.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (!text) throw new Error('No angles generated');
-
+        const text = await callGemini(`${systemPrompt}\n\n---\n\n${userPrompt}`, {
+            temperature: 0.9,
+            responseMimeType: 'application/json',
+        });
         return JSON.parse(text);
     } catch (error) {
         console.error('Angle AI error:', error);
