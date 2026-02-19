@@ -138,8 +138,13 @@ export async function loadContents(limitCount = 50) {
 
         store.set('contents', contents);
         return contents;
-    } catch {
-        console.warn('Could not load contents (Firebase may not be configured)');
+    } catch (err) {
+        console.error('❌ Could not load contents:', err?.code || err?.message || err);
+        if (err?.message?.includes('requires an index')) {
+            console.error('👉 Firestore cần composite index. Xem link trong error message ở trên để tạo.');
+        } else if (err?.code === 'permission-denied' || err?.message?.includes('permission-denied')) {
+            console.error('👉 Firestore Security Rules chưa cho phép. Xem README: Firestore Security Rules');
+        }
         return [];
     }
 }
@@ -451,7 +456,7 @@ export async function loadConversions(dateRange = null) {
 
         const snapshot = await getDocs(q);
         const conversions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        
+
         store.set('conversions', conversions);
         return conversions;
     } catch (e) {
