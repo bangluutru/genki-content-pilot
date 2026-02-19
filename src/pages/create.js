@@ -375,6 +375,14 @@ export async function renderCreatePage(params = {}) {
       showToast(t('create.templateApplied', { name: templateName }), 'success', 3000);
     } catch { /* ignore parse errors */ }
   }
+
+  // Auto-trigger generation when coming from an Angle
+  if (window.__createContext) {
+    // Hide brief form — user doesn't need to fill anything
+    document.getElementById('step-brief')?.classList.add('hidden');
+    // Trigger AI generation directly with Angle context
+    handleGenerate(setCurrentContent, runComplianceCheck, window.__createContext);
+  }
 }
 
 function attachCreateEvents() {

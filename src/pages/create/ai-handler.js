@@ -11,29 +11,48 @@ import { icon } from '../../utils/icons.js';
 import { t } from '../../utils/i18n.js';
 
 /**
- * Handle content generation from brief form
+ * Handle content generation from brief form OR directly from Angle context
  * @param {Function} setCurrentContent - setter for currentContent state
  * @param {Function} onContentReady - callback when content is generated (for compliance check)
+ * @param {Object|null} angleContext - optional { campaign, pillar, angle } for direct generation
  */
-export async function handleGenerate(setCurrentContent, onContentReady) {
-    const product = document.getElementById('brief-product')?.value?.trim();
-    if (!product) {
-        showToast(t('create.productRequired'), 'warning');
-        document.getElementById('brief-product')?.focus();
-        return;
-    }
+export async function handleGenerate(setCurrentContent, onContentReady, angleContext = null) {
+    let brief;
 
-    const brief = {
-        contentType: document.getElementById('brief-type')?.value,
-        product,
-        highlight: document.getElementById('brief-highlight')?.value?.trim(),
-        promotion: document.getElementById('brief-promotion')?.value?.trim(),
-        cta: document.getElementById('brief-cta')?.value,
-        additionalNotes: document.getElementById('brief-notes')?.value?.trim(),
-        campaign: window.__createContext?.campaign?.name,
-        pillar: window.__createContext?.pillar?.name,
-        angle: window.__createContext?.angle,
-    };
+    if (angleContext) {
+        // Direct generation from Angle — skip form entirely
+        const { campaign, pillar, angle } = angleContext;
+        brief = {
+            contentType: angle.suggestedFormat === 'Blog' ? 'education' : 'product',
+            product: campaign.name,
+            highlight: angle.keyMessage || '',
+            promotion: '',
+            cta: '',
+            additionalNotes: angle.hook ? `Hook gợi ý: "${angle.hook}"` : '',
+            campaign: campaign.name,
+            pillar: pillar.name,
+            angle: angle,
+        };
+    } else {
+        // Normal flow — read from form fields
+        const product = document.getElementById('brief-product')?.value?.trim();
+        if (!product) {
+            showToast(t('create.productRequired'), 'warning');
+            document.getElementById('brief-product')?.focus();
+            return;
+        }
+        brief = {
+            contentType: document.getElementById('brief-type')?.value,
+            product,
+            highlight: document.getElementById('brief-highlight')?.value?.trim(),
+            promotion: document.getElementById('brief-promotion')?.value?.trim(),
+            cta: document.getElementById('brief-cta')?.value,
+            additionalNotes: document.getElementById('brief-notes')?.value?.trim(),
+            campaign: window.__createContext?.campaign?.name,
+            pillar: window.__createContext?.pillar?.name,
+            angle: window.__createContext?.angle,
+        };
+    }
 
     // Show loading
     document.getElementById('step-brief').classList.add('hidden');
