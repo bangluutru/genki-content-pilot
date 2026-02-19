@@ -59,6 +59,10 @@ async function loadPage(name) {
       const { renderApprovalsPage } = await import('./pages/approvals.js');
       return renderApprovalsPage;
     }
+    case 'strategy': {
+      const { renderStrategyPage } = await import('./pages/strategy.js');
+      return renderStrategyPage;
+    }
     default:
       return null;
   }
@@ -113,6 +117,10 @@ router
   })
   .on('approvals', async () => {
     const render = await loadPage('approvals');
+    await render?.();
+  })
+  .on('strategy', async () => {
+    const render = await loadPage('strategy');
     await render?.();
   });
 

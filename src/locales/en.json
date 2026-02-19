@@ -92,7 +92,8 @@
         "templates": "Templates",
         "team": "Team",
         "connections": "Connections",
-        "settings": "Settings"
+        "settings": "Settings",
+        "strategy": "Strategy"
     },
     "channels": {
         "facebook": "Facebook",
@@ -193,7 +194,39 @@
         "voice": "Brand voice",
         "voiceHint": "Tone, style, do/don't, key phrases.",
         "compliance": "Compliance",
-        "complianceHint": "Banned words, claims warnings, required disclaimers."
+        "complianceHint": "Banned words, claims warnings, required disclaimers.",
+        "strategyIdentity": "Strategy & Identity",
+        "archetype": "Brand Archetype",
+        "selectArchetype": "Select archetype",
+        "archetypeHero": "The Hero",
+        "archetypeSage": "The Sage",
+        "archetypeMagician": "The Magician",
+        "archetypeRuler": "The Ruler",
+        "archetypeCreator": "The Creator",
+        "archetypeCaregiver": "The Caregiver",
+        "archetypeJester": "The Jester",
+        "archetypeLover": "The Lover",
+        "archetypeExplorer": "The Explorer",
+        "archetypeOutlaw": "The Outlaw",
+        "archetypeInnocent": "The Innocent",
+        "archetypeEveryman": "The Everyman",
+        "archetypeHint": "Archetype helps define brand personality and voice.",
+        "voiceGuidelines": "Voice Guidelines",
+        "voiceGuidelinesPlaceholder": "e.g., Use simple words, avoid jargon. Always use 'we'...",
+        "customerAvatars": "Customer Avatars",
+        "customerAvatarsPlaceholder": "e.g., Sarah, 35yo, office worker, busy, likes quick solutions..."
+    },
+    "strategy": {
+        "title": "Strategy Hub",
+        "subtitle": "Turn business goals into campaign ideas",
+        "businessGoal": "Current Business Goal",
+        "goalPlaceholder": "e.g., Increase sales of new product line, Clear inventory, Brand awareness...",
+        "generateIdeas": "✨ Generate Campaign Ideas",
+        "generating": "Thinking...",
+        "ideasTitle": "AI Strategist Proposals",
+        "createCampaign": "Launch This Campaign",
+        "noIdeas": "No ideas yet. Enter a goal to start!",
+        "viewDetails": "View details"
     },
     "connections": {
         "title": "Connections",

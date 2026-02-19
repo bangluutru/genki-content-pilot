@@ -10,6 +10,7 @@ import { getTheme, getThemeIcon, toggleTheme } from '../utils/theme.js';
 const NAV_ITEMS = [
   { route: 'dashboard', icon: '🏠', labelKey: 'nav.dashboard' },
   { route: 'campaigns', icon: '📂', labelKey: 'nav.campaigns' },
+  { route: 'strategy', icon: '🧠', labelKey: 'strategy.title' },
   { route: 'create', icon: '✨', labelKey: 'content.draftStudio' },
   { route: 'library', icon: '📚', labelKey: 'nav.library' },
   { route: 'calendar', icon: '📅', labelKey: 'nav.calendar' },

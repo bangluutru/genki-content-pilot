@@ -92,7 +92,8 @@
         "templates": "Templates",
         "team": "Nhóm",
         "connections": "Kết nối",
-        "settings": "Cài đặt"
+        "settings": "Cài đặt",
+        "strategy": "Chiến lược"
     },
     "channels": {
         "facebook": "Facebook",
@@ -186,7 +187,39 @@
         "voice": "Giọng thương hiệu",
         "voiceHint": "Tông giọng, phong cách, nên/không nên, cụm từ đặc trưng.",
         "compliance": "Tuân thủ",
-        "complianceHint": "Từ cấm, cảnh báo claim, disclaimer bắt buộc."
+        "complianceHint": "Từ cấm, cảnh báo claim, disclaimer bắt buộc.",
+        "strategyIdentity": "Chiến lược & Định vị",
+        "archetype": "Hình mẫu thương hiệu (Archetype)",
+        "selectArchetype": "Chọn hình mẫu",
+        "archetypeHero": "The Hero (Người hùng)",
+        "archetypeSage": "The Sage (Hiền triết)",
+        "archetypeMagician": "The Magician (Ảo thuật gia)",
+        "archetypeRuler": "The Ruler (Người cai trị)",
+        "archetypeCreator": "The Creator (Người sáng tạo)",
+        "archetypeCaregiver": "The Caregiver (Người chăm sóc)",
+        "archetypeJester": "The Jester (Chú hề)",
+        "archetypeLover": "The Lover (Người tình)",
+        "archetypeExplorer": "The Explorer (Người khai phá)",
+        "archetypeOutlaw": "The Outlaw (Kẻ nổi loạn)",
+        "archetypeInnocent": "The Innocent (Người ngây thơ)",
+        "archetypeEveryman": "The Everyman (Người bình thường)",
+        "archetypeHint": "Hình mẫu giúp định hình tính cách và giọng văn của thương hiệu.",
+        "voiceGuidelines": "Hướng dẫn giọng văn (Voice Guidelines)",
+        "voiceGuidelinesPlaceholder": "VD: Dùng từ ngữ bình dân, tránh thuật ngữ chuyên ngành. Luôn xưng 'mình'...",
+        "customerAvatars": "Chân dung khách hàng (Avatars)",
+        "customerAvatarsPlaceholder": "VD: Chị Lan, 35 tuổi, văn phòng, bận rộn, thích nhanh gọn..."
+    },
+    "strategy": {
+        "title": "Strategy Hub",
+        "subtitle": "Biến mục tiêu kinh doanh thành ý tưởng chiến dịch",
+        "businessGoal": "Mục tiêu kinh doanh hiện tại",
+        "goalPlaceholder": "VD: Tăng doanh số dòng sản phẩm mới, Xả hàng tồn kho, Tăng nhận diện thương hiệu...",
+        "generateIdeas": "✨ Đề xuất ý tưởng chiến dịch",
+        "generating": "Đang suy nghĩ chiến lược...",
+        "ideasTitle": "Đề xuất từ AI Strategist",
+        "createCampaign": "Triển khai chiến dịch này",
+        "noIdeas": "Chưa có ý tưởng nào. Hãy nhập mục tiêu để bắt đầu!",
+        "viewDetails": "Xem chi tiết"
     },
     "connections": {
         "title": "Kết nối",

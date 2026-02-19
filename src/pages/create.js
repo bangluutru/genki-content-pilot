@@ -112,7 +112,8 @@ export function renderCreatePage() {
           <h3>${t('create.aiWriting')}</h3>
           <p class="text-muted" style="margin-top: var(--space-2);">${t('create.aiTakesTime')}</p>
           <div class="ai-progress" style="margin-top: var(--space-6);">
-            <div id="ai-step-1" class="ai-step active">📝 ${t('create.aiStep1')}</div>
+            <div id="ai-step-0" class="ai-step">🧠 ${t('create.aiLearning')}</div>
+            <div id="ai-step-1" class="ai-step">📝 ${t('create.aiStep1')}</div>
             <div id="ai-step-2" class="ai-step">✍️ ${t('create.aiStep2')}</div>
             <div id="ai-step-3" class="ai-step">📰 ${t('create.aiStep3')}</div>
             <div id="ai-step-4" class="ai-step">📱 ${t('create.aiStep4')}</div>
@@ -461,7 +462,7 @@ async function handleGenerate() {
   document.getElementById('step-loading').classList.remove('hidden');
 
   // Animate steps
-  const steps = ['ai-step-1', 'ai-step-2', 'ai-step-3', 'ai-step-4'];
+  const steps = ['ai-step-0', 'ai-step-1', 'ai-step-2', 'ai-step-3', 'ai-step-4'];
   let stepIdx = 0;
   const stepTimer = setInterval(() => {
     if (stepIdx > 0) {

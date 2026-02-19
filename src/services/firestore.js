@@ -459,9 +459,74 @@ export async function loadConversions(dateRange = null) {
 
         store.set('conversions', conversions);
         return conversions;
-    } catch (e) {
         // Fallback to localStorage
         return store.get('conversions') || [];
+    }
+}
+
+/**
+ * Get top performing content based on Revenue
+ * Used for AI Intelligence Loop
+ * @param {number} limitCount - Number of top posts to fetch
+ * @returns {Array} List of { title, body, revenue, orders }
+ */
+export async function getTopPerformingContent(limitCount = 3) {
+    const userId = uid();
+    if (!userId) return [];
+
+    try {
+        const { db, collection, query, where, orderBy, limit, getDocs, doc, getDoc } = await getFirestore();
+
+        // 1. Get top conversions
+        const q = query(
+            collection(db, 'conversions'),
+            where('userId', '==', userId),
+            orderBy('revenue', 'desc'),
+            limit(limitCount)
+        );
+
+        const snap = await getDocs(q);
+        if (snap.empty) return [];
+
+        const topConversions = snap.docs.map(d => d.data());
+
+        // 2. Hydrate with actual content body (if not in conversion record)
+        // We assume conversion record has 'contentId'
+        const results = await Promise.all(topConversions.map(async (conv) => {
+            if (conv.contentId) {
+                try {
+                    const contentRef = doc(db, 'contents', conv.contentId);
+                    const contentSnap = await getDoc(contentRef);
+                    if (contentSnap.exists()) {
+                        const contentData = contentSnap.data();
+                        return {
+                            title: contentData.title || conv.title,
+                            // Prefer facebook content or blog content as "style sample"
+                            body: contentData.facebook || contentData.blog || contentData.body || '',
+                            revenue: conv.revenue,
+                            orders: conv.orders,
+                            platform: conv.platform
+                        };
+                    }
+                } catch (e) {
+                    console.warn(`Could not load content for conversion ${conv.id}`, e);
+                }
+            }
+            // Fallback if content load failed or no contentId
+            return {
+                title: conv.title || 'Unknown',
+                body: '', // No body available
+                revenue: conv.revenue,
+                orders: conv.orders
+            };
+        }));
+
+        // Filter out items with no body, as they aren't useful for AI training
+        return results.filter(r => r.body && r.body.length > 50);
+
+    } catch (e) {
+        console.warn('Could not load top performing content:', e);
+        return [];
     }
 }
 

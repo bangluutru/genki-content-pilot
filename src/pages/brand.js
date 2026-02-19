@@ -111,6 +111,41 @@ export async function renderBrandPage() {
                    value="${brand.defaultHashtags || ''}">
           </div>
 
+          <!-- Strategy & Identity -->
+          <h4 style="margin-top: var(--space-4);">🧠 ${t('brand.strategyIdentity')}</h4>
+
+          <div class="input-group">
+            <label for="brand-archetype">${t('brand.archetype')}</label>
+            <select id="brand-archetype" class="select">
+              <option value="">-- ${t('brand.selectArchetype')} --</option>
+              <option value="hero" ${brand.archetype === 'hero' ? 'selected' : ''}>${t('brand.archetypeHero')}</option>
+              <option value="sage" ${brand.archetype === 'sage' ? 'selected' : ''}>${t('brand.archetypeSage')}</option>
+              <option value="magician" ${brand.archetype === 'magician' ? 'selected' : ''}>${t('brand.archetypeMagician')}</option>
+              <option value="ruler" ${brand.archetype === 'ruler' ? 'selected' : ''}>${t('brand.archetypeRuler')}</option>
+              <option value="creator" ${brand.archetype === 'creator' ? 'selected' : ''}>${t('brand.archetypeCreator')}</option>
+              <option value="caregiver" ${brand.archetype === 'caregiver' ? 'selected' : ''}>${t('brand.archetypeCaregiver')}</option>
+              <option value="jester" ${brand.archetype === 'jester' ? 'selected' : ''}>${t('brand.archetypeJester')}</option>
+              <option value="lover" ${brand.archetype === 'lover' ? 'selected' : ''}>${t('brand.archetypeLover')}</option>
+              <option value="explorer" ${brand.archetype === 'explorer' ? 'selected' : ''}>${t('brand.archetypeExplorer')}</option>
+              <option value="outlaw" ${brand.archetype === 'outlaw' ? 'selected' : ''}>${t('brand.archetypeOutlaw')}</option>
+              <option value="innocent" ${brand.archetype === 'innocent' ? 'selected' : ''}>${t('brand.archetypeInnocent')}</option>
+              <option value="everyman" ${brand.archetype === 'everyman' ? 'selected' : ''}>${t('brand.archetypeEveryman')}</option>
+            </select>
+            <p class="text-xs text-muted" style="margin-top: 4px;">${t('brand.archetypeHint')}</p>
+          </div>
+
+          <div class="input-group">
+            <label for="brand-voice">${t('brand.voiceGuidelines')}</label>
+            <textarea id="brand-voice" class="textarea" rows="3"
+                      placeholder="${t('brand.voiceGuidelinesPlaceholder')}">${brand.voice || ''}</textarea>
+          </div>
+
+          <div class="input-group">
+            <label for="brand-avatars">${t('brand.customerAvatars')}</label>
+            <textarea id="brand-avatars" class="textarea" rows="3"
+                      placeholder="${t('brand.customerAvatarsPlaceholder')}">${brand.avatars || ''}</textarea>
+          </div>
+
           <!-- Legal -->
           <h4 style="margin-top: var(--space-4);">⚖️ ${t('brand.legalSection')}</h4>
 
@@ -270,6 +305,9 @@ export async function renderBrandPage() {
         tone: document.getElementById('brand-tone')?.value,
         products: document.getElementById('brand-products')?.value?.trim(),
         defaultHashtags: document.getElementById('brand-hashtags')?.value?.trim(),
+        archetype: document.getElementById('brand-archetype')?.value,
+        voice: document.getElementById('brand-voice')?.value?.trim(),
+        avatars: document.getElementById('brand-avatars')?.value?.trim(),
         disclaimer: document.getElementById('brand-disclaimer')?.value?.trim(),
       });
 

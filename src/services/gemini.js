@@ -4,6 +4,8 @@
  */
 import { store } from '../utils/state.js';
 
+import { getTopPerformingContent } from './firestore.js';
+
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const MODEL = 'gemini-2.0-flash';
 
@@ -15,7 +17,16 @@ const MODEL = 'gemini-2.0-flash';
 export async function generateContent(brief) {
     const brand = store.get('brand');
 
-    const systemPrompt = buildSystemPrompt(brand);
+    // Phase 2: Intelligence Loop
+    // Fetch top performing content to use as few-shot examples
+    let performanceContext = [];
+    try {
+        performanceContext = await getTopPerformingContent(3);
+    } catch (e) {
+        console.warn('Failed to load intelligence context', e);
+    }
+
+    const systemPrompt = buildSystemPrompt(brand, performanceContext);
     const userPrompt = buildUserPrompt(brief);
 
     try {
@@ -54,22 +65,37 @@ export async function generateContent(brief) {
     }
 }
 
-/** Build system prompt with brand context */
-function buildSystemPrompt(brand) {
+/** Build system prompt with brand context and intelligence */
+function buildSystemPrompt(brand, performanceContext = []) {
     const brandContext = brand ? `
 THÔNG TIN THƯƠNG HIỆU:
 - Tên: ${brand.name || 'N/A'}
 - Ngành: ${brand.industry || 'N/A'}
-- Tone: ${brand.tone || 'Thân thiện, chuyên nghiệp'}
-- Đối tượng: ${brand.targetAudience || 'N/A'}
+- Archetype (Hình mẫu): ${brand.archetype || 'Chưa thiết lập'}
+- Tone (Giọng điệu): ${brand.tone || 'Thân thiện, chuyên nghiệp'}
+- Voice Guidelines (Hướng dẫn giọng văn): ${brand.voice || 'Không có'}
+- Khách hàng mục tiêu (Avatars): ${brand.avatars || brand.targetAudience || 'N/A'}
 - Hashtag mặc định: ${brand.defaultHashtags || ''}
 - Sản phẩm/dịch vụ: ${brand.products || 'N/A'}
 ${brand.disclaimer ? `- Disclaimer bắt buộc: ${brand.disclaimer}` : ''}
 ` : 'Chưa có thông tin brand. Viết với tone chuyên nghiệp, thân thiện.';
 
+    let intelligenceContext = '';
+    if (performanceContext && performanceContext.length > 0) {
+        intelligenceContext = `
+PHÂN TÍCH HIỆU QUẢ (INTELLIGENCE):
+Dưới đây là các bài viết đã mang lại doanh thu cao nhất cho thương hiệu. Hãy học hỏi giọng văn, cấu trúc và cách kêu gọi hành động (CTA) của chúng:
+${performanceContext.map((c, i) => `
+${i + 1}. [Hiệu quả: ${c.orders} đơn, ${((c.revenue || 0) / 1000).toFixed(0)}K doanh thu]
+"${c.body.substring(0, 300)}..."
+`).join('\n')}
+`;
+    }
+
     return `Bạn là một Content Marketing Expert chuyên viết nội dung tiếng Việt cho doanh nghiệp.
 
 ${brandContext}
+${intelligenceContext}
 
 QUY TẮC:
 1. Viết NATIVE tiếng Việt (không dịch từ tiếng Anh)
@@ -223,6 +249,78 @@ CHỈ TRẢ VỀ nội dung đã viết lại, KHÔNG giải thích hay comment 
         return text.trim();
     } catch (error) {
         console.error('Variation error:', error);
+        throw error;
+    }
+}
+
+/**
+ * Generate Strategy Ideas based on Brand Identity & Business Goal
+ * @param {Object} brand - Brand Identity
+ * @param {string} goal - Current Business Goal
+ * @returns {Array} List of Campaign Ideas
+ */
+export async function generateStrategy(brand, goal) {
+    const systemPrompt = `Bạn là Chief Marketing Officer (CMO) với 20 năm kinh nghiệm.
+Nhiệm vụ: Lên chiến lược content cho thương hiệu dựa trên mục tiêu kinh doanh.
+
+THÔNG TIN THƯƠNG HIỆU:
+- Tên: ${brand.name}
+- Ngành: ${brand.industry}
+- Archetype: ${brand.archetype || 'N/A'}
+- Voice: ${brand.voice || 'N/A'}
+- Khách hàng: ${brand.avatars || brand.targetAudience}
+
+OUTPUT FORMAT:
+Trả về JSON array thuần túy (không markdown block), mỗi item là một object:
+[
+  {
+    "name": "Tên chiến dịch (ngắn gọn, thu hút)",
+    "angle": "Góc độ tiếp cận (e.g., Fear of missing out, Educational, Storytelling)",
+    "description": "Mô tả chiến dịch và tại sao nó phù hợp với goal",
+    "hook": "Câu hook mẫu để bắt đầu",
+    "contentTypes": ["Facebook", "Blog", "Reels"]
+  }
+]
+`;
+
+    const userPrompt = `MỤC TIÊU KINH DOANH HIỆN TẠI: "${goal}"
+
+Hãy đề xuât 3 ý tưởng chiến dịch (Campaign Concepts) khác biệt nhau để đạt mục tiêu này.
+Mỗi ý tưởng phải phù hợp với Archetype và Voice của thương hiệu.`;
+
+    try {
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [
+                        { role: 'user', parts: [{ text: `${systemPrompt}\n\n---\n\n${userPrompt}` }] }
+                    ],
+                    generationConfig: {
+                        temperature: 1.0, // Creativity high for ideation
+                        responseMimeType: "application/json"
+                    }
+                })
+            }
+        );
+
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error?.message || 'Strategy generation failed');
+        }
+
+        const data = await response.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+
+        if (!text) throw new Error('No strategy generated');
+
+        // Parse JSON
+        return JSON.parse(text);
+
+    } catch (error) {
+        console.error('Strategy AI error:', error);
         throw error;
     }
 }
