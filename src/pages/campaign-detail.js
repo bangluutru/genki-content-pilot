@@ -3,7 +3,7 @@
  * Click a campaign card → see full detail with pillar/angle management
  */
 import { store } from '../utils/state.js';
-import { loadCampaigns, updateCampaignPillars, updateCampaignAngles } from '../services/firestore.js';
+import { loadCampaigns, updateCampaignPillars, updateCampaignAngles, loadContents } from '../services/firestore.js';
 import { loadBrand } from '../services/firestore.js';
 import { generatePillars, generateAngles } from '../services/gemini.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
@@ -251,6 +251,11 @@ function renderAnglesGroupedByPillar(pillars, angles) {
               ${angle.keyMessage ? `
                 <p class="text-xs text-muted">${icon('cursor', 10)} ${angle.keyMessage}</p>
               ` : ''}
+              <div style="margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--border-color);">
+                <button class="btn btn-primary btn-sm btn-full btn-create-post-from-angle" data-angle-id="${angle.id}">
+                  ✨ Tạo bài viết
+                </button>
+              </div>
             </div>
           `).join('')}
         </div>
@@ -260,18 +265,62 @@ function renderAnglesGroupedByPillar(pillars, angles) {
 }
 
 function renderPostsTab() {
+  setTimeout(loadAndRenderPosts, 0); // Trigger async render
   return `
-    <div class="card-flat text-center" style="padding: var(--space-10);">
-      <div style="margin-bottom: var(--space-4);">${icon('document', 48)}</div>
-      <h3 style="margin-bottom: var(--space-2);">${t('campaignDetail.postsComingSoon')}</h3>
-      <p class="text-muted" style="margin-bottom: var(--space-6);">
-        ${t('campaignDetail.postsDesc')}
-      </p>
-      <button class="btn btn-primary" id="btn-go-create">
-        ${icon('sparkle', 16)} ${t('create.title')}
-      </button>
+    <div id="posts-container" style="min-height: 200px; display: flex; align-items: center; justify-content: center;">
+      <span class="loading-spinner"></span>
     </div>
   `;
+}
+
+async function loadAndRenderPosts() {
+  const container = document.getElementById('posts-container');
+  if (!container) return;
+
+  try {
+    const allContents = await loadContents(100);
+    // Filter by campaign
+    const campaignPosts = allContents.filter(c => c.campaignId === currentCampaign.id);
+
+    if (campaignPosts.length === 0) {
+      container.innerHTML = `
+        <div class="card-flat text-center" style="padding: var(--space-10);">
+          <div style="margin-bottom: var(--space-4);">${icon('document', 48)}</div>
+          <h3 style="margin-bottom: var(--space-2);">${t('campaignDetail.postsEmpty') || 'Chưa có bài viết nào'}</h3>
+          <p class="text-muted" style="margin-bottom: var(--space-6);">
+            ${t('campaignDetail.postsEmptyDesc') || 'Vui lòng bắt đầu tạo nội dung từ các Angle trong chiến dịch.'}
+          </p>
+        </div>
+      `;
+      return;
+    }
+
+    // Render list
+    container.innerHTML = `
+      <div class="flex justify-between items-center" style="margin-bottom: var(--space-4);">
+        <h3>${icon('document', 20)} Bài viết thuộc chiến dịch (${campaignPosts.length})</h3>
+      </div>
+      <div class="grid gap-3" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
+        ${campaignPosts.map(post => `
+          <div class="card flex flex-col justify-between" style="padding: var(--space-4);">
+             <div style="margin-bottom: var(--space-2);">
+               <div class="flex gap-2 items-center mb-2">
+                 <span class="badge ${post.status === 'published' ? 'badge-success' : 'badge-accent'}">${post.status}</span>
+                 <span class="text-xs text-muted">${new Date(post.createdAt).toLocaleDateString()}</span>
+               </div>
+               <h4 style="font-size: var(--font-sm); font-weight: 600; line-height: 1.4; margin-bottom: var(--space-1);">${post.brief || 'Bài viết'}</h4>
+               <p class="text-xs text-muted mb-2">Platform: ${post.publishedTo?.join(', ') || 'Draft'}</p>
+             </div>
+             <p class="text-sm text-muted" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-style: italic;">
+               ${(post.facebook || post.blog || post.story || '').substring(0, 100)}...
+             </p>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  } catch (error) {
+    container.innerHTML = `<p class="text-danger text-center">Lỗi tải bài viết: ${error.message}</p>`;
+  }
 }
 
 // ===== Helper =====
@@ -355,6 +404,14 @@ function attachTabEvents() {
   document.getElementById('btn-go-pillars')?.addEventListener('click', () => {
     currentTab = 'pillars';
     renderPage(document.getElementById('app'));
+  });
+
+  // Create Post from Angle
+  document.querySelectorAll('.btn-create-post-from-angle').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const angleId = e.currentTarget.dataset.angleId;
+      router.navigate(`create?campaignId=${currentCampaign.id}&angleId=${angleId}`);
+    });
   });
 
   // Go to Create page

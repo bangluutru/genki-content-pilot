@@ -111,6 +111,7 @@ export async function handlePublish(getCurrentContent) {
     if (publishedTo.length > 0) {
         try {
             const story = document.getElementById('content-story')?.textContent || '';
+            const context = window.__createContext;
             await saveContent({
                 ...currentContent,
                 facebook,
@@ -120,6 +121,11 @@ export async function handlePublish(getCurrentContent) {
                 publishedTo,
                 publishedUrls,
                 publishedAt: new Date().toISOString(),
+                ...(context && {
+                    campaignId: context.campaign?.id,
+                    pillarId: context.pillar?.id,
+                    angleId: context.angle?.id
+                })
             });
             showToast(t('create.publishSuccess', { platforms: publishedTo.join(' + ') }), 'success');
         } catch (e) {
@@ -144,6 +150,7 @@ export async function handleSave(getCurrentContent) {
         const facebook = document.getElementById('content-facebook')?.textContent || '';
         const blog = document.getElementById('content-blog')?.textContent || '';
         const story = document.getElementById('content-story')?.textContent || '';
+        const context = window.__createContext;
 
         await saveContent({
             ...currentContent,
@@ -151,6 +158,11 @@ export async function handleSave(getCurrentContent) {
             blog,
             story,
             status: 'draft',
+            ...(context && {
+                campaignId: context.campaign?.id,
+                pillarId: context.pillar?.id,
+                angleId: context.angle?.id
+            })
         });
 
         showToast(t('create.savedToLibrary'), 'success');

@@ -30,6 +30,9 @@ export async function handleGenerate(setCurrentContent, onContentReady) {
         promotion: document.getElementById('brief-promotion')?.value?.trim(),
         cta: document.getElementById('brief-cta')?.value,
         additionalNotes: document.getElementById('brief-notes')?.value?.trim(),
+        campaign: window.__createContext?.campaign?.name,
+        pillar: window.__createContext?.pillar?.name,
+        angle: window.__createContext?.angle,
     };
 
     // Show loading

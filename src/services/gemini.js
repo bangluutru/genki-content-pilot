@@ -148,6 +148,15 @@ Trả về đúng 3 phần, mỗi phần được đánh dấu bằng header:
 function buildUserPrompt(brief) {
     let prompt = 'Hãy viết content cho brief sau:\n\n';
 
+    if (brief.campaign) prompt += `🎯 Thuộc chiến dịch: ${brief.campaign}\n`;
+    if (brief.pillar) prompt += `🏛️ Nằm trong Pillar: ${brief.pillar}\n`;
+    if (brief.angle) {
+        prompt += `📐 Góc tiếp cận (Angle): ${brief.angle.name}\n`;
+        if (brief.angle.type) prompt += `   - Phân loại: ${brief.angle.type}\n`;
+        if (brief.angle.hook) prompt += `   - Gợi ý Hook (RẤT QUAN TRỌNG): "${brief.angle.hook}"\n`;
+        if (brief.angle.keyMessage) prompt += `   - Điểm nhấn chính: ${brief.angle.keyMessage}\n`;
+    }
+
     if (brief.product) prompt += `📦 Sản phẩm/Chủ đề: ${brief.product}\n`;
     if (brief.highlight) prompt += `⭐ Điểm nổi bật: ${brief.highlight}\n`;
     if (brief.promotion) prompt += `🎁 Khuyến mãi: ${brief.promotion}\n`;

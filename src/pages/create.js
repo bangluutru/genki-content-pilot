@@ -15,6 +15,7 @@ import { getStylePresets } from '../services/image-gen.js';
 import { copyToClipboard, storage } from '../utils/helpers.js';
 import { icon } from '../utils/icons.js';
 import { t } from '../utils/i18n.js';
+import { loadCampaigns } from '../services/firestore.js';
 
 // Handler imports
 import { handleGenerate, handleVariation, handleImageGen } from './create/ai-handler.js';
@@ -28,12 +29,44 @@ let autosaveTimer = null;
 const getCurrentContent = () => currentContent;
 const setCurrentContent = (val) => { currentContent = val; };
 
-export function renderCreatePage() {
+export async function renderCreatePage(params = {}) {
   const app = document.getElementById('app');
   const usage = checkDailyLimit();
 
+  // Load context from params if generating from Angle
+  window.__createContext = null;
+  let contextBannerHTML = '';
+  let prefillProduct = '';
+
+  if (params.campaignId && params.angleId) {
+    const campaigns = await loadCampaigns();
+    const campaign = campaigns.find(c => c.id === params.campaignId);
+    if (campaign) {
+      const angle = (campaign.angles || []).find(a => a.id === params.angleId);
+      const pillar = (campaign.pillars || []).find(p => p.id === angle?.pillarId);
+      if (angle && pillar) {
+        window.__createContext = { campaign, pillar, angle };
+        prefillProduct = campaign.name; // Use campaign name as product context
+        contextBannerHTML = `
+          <div class="card" style="margin-bottom: var(--space-4); background: var(--bg-tertiary); border: 1px solid var(--accent); padding: var(--space-3);">
+            <div class="flex items-center gap-2 mb-1">
+              ${icon('target', 16)} <span class="badge badge-accent">Angle: ${angle.name}</span>
+            </div>
+            <p class="text-sm text-muted">
+              <strong>Chiến dịch:</strong> ${campaign.name} &bull; 
+              <strong>Pillar:</strong> ${pillar.name}
+            </p>
+            ${angle.hook ? `<p class="text-xs" style="margin-top: 4px; font-style: italic;">Hook: "${angle.hook}"</p>` : ''}
+            ${angle.keyMessage ? `<p class="text-xs" style="margin-top: 4px; font-style: italic;">Message: ${angle.keyMessage}</p>` : ''}
+          </div>
+        `;
+      }
+    }
+  }
+
   // Restore draft from localStorage
   const draft = storage.get('draft_brief', null);
+  const initialProduct = window.__createContext ? prefillProduct : (draft?.product || '');
 
   app.innerHTML = `
     ${renderSidebar()}
@@ -49,6 +82,8 @@ export function renderCreatePage() {
           ${t('create.remainingToday', { remaining: usage.remaining })}
         </div>
       </div>
+
+      ${contextBannerHTML}
 
       <!-- Step 1: Guided Brief Form -->
       <div id="step-brief" class="card" style="margin-bottom: var(--space-6);">
@@ -71,7 +106,7 @@ export function renderCreatePage() {
             <label for="brief-product">${icon('gift', 16)} ${t('create.productLabel')} *</label>
             <input type="text" id="brief-product" class="input" 
                    placeholder="${t('create.productPlaceholder')}"
-                   value="${draft?.product || ''}" required>
+                   value="${initialProduct}" required>
           </div>
 
           <div class="input-group">
