@@ -9,12 +9,12 @@ import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
 
 const DEFAULT_TEMPLATES = [
-  { id: '_default_1', name: `📦 ${t('templates.defaultProduct')}`, desc: t('templates.defaultProductDesc'), isDefault: true, fields: { contentType: 'product', product: '', highlight: '', promotion: '', cta: t('templates.ctaBuyNow'), additionalNotes: t('templates.defaultProductNotes') } },
-  { id: '_default_2', name: `🎁 ${t('templates.defaultFlashSale')}`, desc: t('templates.defaultFlashSaleDesc'), isDefault: true, fields: { contentType: 'promotion', product: '', highlight: '', promotion: '', cta: t('templates.ctaOrderNow'), additionalNotes: t('templates.defaultFlashSaleNotes') } },
-  { id: '_default_3', name: `💡 ${t('templates.defaultTips')}`, desc: t('templates.defaultTipsDesc'), isDefault: true, fields: { contentType: 'education', product: '', highlight: '', promotion: '', cta: t('templates.ctaSavePost'), additionalNotes: t('templates.defaultTipsNotes') } },
-  { id: '_default_4', name: `🎬 ${t('templates.defaultBTS')}`, desc: t('templates.defaultBTSDesc'), isDefault: true, fields: { contentType: 'other', product: '', highlight: '', promotion: '', cta: t('templates.ctaFollow'), additionalNotes: t('templates.defaultBTSNotes') } },
-  { id: '_default_5', name: `⭐ ${t('templates.defaultTestimonial')}`, desc: t('templates.defaultTestimonialDesc'), isDefault: true, fields: { contentType: 'testimonial', product: '', highlight: '', promotion: '', cta: t('templates.ctaInbox'), additionalNotes: t('templates.defaultTestimonialNotes') } },
-  { id: '_default_6', name: `📢 ${t('templates.defaultNews')}`, desc: t('templates.defaultNewsDesc'), isDefault: true, fields: { contentType: 'news', product: '', highlight: '', promotion: '', cta: t('templates.ctaRegister'), additionalNotes: t('templates.defaultNewsNotes') } },
+  { id: '_default_1', name: `${icon('gift', 16)} ${t('templates.defaultProduct')}`, desc: t('templates.defaultProductDesc'), isDefault: true, fields: { contentType: 'product', product: '', highlight: '', promotion: '', cta: t('templates.ctaBuyNow'), additionalNotes: t('templates.defaultProductNotes') } },
+  { id: '_default_2', name: `${icon('gift', 16)} ${t('templates.defaultFlashSale')}`, desc: t('templates.defaultFlashSaleDesc'), isDefault: true, fields: { contentType: 'promotion', product: '', highlight: '', promotion: '', cta: t('templates.ctaOrderNow'), additionalNotes: t('templates.defaultFlashSaleNotes') } },
+  { id: '_default_3', name: `${icon('strategy', 16)} ${t('templates.defaultTips')}`, desc: t('templates.defaultTipsDesc'), isDefault: true, fields: { contentType: 'education', product: '', highlight: '', promotion: '', cta: t('templates.ctaSavePost'), additionalNotes: t('templates.defaultTipsNotes') } },
+  { id: '_default_4', name: `${icon('film', 16)} ${t('templates.defaultBTS')}`, desc: t('templates.defaultBTSDesc'), isDefault: true, fields: { contentType: 'other', product: '', highlight: '', promotion: '', cta: t('templates.ctaFollow'), additionalNotes: t('templates.defaultBTSNotes') } },
+  { id: '_default_5', name: `${icon('star', 16)} ${t('templates.defaultTestimonial')}`, desc: t('templates.defaultTestimonialDesc'), isDefault: true, fields: { contentType: 'testimonial', product: '', highlight: '', promotion: '', cta: t('templates.ctaInbox'), additionalNotes: t('templates.defaultTestimonialNotes') } },
+  { id: '_default_6', name: `${icon('megaphone', 16)} ${t('templates.defaultNews')}`, desc: t('templates.defaultNewsDesc'), isDefault: true, fields: { contentType: 'news', product: '', highlight: '', promotion: '', cta: t('templates.ctaRegister'), additionalNotes: t('templates.defaultNewsNotes') } },
 ];
 
 export async function renderTemplatesPage() {
@@ -131,7 +131,7 @@ function renderTemplateCard(tmpl) {
     <div class="template-card card">
       <div class="flex justify-between items-center" style="margin-bottom: var(--space-2);">
         <strong style="font-size: var(--font-base);">${tmpl.name}</strong>
-        ${tmpl.isDefault ? `<span class="badge badge-accent" style="font-size: 10px;">${t('templates.defaultBadge')}</span>` : `<button class="btn btn-ghost btn-sm delete-tmpl-btn" data-id="${tmpl.id}" title="${t('actions.delete')}">🗑️</button>`}
+        ${tmpl.isDefault ? `<span class="badge badge-accent" style="font-size: 10px;">${t('templates.defaultBadge')}</span>` : `<button class="btn btn-ghost btn-sm delete-tmpl-btn" data-id="${tmpl.id}" title="${t('actions.delete')}">${icon('trash', 14)}</button>`}
       </div>
       <p class="text-sm text-muted" style="margin-bottom: var(--space-3);">${tmpl.desc || ''}</p>
       <button class="btn btn-primary btn-sm use-template-btn" data-id="${tmpl.id}" style="width: 100%;">

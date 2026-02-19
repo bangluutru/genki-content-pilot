@@ -34,7 +34,7 @@ export function renderCreatePage() {
     <main class="main-content page">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 style="font-size: var(--font-2xl);">✨ ${t('create.title')}</h1>
+          <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('sparkle', 28)} ${t('create.title')}</h1>
           <p class="text-muted text-sm" style="margin-top: var(--space-1);">
             ${t('create.subtitle')}
           </p>
@@ -46,11 +46,11 @@ export function renderCreatePage() {
 
       <!-- Step 1: Guided Brief Form -->
       <div id="step-brief" class="card" style="margin-bottom: var(--space-6);">
-        <h3 style="margin-bottom: var(--space-6);">📝 ${t('create.briefTitle')}</h3>
+        <h3 style="margin-bottom: var(--space-6);">${icon('document', 20)} ${t('create.briefTitle')}</h3>
 
         <div class="brief-form flex flex-col gap-6">
           <div class="input-group">
-            <label for="brief-type">📋 ${t('create.contentType')}</label>
+            <label for="brief-type">${icon('clipboard', 16)} ${t('create.contentType')}</label>
             <select id="brief-type" class="select">
               <option value="product">${t('create.typeProduct')}</option>
               <option value="promotion">${t('create.typePromotion')}</option>
@@ -62,28 +62,28 @@ export function renderCreatePage() {
           </div>
 
           <div class="input-group">
-            <label for="brief-product">📦 ${t('create.productLabel')} *</label>
+            <label for="brief-product">${icon('gift', 16)} ${t('create.productLabel')} *</label>
             <input type="text" id="brief-product" class="input" 
                    placeholder="${t('create.productPlaceholder')}"
                    value="${draft?.product || ''}" required>
           </div>
 
           <div class="input-group">
-            <label for="brief-highlight">⭐ ${t('create.highlightLabel')}</label>
+            <label for="brief-highlight">${icon('star', 16)} ${t('create.highlightLabel')}</label>
             <input type="text" id="brief-highlight" class="input" 
                    placeholder="${t('create.highlightPlaceholder')}"
                    value="${draft?.highlight || ''}">
           </div>
 
           <div class="input-group">
-            <label for="brief-promotion">🎁 ${t('create.promotionLabel')}</label>
+            <label for="brief-promotion">${icon('gift', 16)} ${t('create.promotionLabel')}</label>
             <input type="text" id="brief-promotion" class="input" 
                    placeholder="${t('create.promotionPlaceholder')}"
                    value="${draft?.promotion || ''}">
           </div>
 
           <div class="input-group">
-            <label for="brief-cta">👉 ${t('create.ctaLabel')}</label>
+            <label for="brief-cta">${icon('cursor', 16)} ${t('create.ctaLabel')}</label>
             <select id="brief-cta" class="select">
               <option value="${t('create.ctaBuyNow')}">${t('create.ctaBuyNow')}</option>
               <option value="${t('create.ctaContact')}">${t('create.ctaContact')}</option>
@@ -95,13 +95,13 @@ export function renderCreatePage() {
           </div>
 
           <div class="input-group">
-            <label for="brief-notes">📝 ${t('create.notesLabel')}</label>
+            <label for="brief-notes">${icon('edit', 16)} ${t('create.notesLabel')}</label>
             <textarea id="brief-notes" class="textarea" rows="3"
                       placeholder="${t('create.notesPlaceholder')}">${draft?.additionalNotes || ''}</textarea>
           </div>
 
           <button class="btn btn-primary btn-lg btn-full" id="btn-generate" ${usage.remaining <= 0 ? 'disabled' : ''}>
-            ${usage.remaining <= 0 ? '⚠️ ' + t('create.limitReached') : '✨ ' + t('create.generateButton')}
+            ${usage.remaining <= 0 ? icon('warning', 16) + ' ' + t('create.limitReached') : icon('sparkle', 16) + ' ' + t('create.generateButton')}
           </button>
         </div>
       </div>
@@ -113,11 +113,11 @@ export function renderCreatePage() {
           <h3>${t('create.aiWriting')}</h3>
           <p class="text-muted" style="margin-top: var(--space-2);">${t('create.aiTakesTime')}</p>
           <div class="ai-progress" style="margin-top: var(--space-6);">
-            <div id="ai-step-0" class="ai-step">🧠 ${t('create.aiLearning')}</div>
-            <div id="ai-step-1" class="ai-step">📝 ${t('create.aiStep1')}</div>
-            <div id="ai-step-2" class="ai-step">✍️ ${t('create.aiStep2')}</div>
-            <div id="ai-step-3" class="ai-step">📰 ${t('create.aiStep3')}</div>
-            <div id="ai-step-4" class="ai-step">📱 ${t('create.aiStep4')}</div>
+            <div id="ai-step-0" class="ai-step">${icon('strategy', 16)} ${t('create.aiLearning')}</div>
+            <div id="ai-step-1" class="ai-step">${icon('edit', 16)} ${t('create.aiStep1')}</div>
+            <div id="ai-step-2" class="ai-step">${icon('pencil', 16)} ${t('create.aiStep2')}</div>
+            <div id="ai-step-3" class="ai-step">${icon('newspaper', 16)} ${t('create.aiStep3')}</div>
+            <div id="ai-step-4" class="ai-step">${icon('phone', 16)} ${t('create.aiStep4')}</div>
           </div>
         </div>
       </div>
@@ -125,18 +125,18 @@ export function renderCreatePage() {
       <!-- Step 3: Preview + Edit (Tab view) -->
       <div id="step-preview" class="hidden">
         <div class="flex justify-between items-center mb-4">
-          <h3>🎉 ${t('create.contentReady')}</h3>
+          <h3>${icon('party', 20)} ${t('create.contentReady')}</h3>
           <div class="flex gap-2">
             <button class="btn btn-secondary btn-sm" id="btn-regenerate">${icon('refresh', 16)} ${t('create.regenerate')}</button>
-            <button class="btn btn-primary btn-sm" id="btn-save-content">💾 ${t('create.saveContent')}</button>
+            <button class="btn btn-primary btn-sm" id="btn-save-content">${icon('save', 16)} ${t('create.saveContent')}</button>
           </div>
         </div>
 
         <!-- Tabs -->
         <div class="tabs mb-4">
-          <button class="tab active" data-tab="facebook">📱 ${t('create.tabFacebook')}</button>
-          <button class="tab" data-tab="blog">📰 ${t('create.tabBlog')}</button>
-          <button class="tab" data-tab="story">📸 ${t('create.tabStory')}</button>
+          <button class="tab active" data-tab="facebook">${icon('phone', 16)} ${t('create.tabFacebook')}</button>
+          <button class="tab" data-tab="blog">${icon('blog', 16)} ${t('create.tabBlog')}</button>
+          <button class="tab" data-tab="story">${icon('camera', 16)} ${t('create.tabStory')}</button>
           <button class="tab" data-tab="image">${icon('image', 16)} ${t('create.tabImage')}</button>
         </div>
 
@@ -144,7 +144,7 @@ export function renderCreatePage() {
         <div id="tab-facebook" class="tab-content card">
           <div class="flex justify-between items-center mb-4">
             <span class="badge badge-accent">${t('create.tabFacebook')} Post</span>
-            <button class="btn btn-ghost btn-sm copy-btn" data-target="facebook">📋 ${t('create.copyButton')}</button>
+            <button class="btn btn-ghost btn-sm copy-btn" data-target="facebook">${icon('clipboard', 14)} ${t('create.copyButton')}</button>
           </div>
           <div id="content-facebook" class="content-preview" contenteditable="true"></div>
         </div>
@@ -152,7 +152,7 @@ export function renderCreatePage() {
         <div id="tab-blog" class="tab-content card hidden">
           <div class="flex justify-between items-center mb-4">
             <span class="badge badge-accent">${t('create.tabBlog')} Article</span>
-            <button class="btn btn-ghost btn-sm copy-btn" data-target="blog">📋 ${t('create.copyButton')}</button>
+            <button class="btn btn-ghost btn-sm copy-btn" data-target="blog">${icon('clipboard', 14)} ${t('create.copyButton')}</button>
           </div>
           <div id="content-blog" class="content-preview" contenteditable="true"></div>
         </div>
@@ -160,7 +160,7 @@ export function renderCreatePage() {
         <div id="tab-story" class="tab-content card hidden">
           <div class="flex justify-between items-center mb-4">
             <span class="badge badge-accent">${t('create.tabStory')} Caption</span>
-            <button class="btn btn-ghost btn-sm copy-btn" data-target="story">📋 ${t('create.copyButton')}</button>
+            <button class="btn btn-ghost btn-sm copy-btn" data-target="story">${icon('clipboard', 14)} ${t('create.copyButton')}</button>
           </div>
           <div id="content-story" class="content-preview" contenteditable="true"></div>
         </div>
@@ -171,7 +171,7 @@ export function renderCreatePage() {
           </div>
           <div class="image-gen-panel">
             <div class="form-group" style="margin-bottom: var(--space-3);">
-              <label class="form-label">🎨 ${t('create.styleLabel')}</label>
+              <label class="form-label">${icon('brand', 16)} ${t('create.styleLabel')}</label>
               <div class="style-presets" id="style-presets">
                 ${getStylePresets().map((s, i) => `
                   <label class="style-option ${i === 0 ? 'selected' : ''}">
@@ -182,7 +182,7 @@ export function renderCreatePage() {
               </div>
             </div>
             <div class="form-group" style="margin-bottom: var(--space-3);">
-              <label class="form-label">✏️ ${t('create.promptLabel')}</label>
+              <label class="form-label">${icon('pencil', 16)} ${t('create.promptLabel')}</label>
               <textarea id="image-prompt" class="form-input" rows="3" placeholder="${t('create.promptPlaceholder')}"></textarea>
             </div>
             <button class="btn btn-primary" id="btn-gen-image" style="width: 100%; margin-bottom: var(--space-4);">
@@ -200,7 +200,7 @@ export function renderCreatePage() {
         <!-- Compliance Warning Panel -->
         <div class="card compliance-panel hidden" id="compliance-panel" style="margin-top: var(--space-6); border-left: 4px solid var(--danger);">
           <div class="flex justify-between items-center mb-4">
-            <h4 style="margin: 0; color: var(--danger);">⚠️ ${t('create.complianceWarning')}</h4>
+            <h4 style="margin: 0; color: var(--danger);">${icon('warning', 18)} ${t('create.complianceWarning')}</h4>
             <button class="btn btn-ghost btn-sm" id="btn-close-compliance">✕</button>
           </div>
           <div id="compliance-violations" class="mb-4"></div>
@@ -224,7 +224,7 @@ export function renderCreatePage() {
           <div id="variation-preview" class="hidden" style="margin-top: var(--space-4);">
             <div class="flex justify-between items-center mb-3">
               <span class="badge badge-accent" id="variation-label">${t('create.variationLabel')}</span>
-              <button class="btn btn-ghost btn-sm" id="copy-variation">📋 ${t('create.copyButton')}</button>
+              <button class="btn btn-ghost btn-sm" id="copy-variation">${icon('clipboard', 14)} ${t('create.copyButton')}</button>
             </div>
             <div id="variation-content" class="content-preview" contenteditable="true"></div>
           </div>
@@ -237,13 +237,13 @@ export function renderCreatePage() {
             <label class="publish-toggle" id="toggle-fb-label">
               <input type="checkbox" id="toggle-fb" class="toggle-input">
               <span class="toggle-slider"></span>
-              <span class="toggle-text">📱 ${t('create.publishFacebook')}</span>
+              <span class="toggle-text">${icon('phone', 14)} ${t('create.publishFacebook')}</span>
               <span id="fb-conn-status" class="text-sm text-muted"></span>
             </label>
             <label class="publish-toggle" id="toggle-wp-label">
               <input type="checkbox" id="toggle-wp" class="toggle-input">
               <span class="toggle-slider"></span>
-              <span class="toggle-text">📝 ${t('create.publishWordPress')}</span>
+              <span class="toggle-text">${icon('blog', 14)} ${t('create.publishWordPress')}</span>
               <span id="wp-conn-status" class="text-sm text-muted"></span>
             </label>
           </div>
@@ -251,7 +251,7 @@ export function renderCreatePage() {
             <button class="btn btn-accent btn-lg" id="btn-publish" style="flex: 1;" disabled>
               ${icon('publish', 16)} ${t('create.publishButton')}
             </button>
-            <a href="#/settings" class="btn btn-ghost btn-sm">⚙️ ${t('create.settingsLink')}</a>
+            <a href="#/settings" class="btn btn-ghost btn-sm">${icon('settings', 14)} ${t('create.settingsLink')}</a>
           </div>
           <div id="publish-results" class="hidden" style="margin-top: var(--space-4);"></div>
         </div>
@@ -358,8 +358,8 @@ function attachCreateEvents() {
       if (content) {
         await copyToClipboard(content);
         showToast(t('create.copiedSuccess'), 'success');
-        btn.textContent = '✅ ' + t('create.copied');
-        setTimeout(() => { btn.textContent = '📋 ' + t('create.copyButton'); }, 2000);
+        btn.innerHTML = icon('check', 14) + ' ' + t('create.copied');
+        setTimeout(() => { btn.innerHTML = icon('clipboard', 14) + ' ' + t('create.copyButton'); }, 2000);
       }
     });
   });
@@ -529,7 +529,7 @@ async function handlePublish() {
   publishBtn.disabled = true;
   publishBtn.innerHTML = '⏳ ' + t('create.publishing');
   resultsEl.classList.remove('hidden');
-  resultsEl.innerHTML = `<span class="text-muted">🔄 ${t('create.processing')}</span>`;
+  resultsEl.innerHTML = `<span class="text-muted">${icon('refresh', 16)} ${t('create.processing')}</span>`;
 
   const results = [];
   const publishedTo = [];
@@ -540,11 +540,11 @@ async function handlePublish() {
     const fb = connections.facebook;
     const fbResult = await publishToFacebook(facebook, fb.pageId, fb.accessToken);
     if (fbResult.success) {
-      results.push(`<div class="publish-result-item text-success">✅ Facebook: <a href="${fbResult.postUrl}" target="_blank" rel="noopener">${t('create.viewPost')}</a></div>`);
+      results.push(`<div class="publish-result-item text-success">${icon('check', 14)} Facebook: <a href="${fbResult.postUrl}" target="_blank" rel="noopener">${t('create.viewPost')}</a></div>`);
       publishedTo.push('facebook');
       publishedUrls.facebook = fbResult.postUrl;
     } else {
-      results.push(`<div class="publish-result-item text-danger">❌ Facebook: ${fbResult.error}</div>`);
+      results.push(`<div class="publish-result-item text-danger">${icon('cross', 14)} Facebook: ${fbResult.error}</div>`);
     }
   }
 
@@ -560,11 +560,11 @@ async function handlePublish() {
       appPassword: wp.appPassword,
     });
     if (wpResult.success) {
-      results.push(`<div class="publish-result-item text-success">✅ WordPress: <a href="${wpResult.postUrl}" target="_blank" rel="noopener">${t('create.viewPost')}</a></div>`);
+      results.push(`<div class="publish-result-item text-success">${icon('check', 14)} WordPress: <a href="${wpResult.postUrl}" target="_blank" rel="noopener">${t('create.viewPost')}</a></div>`);
       publishedTo.push('wordpress');
       publishedUrls.wordpress = wpResult.postUrl;
     } else {
-      results.push(`<div class="publish-result-item text-danger">❌ WordPress: ${wpResult.error}</div>`);
+      results.push(`<div class="publish-result-item text-danger">${icon('cross', 14)} WordPress: ${wpResult.error}</div>`);
     }
   }
 
@@ -593,7 +593,7 @@ async function handlePublish() {
 
   // Reset button
   publishBtn.disabled = false;
-  publishBtn.innerHTML = '🚀 ' + t('create.publishButton');
+  publishBtn.innerHTML = icon('publish', 16) + ' ' + t('create.publishButton');
 }
 
 async function handleSave() {
@@ -674,12 +674,12 @@ async function handleImageGen() {
       <img src="data:${result.mimeType};base64,${result.imageData}" 
            alt="AI Generated Image" class="gen-image" id="generated-image">
       <div class="flex gap-2" style="margin-top: var(--space-3);">
-        <button class="btn btn-primary btn-sm" id="btn-edit-image" style="flex: 1;">✏️ ${t('create.editImage')}</button>
+        <button class="btn btn-primary btn-sm" id="btn-edit-image" style="flex: 1;">${icon('pencil', 14)} ${t('create.editImage')}</button>
         <a href="data:${result.mimeType};base64,${result.imageData}" 
            download="contentpilot-image.png" class="btn btn-outline btn-sm" id="btn-download-image">
-          💾 ${t('create.downloadImage')}
+          ${icon('save', 14)} ${t('create.downloadImage')}
         </a>
-        <button class="btn btn-ghost btn-sm" id="btn-regen-image">🔄 ${t('create.regenerateImage')}</button>
+        <button class="btn btn-ghost btn-sm" id="btn-regen-image">${icon('refresh', 14)} ${t('create.regenerateImage')}</button>
       </div>
     `;
 
@@ -696,7 +696,7 @@ async function handleImageGen() {
   } catch (err) {
     preview.innerHTML = `
       <div class="image-placeholder">
-        <span style="font-size: 2rem;">❌</span>
+        <span style="color: var(--text-muted);">${icon('cross', 32)}</span>
         <p class="text-sm" style="color: var(--danger);">${err.message}</p>
         <p class="text-xs text-muted" style="margin-top: var(--space-2);">${t('create.tryDifferentPrompt')}</p>
       </div>
@@ -704,7 +704,7 @@ async function handleImageGen() {
     showToast(t('create.imageError', { error: err.message }), 'error');
   } finally {
     btn.disabled = false;
-    btn.textContent = '🖼️ ' + t('create.generateImage');
+    btn.innerHTML = icon('image', 16) + ' ' + t('create.generateImage');
   }
 }
 
@@ -770,7 +770,7 @@ function runComplianceCheck(content) {
     const violationsHTML = result.violations.map(v => `
       <div class="compliance-violation-item" style="margin-bottom: var(--space-3); padding: var(--space-3); background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-md);">
         <div class="flex items-start gap-3">
-          <span style="font-size: 1.2rem;">⚠️</span>
+          <span style="display: inline-flex;">${icon('warning', 16)}</span>
           <div style="flex: 1;">
             <p style="margin: 0; color: var(--danger); font-weight: 600;">"${v.word}"</p>
             <p style="margin: var(--space-1) 0 0; font-size: var(--font-sm); color: var(--text-muted);">${v.message}</p>
@@ -815,7 +815,7 @@ function runComplianceCheck(content) {
     });
   } else if (result.warnings.length > 0) {
     // Just warnings, show toast
-    showToast(`⚠️ ${t('create.violationsFound', { count: result.warnings.length })}`, 'warning');
+    showToast(`${icon('warning', 14)} ${t('create.violationsFound', { count: result.warnings.length })}`, 'warning');
   }
 }
 
@@ -838,5 +838,5 @@ function addDisclaimerToContent() {
   }
 
   document.getElementById('compliance-panel')?.classList.add('hidden');
-  showToast(t('create.addDisclaimer') + '! 📌', 'success');
+  showToast(t('create.addDisclaimer') + '!', 'success');
 }

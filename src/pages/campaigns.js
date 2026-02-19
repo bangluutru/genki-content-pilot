@@ -6,6 +6,7 @@ import { loadCampaigns, saveCampaign, deleteCampaign } from '../services/firesto
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 import { timeAgo } from '../utils/helpers.js';
 
 export async function renderCampaignsPage() {
@@ -21,7 +22,7 @@ export async function renderCampaignsPage() {
           <p class="text-muted text-sm" style="margin-top: var(--space-1);">${t('campaign.subtitle')}</p>
         </div>
         <button class="btn btn-primary" id="btn-create-campaign">
-          ✨ ${t('campaign.create')}
+          ${icon('sparkle', 16)} ${t('campaign.create')}
         </button>
       </div>
 
@@ -74,7 +75,7 @@ function renderCampaignList(campaigns) {
   if (!campaigns || campaigns.length === 0) {
     return `
       <div class="card-flat text-center" style="padding: var(--space-10);">
-        <div style="font-size: 3rem; margin-bottom: var(--space-4);">⛺️</div>
+        <div style="color: var(--text-muted);">${icon('tent', 48)}</div>
         <p style="color: var(--text-secondary);">${t('campaign.noCampaignsDesc')}</p>
         <button class="btn btn-primary" id="btn-create-first" style="margin-top: var(--space-4);">
           ${t('campaign.createFirst')}
@@ -93,12 +94,12 @@ function renderCampaignList(campaigns) {
           </div>
           <p class="text-sm text-muted mb-2">${c.brief || c.goal || 'No description'}</p>
           <div class="flex gap-4 text-xs text-muted">
-            <span>📅 ${c.startDate || 'TBD'} - ${c.endDate || 'TBD'}</span>
-            <span>⏱️ ${timeAgo(c.createdAt)}</span>
+            <span>${icon('calendar', 14)} ${c.startDate || 'TBD'} - ${c.endDate || 'TBD'}</span>
+            <span>${icon('clock', 14)} ${timeAgo(c.createdAt)}</span>
           </div>
         </div>
         <div class="dropdown">
-            <button class="btn btn-ghost btn-icon btn-delete-campaign" data-id="${c.id}" title="${t('actions.delete')}">🗑️</button>
+            <button class="btn btn-ghost btn-icon btn-delete-campaign" data-id="${c.id}" title="${t('actions.delete')}">${icon('trash', 16)}</button>
         </div>
       </div>
       

@@ -7,6 +7,7 @@ import { timeAgo, truncate } from '../utils/helpers.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 
 let currentYear, currentMonth;
 
@@ -21,7 +22,7 @@ export async function renderCalendarPage() {
     <main class="main-content page">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 style="font-size: var(--font-2xl);">📅 ${t('calendar.title')}</h1>
+          <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('calendar', 28)} ${t('calendar.title')}</h1>
           <p class="text-muted text-sm" style="margin-top: var(--space-1);">${t('calendar.subtitle')}</p>
         </div>
         <div class="flex gap-2">
@@ -55,9 +56,9 @@ export async function renderCalendarPage() {
           <div class="form-group" style="margin-bottom: var(--space-4);">
             <label class="form-label">Platform</label>
             <select class="form-input" id="schedule-platform">
-              <option value="facebook">📱 Facebook</option>
-              <option value="blog">📝 Blog</option>
-              <option value="all">📱📝 ${t('calendar.allPlatforms')}</option>
+              <option value="facebook">${icon('phone', 14)} Facebook</option>
+              <option value="blog">${icon('blog', 14)} Blog</option>
+              <option value="all">${icon('phone', 14)}${icon('blog', 14)} ${t('calendar.allPlatforms')}</option>
             </select>
           </div>
 
@@ -66,14 +67,14 @@ export async function renderCalendarPage() {
             <input type="time" class="form-input" id="schedule-time" value="09:00">
             <div class="quick-times" style="margin-top: var(--space-2); display: flex; gap: var(--space-2);">
               <span class="text-xs text-muted" style="align-self: center;">${t('calendar.suggestions')}:</span>
-              <button class="btn btn-ghost btn-xs quick-time-btn" data-time="09:00">☀️ 09:00</button>
-              <button class="btn btn-ghost btn-xs quick-time-btn" data-time="11:30">🍽️ 11:30</button>
-              <button class="btn btn-ghost btn-xs quick-time-btn" data-time="20:00">🌙 20:00</button>
+              <button class="btn btn-ghost btn-xs quick-time-btn" data-time="09:00">${icon('sun', 12)} 09:00</button>
+              <button class="btn btn-ghost btn-xs quick-time-btn" data-time="11:30">${icon('clock', 12)} 11:30</button>
+              <button class="btn btn-ghost btn-xs quick-time-btn" data-time="20:00">${icon('moon', 12)} 20:00</button>
             </div>
           </div>
 
           <div class="flex gap-2">
-            <button class="btn btn-primary" id="btn-add-schedule" style="flex: 1;">📅 ${t('calendar.addSchedule')}</button>
+            <button class="btn btn-primary" id="btn-add-schedule" style="flex: 1;">${icon('calendar', 16)} ${t('calendar.addSchedule')}</button>
             <button class="btn btn-ghost" id="btn-close-modal">${t('actions.close')}</button>
           </div>
         </div>
@@ -153,8 +154,8 @@ async function renderMonth() {
     const isPast = new Date(dateStr) < new Date(todayStr);
 
     const scheduleChips = daySchedules.slice(0, 3).map(s => {
-      const icon = s.platform === 'facebook' ? '📱' : s.platform === 'blog' ? '📝' : '📱📝';
-      return `<div class="schedule-chip ${isPast && s.status !== 'published' ? 'overdue' : ''}" title="${s.title || t('calendar.untitledPost')}">${icon} ${truncate(s.title || '', 12)}</div>`;
+      const chipIcon = s.platform === 'facebook' ? icon('phone', 12) : s.platform === 'blog' ? icon('blog', 12) : icon('phone', 12) + icon('blog', 12);
+      return `<div class="schedule-chip ${isPast && s.status !== 'published' ? 'overdue' : ''}" title="${s.title || t('calendar.untitledPost')}">${chipIcon} ${truncate(s.title || '', 12)}</div>`;
     }).join('');
 
     const moreCount = daySchedules.length > 3 ? `<div class="schedule-more">+${daySchedules.length - 3}</div>` : '';
@@ -183,7 +184,7 @@ function openModal(date, schedules) {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
   });
 
-  document.getElementById('modal-title').textContent = `📅 ${dateLabel}`;
+  document.getElementById('modal-title').innerHTML = `${icon('calendar', 20)} ${dateLabel}`;
   modal.dataset.date = date;
 
   // Show existing schedules for this date
@@ -196,8 +197,8 @@ function openModal(date, schedules) {
       </div>
       ${daySchedules.map(s => `
         <div class="existing-schedule">
-          <span>${s.platform === 'facebook' ? '📱' : s.platform === 'blog' ? '📝' : '📱📝'} ${s.title || 'N/A'} — ${s.time || '00:00'}</span>
-          <button class="btn btn-ghost btn-sm schedule-delete" data-id="${s.id}">🗑️</button>
+          <span>${s.platform === 'facebook' ? icon('phone', 14) : s.platform === 'blog' ? icon('blog', 14) : icon('phone', 14) + icon('blog', 14)} ${s.title || 'N/A'} — ${s.time || '00:00'}</span>
+          <button class="btn btn-ghost btn-sm schedule-delete" data-id="${s.id}">${icon('trash', 14)}</button>
         </div>
       `).join('')}
     `;

@@ -28,7 +28,7 @@ export async function renderDashboard() {
       <div class="dashboard-header flex justify-between items-center mb-6">
         <div>
           <h1 style="font-size: var(--font-2xl);">
-            ${t('dashboard.greeting', { name: user?.displayName?.split(' ')[0] || t('dashboard.you') })} 👋
+            ${t('dashboard.greeting', { name: user?.displayName?.split(' ')[0] || t('dashboard.you') })}
           </h1>
           <p class="text-muted text-sm" style="margin-top: var(--space-1);">
             ${t('dashboard.subtitle')}
@@ -56,7 +56,7 @@ export async function renderDashboard() {
           </div>
         </div>
         <div class="card chart-card">
-          <h3 class="chart-title">📂 ${t('dashboard.contentTypes')}</h3>
+          <h3 class="chart-title">${icon('campaigns', 18)} ${t('dashboard.contentTypes')}</h3>
           <div class="donut-chart-wrap" id="donut-chart">
             <div class="chart-skeleton">${t('common.loading')}</div>
           </div>
@@ -66,28 +66,28 @@ export async function renderDashboard() {
       <!-- Heatmap + Quick Actions -->
       <div class="charts-row">
         <div class="card chart-card">
-          <h3 class="chart-title">🔥 ${t('dashboard.last4Weeks')}</h3>
+          <h3 class="chart-title">${icon('fire', 18)} ${t('dashboard.last4Weeks')}</h3>
           <div class="heatmap-wrap" id="heatmap">
             <div class="chart-skeleton">${t('common.loading')}</div>
           </div>
         </div>
         <div class="card chart-card">
-          <h3 class="chart-title">⚡ ${t('dashboard.quickActions')}</h3>
+          <h3 class="chart-title">${icon('bolt', 18)} ${t('dashboard.quickActions')}</h3>
           <div class="quick-actions-compact">
             <a href="#/create" class="quick-action-item">
-              <span class="qa-icon">✨</span>
+              <span class="qa-icon">${icon('sparkle', 20)}</span>
               <span>${t('dashboard.createNew')}</span>
             </a>
             <a href="#/library" class="quick-action-item">
-              <span class="qa-icon">📚</span>
+              <span class="qa-icon">${icon('library', 20)}</span>
               <span>${t('dashboard.library')}</span>
             </a>
             <a href="#/brand" class="quick-action-item">
-              <span class="qa-icon">🎨</span>
+              <span class="qa-icon">${icon('brand', 20)}</span>
               <span>Brand Profile</span>
             </a>
             <a href="#/settings" class="quick-action-item">
-              <span class="qa-icon">⚙️</span>
+              <span class="qa-icon">${icon('settings', 20)}</span>
               <span>${t('dashboard.connectAPI')}</span>
             </a>
           </div>
@@ -96,7 +96,7 @@ export async function renderDashboard() {
 
       <!-- Recent Content -->
       <div class="recent-section" style="margin-top: var(--space-6);">
-        <h3 style="margin-bottom: var(--space-4);">📄 ${t('dashboard.recentPosts')}</h3>
+        <h3 style="margin-bottom: var(--space-4);">${icon('document', 20)} ${t('dashboard.recentPosts')}</h3>
         <div id="recent-content-list">
           <div class="skeleton" style="height: 80px; margin-bottom: var(--space-3);"></div>
           <div class="skeleton" style="height: 80px; margin-bottom: var(--space-3);"></div>
@@ -275,10 +275,10 @@ function renderRecentContent(contents) {
   if (!contents || contents.length === 0) {
     list.innerHTML = `
       <div class="card-flat text-center" style="padding: var(--space-10);">
-        <div style="font-size: 3rem; margin-bottom: var(--space-4);">📝</div>
+        <div style="color: var(--text-muted);">${icon('edit', 48)}</div>
         <p style="color: var(--text-secondary);">${t('dashboard.noPosts')}</p>
         <a href="#/create" class="btn btn-primary" style="margin-top: var(--space-4);">
-          ✨ ${t('dashboard.createFirstPost')}
+          ${icon('sparkle', 16)} ${t('dashboard.createFirstPost')}
         </a>
       </div>
     `;

@@ -61,10 +61,10 @@ function createEditorModal() {
   div.innerHTML = `
     <div class="card" style="width: 90vw; height: 90vh; display: flex; flex-direction: column; padding: var(--space-4);">
       <div class="flex justify-between items-center mb-4">
-        <h3>🎨 Chỉnh sửa ảnh</h3>
+        <h3>${icon('brand', 20)} Chỉnh sửa ảnh</h3>
         <div class="flex gap-2">
           <button class="btn btn-ghost" id="btn-editor-cancel">Huỷ</button>
-          <button class="btn btn-primary" id="btn-editor-save">💾 Lưu thay đổi</button>
+          <button class="btn btn-primary" id="btn-editor-save">${icon('save', 16)} Lưu thay đổi</button>
         </div>
       </div>
 
@@ -74,8 +74,8 @@ function createEditorModal() {
 
       <div class="editor-controls">
         <div class="flex gap-4 items-center mb-4 overflow-x-auto pb-2">
-          <button class="btn btn-ghost btn-sm" id="btn-rotate-cw" title="Xoay phải">🔄 Xoay 90°</button>
-          <button class="btn btn-ghost btn-sm" id="btn-add-logo" title="Chèn Logo">🖼️ Chèn Logo</button>
+          <button class="btn btn-ghost btn-sm" id="btn-rotate-cw" title="Xoay phải">${icon('refresh', 14)} Xoay 90°</button>
+          <button class="btn btn-ghost btn-sm" id="btn-add-logo" title="Chèn Logo">${icon('image', 14)} Chèn Logo</button>
           
           <div class="h-divider" style="width: 1px; height: 30px; background: var(--border-color);"></div>
 

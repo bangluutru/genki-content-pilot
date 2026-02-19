@@ -10,6 +10,7 @@ import { confirm } from '../components/modal.js';
 import { publishToFacebook } from '../services/facebook.js';
 import { publishToWordPress } from '../services/wordpress.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 
 export async function renderLibraryPage() {
   const app = document.getElementById('app');
@@ -19,18 +20,18 @@ export async function renderLibraryPage() {
     <main class="main-content page">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 style="font-size: var(--font-2xl);">📚 ${t('library.title')}</h1>
+          <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('library', 28)} ${t('library.title')}</h1>
           <p class="text-muted text-sm" style="margin-top: var(--space-1);">
             ${t('library.subtitle')}
           </p>
         </div>
-        <a href="#/create" class="btn btn-primary btn-sm">✨ ${t('library.createNew')}</a>
+        <a href="#/create" class="btn btn-primary btn-sm">${icon('sparkle', 16)} ${t('library.createNew')}</a>
       </div>
 
       <!-- Search & Filter -->
       <div class="flex gap-4 mb-6" style="flex-wrap: wrap;">
         <div style="flex: 1; min-width: 200px;">
-          <input type="search" id="search-input" class="input" placeholder="🔍 ${t('library.searchPlaceholder')}">
+          <input type="search" id="search-input" class="input" placeholder="${icon('search', 14)} ${t('library.searchPlaceholder')}">
         </div>
         <select id="filter-status" class="select" style="width: auto; min-width: 150px;">
           <option value="all">${t('common.all')}</option>
@@ -54,9 +55,9 @@ export async function renderLibraryPage() {
       </div>
 
       <div id="library-empty" class="hidden card-flat text-center" style="padding: var(--space-12);">
-        <div style="font-size: 3rem; margin-bottom: var(--space-4);">📭</div>
+        <div style="color: var(--text-muted);">${icon('inbox', 48)}</div>
         <p class="text-muted">${t('library.empty')}</p>
-        <a href="#/create" class="btn btn-primary" style="margin-top: var(--space-4);">✨ ${t('library.createFirst')}</a>
+        <a href="#/create" class="btn btn-primary" style="margin-top: var(--space-4);">${icon('sparkle', 16)} ${t('library.createFirst')}</a>
       </div>
     </main>
   `;
@@ -95,7 +96,7 @@ function renderContentList(contents) {
       <div class="flex justify-between items-center" style="margin-bottom: var(--space-2);">
         <div class="flex items-center gap-2">
           <span class="badge ${c.status === 'published' ? 'badge-success' : 'badge-accent'}">
-            ${c.status === 'published' ? '✅ ' + t('status.published') : '📝 ' + t('status.draft')}
+            ${c.status === 'published' ? icon('check', 12) + ' ' + t('status.published') : icon('edit', 12) + ' ' + t('status.draft')}
           </span>
           <span class="badge badge-warning" style="text-transform: none;">${c.contentType || t('library.post')}</span>
         </div>
@@ -111,10 +112,10 @@ function renderContentList(contents) {
       </p>
 
       <div class="flex gap-2" style="flex-wrap: wrap;">
-        <button class="btn btn-ghost btn-sm copy-fb-btn" data-id="${c.id}">📋 ${t('library.copyFB')}</button>
-        <button class="btn btn-ghost btn-sm copy-blog-btn" data-id="${c.id}">📋 ${t('library.copyBlog')}</button>
-        <button class="btn btn-accent btn-sm publish-btn" data-id="${c.id}">🚀 ${t('actions.publish')}</button>
-        <button class="btn btn-ghost btn-sm btn-delete" data-id="${c.id}" style="margin-left: auto; color: var(--danger);">🗑️ ${t('actions.delete')}</button>
+        <button class="btn btn-ghost btn-sm copy-fb-btn" data-id="${c.id}">${icon('clipboard', 14)} ${t('library.copyFB')}</button>
+        <button class="btn btn-ghost btn-sm copy-blog-btn" data-id="${c.id}">${icon('clipboard', 14)} ${t('library.copyBlog')}</button>
+        <button class="btn btn-accent btn-sm publish-btn" data-id="${c.id}">${icon('publish', 14)} ${t('actions.publish')}</button>
+        <button class="btn btn-ghost btn-sm btn-delete" data-id="${c.id}" style="margin-left: auto; color: var(--danger);">${icon('trash', 14)} ${t('actions.delete')}</button>
       </div>
 
       <div class="publish-result hidden" id="publish-result-${c.id}" style="margin-top: var(--space-3);"></div>
@@ -213,10 +214,10 @@ async function handleQuickPublish(content, btn) {
 
   const resultEl = document.getElementById(`publish-result-${content.id}`);
   btn.disabled = true;
-  btn.textContent = '⏳ ' + t('library.publishing');
+  btn.textContent = icon('clock', 14) + ' ' + t('library.publishing');
   if (resultEl) {
     resultEl.classList.remove('hidden');
-    resultEl.innerHTML = `<span class="text-muted">🔄 ${t('library.processing')}</span>`;
+    resultEl.innerHTML = `<span class="text-muted">${icon('refresh', 14)} ${t('library.processing')}</span>`;
   }
 
   const results = [];
@@ -226,10 +227,10 @@ async function handleQuickPublish(content, btn) {
   if (fb?.pageId) {
     const fbResult = await publishToFacebook(content.facebook || '', fb.pageId, fb.accessToken);
     if (fbResult.success) {
-      results.push(`✅ FB: <a href="${fbResult.postUrl}" target="_blank">${t('library.view')} →</a>`);
+      results.push(`${icon('check', 14)} FB: <a href="${fbResult.postUrl}" target="_blank">${t('library.view')} →</a>`);
       publishedTo.push('facebook');
     } else {
-      results.push(`❌ FB: ${fbResult.error}`);
+      results.push(`${icon('cross', 14)} FB: ${fbResult.error}`);
     }
   }
 
@@ -244,10 +245,10 @@ async function handleQuickPublish(content, btn) {
       appPassword: wp.appPassword,
     });
     if (wpResult.success) {
-      results.push(`✅ WP: <a href="${wpResult.postUrl}" target="_blank">${t('library.view')} →</a>`);
+      results.push(`${icon('check', 14)} WP: <a href="${wpResult.postUrl}" target="_blank">${t('library.view')} →</a>`);
       publishedTo.push('wordpress');
     } else {
-      results.push(`❌ WP: ${wpResult.error}`);
+      results.push(`${icon('cross', 14)} WP: ${wpResult.error}`);
     }
   }
 
@@ -266,5 +267,5 @@ async function handleQuickPublish(content, btn) {
   }
 
   btn.disabled = false;
-  btn.textContent = '🚀 ' + t('actions.publish');
+  btn.textContent = icon('publish', 14) + ' ' + t('actions.publish');
 }

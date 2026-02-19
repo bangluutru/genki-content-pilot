@@ -1,6 +1,4 @@
-/**
- * Toast notification component
- */
+import { icon } from '../utils/icons.js';
 
 let toastId = 0;
 
@@ -20,10 +18,10 @@ export function showToast(message, type = 'info', duration = 3000) {
     toast.className = `toast toast-${type}`;
 
     const icons = {
-        success: '✅',
-        error: '❌',
-        warning: '⚠️',
-        info: 'ℹ️'
+        success: icon('check', 16),
+        error: icon('cross', 16),
+        warning: icon('warning', 16),
+        info: icon('strategy', 16)
     };
 
     toast.innerHTML = `

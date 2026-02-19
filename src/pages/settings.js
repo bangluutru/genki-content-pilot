@@ -31,14 +31,14 @@ export async function renderSettingsPage() {
       <div class="card connection-card" style="margin-bottom: var(--space-6);">
         <div class="flex justify-between items-center mb-4">
           <div class="flex items-center gap-4">
-            <span style="font-size: 2rem;">📱</span>
+            <span style="display: inline-flex;">${icon('phone', 32)}</span>
             <div>
               <h3 style="margin: 0;">${t('settings.facebookTitle')}</h3>
               <p class="text-sm text-muted">${t('settings.facebookDesc')}</p>
             </div>
           </div>
           <span id="fb-status" class="badge ${fb.pageId ? 'badge-success' : 'badge-warning'}">
-            ${fb.pageName ? `✅ ${fb.pageName}` : '❌ ' + t('settings.notConnected')}
+            ${fb.pageName ? `${icon('check', 14)} ${fb.pageName}` : icon('cross', 14) + ' ' + t('settings.notConnected')}
           </span>
         </div>
 
@@ -76,14 +76,14 @@ export async function renderSettingsPage() {
       <div class="card connection-card" style="margin-bottom: var(--space-6);">
         <div class="flex justify-between items-center mb-4">
           <div class="flex items-center gap-4">
-            <span style="font-size: 2rem;">📝</span>
+            <span style="display: inline-flex;">${icon('blog', 32)}</span>
             <div>
               <h3 style="margin: 0;">${t('settings.wordpressTitle')}</h3>
               <p class="text-sm text-muted">${t('settings.wordpressDesc')}</p>
             </div>
           </div>
           <span id="wp-status" class="badge ${wp.siteUrl ? 'badge-success' : 'badge-warning'}">
-            ${wp.siteName ? `✅ ${wp.siteName}` : '❌ ' + t('settings.notConnected')}
+            ${wp.siteName ? `${icon('check', 14)} ${wp.siteName}` : icon('cross', 14) + ' ' + t('settings.notConnected')}
           </span>
         </div>
 
@@ -156,13 +156,13 @@ function attachSettingsEvents() {
 
     if (result.success) {
       resultEl.innerHTML = `
-                <span class="text-success">✅ ${t('settings.testSuccess')}</span><br>
+                <span class="text-success">${icon('check', 14)} ${t('settings.testSuccess')}</span><br>
                 <span class="text-sm text-muted">Page: <strong>${result.pageName}</strong> · ${result.fanCount?.toLocaleString() || 0} followers</span>
             `;
       document.getElementById('fb-status').className = 'badge badge-success';
-      document.getElementById('fb-status').textContent = `✅ ${result.pageName}`;
+      document.getElementById('fb-status').innerHTML = `${icon('check', 14)} ${result.pageName}`;
     } else {
-      resultEl.innerHTML = `<span class="text-danger">❌ ${result.error}</span>`;
+      resultEl.innerHTML = `<span class="text-danger">${icon('cross', 14)} ${result.error}</span>`;
     }
   });
 
@@ -200,7 +200,7 @@ function attachSettingsEvents() {
       document.getElementById('fb-page-id').value = '';
       document.getElementById('fb-token').value = '';
       document.getElementById('fb-status').className = 'badge badge-warning';
-      document.getElementById('fb-status').textContent = '❌ ' + t('settings.notConnected');
+      document.getElementById('fb-status').innerHTML = icon('cross', 14) + ' ' + t('settings.notConnected');
       document.getElementById('fb-result')?.classList.add('hidden');
       showToast(t('settings.disconnected'), 'info');
     } catch (error) {
@@ -227,13 +227,13 @@ function attachSettingsEvents() {
 
     if (result.success) {
       resultEl.innerHTML = `
-                <span class="text-success">✅ ${t('settings.testSuccess')}</span><br>
+                <span class="text-success">${icon('check', 14)} ${t('settings.testSuccess')}</span><br>
                 <span class="text-sm text-muted">Site: <strong>${result.siteName || siteUrl}</strong> · User: ${result.userName}</span>
             `;
       document.getElementById('wp-status').className = 'badge badge-success';
-      document.getElementById('wp-status').textContent = `✅ ${result.siteName || t('settings.connected')}`;
+      document.getElementById('wp-status').innerHTML = `${icon('check', 14)} ${result.siteName || t('settings.connected')}`;
     } else {
-      resultEl.innerHTML = `<span class="text-danger">❌ ${result.error}</span>`;
+      resultEl.innerHTML = `<span class="text-danger">${icon('cross', 14)} ${result.error}</span>`;
     }
   });
 
@@ -286,7 +286,7 @@ function attachSettingsEvents() {
       downloadAnchorNode.click();
       downloadAnchorNode.remove();
 
-      showToast(t('toasts.saved') + '! 💾', 'success');
+      showToast(t('toasts.saved') + '!', 'success');
     } catch (err) {
       showToast(t('common.error') + ': ' + err.message, 'error');
     }
@@ -300,7 +300,7 @@ function attachSettingsEvents() {
       document.getElementById('wp-user').value = '';
       document.getElementById('wp-password').value = '';
       document.getElementById('wp-status').className = 'badge badge-warning';
-      document.getElementById('wp-status').textContent = '❌ ' + t('settings.notConnected');
+      document.getElementById('wp-status').innerHTML = icon('cross', 14) + ' ' + t('settings.notConnected');
       document.getElementById('wp-result')?.classList.add('hidden');
       showToast(t('settings.disconnected'), 'info');
     } catch (error) {
@@ -399,7 +399,7 @@ function attachSettingsEvents() {
       // Update state
       store.set('brand', brandData);
 
-      showToast(t('toasts.saved') + '! ✅', 'success');
+      showToast(t('toasts.saved') + '!', 'success');
 
       // Re-render to update header
       setTimeout(async () => {

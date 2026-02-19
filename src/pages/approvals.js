@@ -6,6 +6,7 @@ import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { loadContents, approveContent, rejectContent } from '../services/firestore.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 
 export async function renderApprovalsPage() {
   const app = document.getElementById('app');
@@ -23,7 +24,7 @@ export async function renderApprovalsPage() {
     ${renderSidebar()}
     <main class="main-content page">
       <div class="mb-6">
-        <h1 style="font-size: var(--font-2xl);">✅ ${t('approval.title')}</h1>
+        <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('check', 28)} ${t('approval.title')}</h1>
         <p class="text-muted text-sm" style="margin-top: var(--space-1);">
           ${t('approval.queue')}
         </p>
@@ -40,7 +41,7 @@ export async function renderApprovalsPage() {
       <div class="tab-content active" id="tab-pending">
         ${pending.length === 0 ? `
           <div class="empty-state card">
-            <p style="font-size: 2rem;">✅</p>
+            <p style="display: inline-flex;">${icon('check', 32)}</p>
             <p class="text-muted">${t('approval.noPending')}</p>
           </div>
         ` : pending.map(c => renderApprovalCard(c, isAdmin)).join('')}
@@ -50,7 +51,7 @@ export async function renderApprovalsPage() {
       <div class="tab-content hidden" id="tab-approved">
         ${approved.length === 0 ? `
           <div class="empty-state card">
-            <p style="font-size: 2rem;">📝</p>
+            <p style="display: inline-flex;">${icon('edit', 32)}</p>
             <p class="text-muted">${t('approval.noApproved')}</p>
           </div>
         ` : approved.map(c => renderApprovalCard(c, false)).join('')}
@@ -60,7 +61,7 @@ export async function renderApprovalsPage() {
       <div class="tab-content hidden" id="tab-rejected">
         ${rejected.length === 0 ? `
           <div class="empty-state card">
-            <p style="font-size: 2rem;">❌</p>
+            <p style="display: inline-flex;">${icon('cross', 32)}</p>
             <p class="text-muted">${t('approval.noRejected')}</p>
           </div>
         ` : rejected.map(c => renderApprovalCard(c, false)).join('')}
@@ -93,8 +94,8 @@ function renderApprovalCard(content, isAdmin) {
       </div>
       ${isAdmin && content.status === 'pending' ? `
         <div class="flex gap-2">
-          <button class="btn btn-success btn-sm btn-approve" data-id="${content.id}">✅ ${t('actions.approve')}</button>
-          <button class="btn btn-danger btn-sm btn-reject" data-id="${content.id}">❌ ${t('actions.reject')}</button>
+          <button class="btn btn-success btn-sm btn-approve" data-id="${content.id}">${icon('check', 14)} ${t('actions.approve')}</button>
+          <button class="btn btn-danger btn-sm btn-reject" data-id="${content.id}">${icon('cross', 14)} ${t('actions.reject')}</button>
         </div>
       ` : ''}
       ${content.rejectionReason ? `

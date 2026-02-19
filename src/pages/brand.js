@@ -158,7 +158,7 @@ export async function renderBrandPage() {
 
           <div id="tpcn-warning" class="${brand.industry === 'tpcn' ? '' : 'hidden'}" 
                style="padding: var(--space-4); background: var(--warning-light); border-radius: var(--radius-md); border-left: 3px solid var(--warning);">
-            <strong>⚠️ ${t('brand.tpcnWarningTitle')}:</strong> ${t('brand.tpcnWarningDesc')}
+            <strong>${icon('warning', 16)} ${t('brand.tpcnWarningTitle')}:</strong> ${t('brand.tpcnWarningDesc')}
           </div>
 
           <button type="submit" class="btn btn-primary btn-lg btn-full" style="margin-top: var(--space-4);">
@@ -224,14 +224,14 @@ export async function renderBrandPage() {
 
       // Update button text and add remove button if not exists
       const uploadBtn = document.getElementById('upload-logo-btn');
-      uploadBtn.innerHTML = `📤 ${t('brand.changeLogo')}`;
+      uploadBtn.innerHTML = `${icon('upload', 16)} ${t('brand.changeLogo')}`;
 
       if (!document.getElementById('remove-logo-btn')) {
         const removeBtn = document.createElement('button');
         removeBtn.type = 'button';
         removeBtn.className = 'btn btn-ghost';
         removeBtn.id = 'remove-logo-btn';
-        removeBtn.innerHTML = `🗑️ ${t('brand.removeLogo')}`;
+        removeBtn.innerHTML = `${icon('trash', 16)} ${t('brand.removeLogo')}`;
         uploadBtn.parentElement.appendChild(removeBtn);
 
         // Add remove handler
@@ -241,11 +241,11 @@ export async function renderBrandPage() {
           if (logoPreviewEl && logoPreviewEl.parentElement) {
             logoPreviewEl.parentElement.outerHTML = `
               <div id="logo-preview-placeholder" style="width: 120px; height: 120px; border-radius: var(--radius-md); background: var(--surface-hover); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
-                🎨
+                ${icon('brand', 32)}
               </div>
             `;
           }
-          uploadBtn.innerHTML = `📤 ${t('brand.uploadLogo')}`;
+          uploadBtn.innerHTML = `${icon('upload', 16)} ${t('brand.uploadLogo')}`;
           removeBtn.remove();
         });
       }
@@ -265,11 +265,11 @@ export async function renderBrandPage() {
     if (logoPreviewEl && logoPreviewEl.parentElement) {
       logoPreviewEl.parentElement.outerHTML = `
         <div id="logo-preview-placeholder" style="width: 120px; height: 120px; border-radius: var(--radius-md); background: var(--surface-hover); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
-          🎨
+          ${icon('brand', 32)}
         </div>
       `;
     }
-    uploadBtn.innerHTML = `📤 ${t('brand.uploadLogo')}`;
+    uploadBtn.innerHTML = `${icon('upload', 16)} ${t('brand.uploadLogo')}`;
     document.getElementById('remove-logo-btn')?.remove();
   });
 
@@ -324,7 +324,7 @@ function renderOnboardingBanner() {
   return `
     <div class="card" style="margin-bottom: var(--space-6); border-left: 3px solid var(--accent); background: var(--accent-light);">
       <div class="flex items-center gap-4">
-        <span style="font-size: 2rem;">👋</span>
+        <span style="display: inline-flex;">${icon('hand', 32)}</span>
         <div>
           <strong>${t('brand.welcomeTitle')}</strong>
           <p class="text-sm text-muted" style="margin-top: var(--space-1);">

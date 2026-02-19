@@ -26,7 +26,7 @@ export async function renderConversionDashboard() {
     ${renderSidebar()}
     <main class="main-content page">
       <div class="mb-6">
-        <h1 style="font-size: var(--font-2xl);">📈 ${t('conversion.title')}</h1>
+        <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('chart', 28)} ${t('conversion.title')}</h1>
         <p class="text-muted text-sm" style="margin-top: var(--space-1);">
           ${t('conversion.subtitle')}
         </p>
@@ -35,21 +35,21 @@ export async function renderConversionDashboard() {
       <!-- Stats Overview -->
       <div class="stats-grid" style="margin-bottom: var(--space-6);">
         <div class="stat-card">
-          <span class="stat-icon">👆</span>
+          <span class="stat-icon">${icon('cursor', 24)}</span>
           <div>
             <div class="stat-value">${totalClicks.toLocaleString()}</div>
             <div class="stat-label">${t('conversion.totalClicks')}</div>
           </div>
         </div>
         <div class="stat-card">
-          <span class="stat-icon">🛒</span>
+          <span class="stat-icon">${icon('cart', 24)}</span>
           <div>
             <div class="stat-value">${totalOrders.toLocaleString()}</div>
             <div class="stat-label">${t('conversion.orders')}</div>
           </div>
         </div>
         <div class="stat-card">
-          <span class="stat-icon">💰</span>
+          <span class="stat-icon">${icon('coin', 24)}</span>
           <div>
             <div class="stat-value">${(totalRevenue / 1_000_000).toFixed(1)}M</div>
             <div class="stat-label">${t('conversion.revenue')}</div>
