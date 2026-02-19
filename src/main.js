@@ -83,9 +83,9 @@ router
     const render = await loadPage('dashboard');
     await render?.();
   })
-  .on('create', async () => {
+  .on('create', async (params) => {
     const render = await loadPage('create');
-    render?.();
+    await render?.(params);
   })
   .on('brand', async () => {
     const render = await loadPage('brand');
