@@ -1,25 +1,22 @@
 /**
  * Gemini AI Service — Content generation via Gemini API
- * Direct client-side for dev; production should use Cloud Functions proxy (brainstorm C1)
+ * Production: calls /api/gemini (Cloudflare Functions proxy — key hidden server-side)
+ * Dev fallback: if VITE_GEMINI_API_KEY exists, calls Google directly (for npm run dev without wrangler)
  */
 import { store } from '../utils/state.js';
 
 import { getTopPerformingContent } from './firestore.js';
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const DEV_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 const MODEL = 'gemini-2.0-flash';
 
 // ===== Internal Helper — Shared Gemini API call =====
 
 /**
- * Call Gemini API with a prompt and configuration
+ * Call Gemini API — routes through Cloudflare proxy in production,
+ * falls back to direct call in local dev if VITE_GEMINI_API_KEY is set.
  * @param {string} prompt - The full prompt text
  * @param {Object} config - Generation config overrides
- * @param {string} [config.model] - Model override (default: MODEL)
- * @param {number} [config.temperature] - Temperature (default: 0.8)
- * @param {number} [config.topP] - Top-P (default: 0.95)
- * @param {number} [config.maxOutputTokens] - Max tokens (default: 4096)
- * @param {string} [config.responseMimeType] - Response MIME type (e.g., 'application/json')
  * @returns {string} Generated text content
  */
 async function callGemini(prompt, config = {}) {
@@ -33,17 +30,32 @@ async function callGemini(prompt, config = {}) {
         generationConfig.responseMimeType = config.responseMimeType;
     }
 
-    const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${API_KEY}`,
-        {
+    let response;
+
+    // Check if proxy endpoint is available (production / wrangler dev)
+    const useProxy = !DEV_API_KEY || window.location.hostname !== 'localhost';
+
+    if (useProxy) {
+        // --- Production path: Cloudflare Functions proxy ---
+        response = await fetch('/api/gemini', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                generationConfig,
-            }),
-        }
-    );
+            body: JSON.stringify({ prompt, config: { model, ...generationConfig } }),
+        });
+    } else {
+        // --- Dev fallback: direct call (only when running plain npm run dev) ---
+        response = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${DEV_API_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
+                    generationConfig,
+                }),
+            }
+        );
+    }
 
     if (!response.ok) {
         const err = await response.json();
