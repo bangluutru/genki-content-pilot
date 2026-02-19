@@ -15,21 +15,58 @@ const STYLE_PRESETS = {
     minimal: 'Minimalist design, lots of white space, clean lines, elegant simplicity, premium feel',
 };
 
+import { store } from '../utils/state.js';
+
 /**
  * Generate an image prompt from content brief
  * @param {Object} brief - Content brief
  * @returns {string} Generated prompt
  */
 export function buildImagePrompt(brief, style = 'product') {
+    const brand = store.get('brand') || {};
     const styleDesc = STYLE_PRESETS[style] || STYLE_PRESETS.product;
-    let prompt = styleDesc + '. ';
 
+    let prompt = `Style: ${styleDesc}. `;
+
+    // 1. Content Context
     if (brief.product) prompt += `Subject: ${brief.product}. `;
     if (brief.highlight) prompt += `Key feature: ${brief.highlight}. `;
-    if (brief.contentType) prompt += `Purpose: ${brief.contentType} content. `;
+    if (brief.contentType) prompt += `Context: ${brief.contentType} content. `;
 
-    prompt += 'No text overlay. High quality, 4K resolution.';
+    // 2. Brand Identity Injection
+    if (brand.archetype) {
+        const archetypeVisuals = getArchetypeVisuals(brand.archetype);
+        if (archetypeVisuals) {
+            prompt += `Brand Vibe: ${archetypeVisuals}. `;
+        }
+    }
+
+    if (brand.tone) {
+        prompt += `Mood: ${brand.tone}. `;
+    }
+
+    // 3. Technical Quality
+    prompt += 'No text overlay. High quality, 4K resolution, commercially licensed style.';
+
     return prompt;
+}
+
+function getArchetypeVisuals(archetype) {
+    const map = {
+        hero: 'Bold, strong contrast, dynamic action, energetic',
+        sage: 'Clean, minimalist, books, wisdom, muted intellectual colors',
+        magician: 'Mystical, glowing effects, transformative, surreal',
+        ruler: 'Luxury, gold accents, symmetrical, commanding, premium',
+        creator: 'Artistic, colorful, innovative, textured, expressive',
+        caregiver: 'Warm, soft lighting, cozy, safe, pastel tones',
+        jester: 'Bright, colorful, fun, playful, high energy',
+        lover: 'Romantic, soft focus, elegance, intimate, sensual',
+        explorer: 'Outdoors, nature, wide angles, adventurous, gritty',
+        outlaw: 'Edgy, dark mode, rebellious, high contrast, neon',
+        innocent: 'Pure, white space, bright, happy, natural light',
+        everyman: 'Real people, authentic, down-to-earth, relatable'
+    };
+    return map[archetype] || '';
 }
 
 /**

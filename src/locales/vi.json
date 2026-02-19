@@ -135,7 +135,7 @@
         "footer": "Miễn phí cho team nhỏ • Bảo mật bởi Firebase"
     },
     "brand": {
-        "title": "Brand Profile",
+        "title": "Hồ sơ thương hiệu",
         "subtitle": "AI sẽ tham chiếu thông tin này mỗi khi viết bài",
         "basicInfo": "Thông tin cơ bản",
         "brandName": "Tên thương hiệu",
@@ -210,7 +210,7 @@
         "customerAvatarsPlaceholder": "VD: Chị Lan, 35 tuổi, văn phòng, bận rộn, thích nhanh gọn..."
     },
     "strategy": {
-        "title": "Strategy Hub",
+        "title": "Chiến lược",
         "subtitle": "Biến mục tiêu kinh doanh thành ý tưởng chiến dịch",
         "businessGoal": "Mục tiêu kinh doanh hiện tại",
         "goalPlaceholder": "VD: Tăng doanh số dòng sản phẩm mới, Xả hàng tồn kho, Tăng nhận diện thương hiệu...",
@@ -286,7 +286,7 @@
         }
     },
     "conversion": {
-        "title": "Conversion Tracking",
+        "title": "Theo dõi chuyển đổi",
         "subtitle": "Theo dõi hiệu quả thực tế: Clicks → Orders → Revenue",
         "totalClicks": "Total Clicks",
         "orders": "Đơn hàng",

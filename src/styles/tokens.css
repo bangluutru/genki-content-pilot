@@ -10,7 +10,7 @@
   --color-light-green: #51BF9D;
   --color-sky: #D7EDE6;
   --color-plume: #A71D45;
-  
+
   /* Secondary Colors */
   --color-beauty: #E98B8B;
   --color-beauty-tint: #FBC2BF;
@@ -20,42 +20,44 @@
   --color-brain-blue-tint: #B2B2E5;
   --color-brain-dark: #191919;
   --color-brain-dark-tint: #565656;
-  
+
   /* Semantic Tokens — Light Mode */
   --bg: #ffffff;
   --surface: var(--color-sky);
   --surface-elevated: #ffffff;
-  
+
   --text: var(--color-brain-dark);
   --text-muted: var(--color-brain-dark-tint);
   --text-secondary: rgba(25, 25, 25, 0.7);
-  
+
   --primary: var(--color-forest);
   --primary-hover: #005550;
   --primary-light: rgba(0, 105, 100, 0.1);
-  
+
   --success: var(--color-light-green);
   --success-light: rgba(81, 191, 157, 0.15);
-  
+
   --danger: var(--color-plume);
   --danger-light: rgba(167, 29, 69, 0.15);
-  
+
   --warning: var(--color-digest);
   --warning-light: rgba(198, 186, 98, 0.15);
-  
+
   --info: var(--color-brain-blue);
   --info-light: rgba(102, 102, 204, 0.15);
-  
+
   --link: var(--color-brain-blue);
   --link-hover: #5555BB;
-  
+
   --border: rgba(25, 25, 25, 0.12);
   --border-hover: rgba(0, 105, 100, 0.3);
   --focus-ring: var(--color-light-green);
-  
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+
+  --btn-primary-text: #ffffff;
 }
 
 /* ---------- Dark Mode (.dark class on <html>) ---------- */
@@ -63,64 +65,84 @@
   --bg: #0f1112;
   --surface: rgba(215, 237, 230, 0.08);
   --surface-elevated: rgba(215, 237, 230, 0.12);
-  
+
   --text: #F2F4F5;
   --text-muted: rgba(242, 244, 245, 0.70);
   --text-secondary: rgba(242, 244, 245, 0.60);
-  
+
   --primary: var(--color-light-green);
   --primary-hover: #62D0AE;
   --primary-light: rgba(81, 191, 157, 0.15);
-  
+
   --success: var(--color-light-green);
   --success-light: rgba(81, 191, 157, 0.2);
-  
+
   --danger: var(--color-beauty);
   --danger-light: rgba(233, 139, 139, 0.2);
-  
+
   --warning: var(--color-digest-tint);
   --warning-light: rgba(224, 216, 154, 0.2);
-  
+
   --info: var(--color-brain-blue-tint);
   --info-light: rgba(178, 178, 229, 0.2);
-  
+
   --link: var(--color-brain-blue-tint);
   --link-hover: #C2C2F0;
-  
+
   --border: rgba(242, 244, 245, 0.12);
   --border-hover: rgba(81, 191, 157, 0.4);
   --focus-ring: var(--color-light-green);
-  
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.6);
+
+  --btn-primary-text: var(--color-brain-dark);
 }
 
 /* ---------- Typography (unchanged) ---------- */
 :root {
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-xs: 0.75rem;    /* 12px */
-  --font-sm: 0.875rem;   /* 14px */
-  --font-base: 1rem;     /* 16px */
-  --font-lg: 1.125rem;   /* 18px */
-  --font-xl: 1.25rem;    /* 20px */
-  --font-2xl: 1.5rem;    /* 24px */
-  --font-3xl: 1.875rem;  /* 30px */
-  --font-4xl: 2.25rem;   /* 36px */
+  --font-xs: 0.75rem;
+  /* 12px */
+  --font-sm: 0.875rem;
+  /* 14px */
+  --font-base: 1rem;
+  /* 16px */
+  --font-lg: 1.125rem;
+  /* 18px */
+  --font-xl: 1.25rem;
+  /* 20px */
+  --font-2xl: 1.5rem;
+  /* 24px */
+  --font-3xl: 1.875rem;
+  /* 30px */
+  --font-4xl: 2.25rem;
+  /* 36px */
 }
 
 /* ---------- Spacing (4px grid) ---------- */
 :root {
-  --space-1: 0.25rem;   /* 4px */
-  --space-2: 0.5rem;    /* 8px */
-  --space-3: 0.75rem;   /* 12px */
-  --space-4: 1rem;      /* 16px */
-  --space-5: 1.25rem;   /* 20px */
-  --space-6: 1.5rem;    /* 24px */
-  --space-8: 2rem;      /* 32px */
-  --space-10: 2.5rem;   /* 40px */
-  --space-12: 3rem;     /* 48px */
-  --space-16: 4rem;     /* 64px */
+  --space-1: 0.25rem;
+  /* 4px */
+  --space-2: 0.5rem;
+  /* 8px */
+  --space-3: 0.75rem;
+  /* 12px */
+  --space-4: 1rem;
+  /* 16px */
+  --space-5: 1.25rem;
+  /* 20px */
+  --space-6: 1.5rem;
+  /* 24px */
+  --space-8: 2rem;
+  /* 32px */
+  --space-10: 2.5rem;
+  /* 40px */
+  --space-12: 3rem;
+  /* 48px */
+  --space-16: 4rem;
+  /* 64px */
 }
 
 /* ---------- Borders & Radius ---------- */
@@ -144,7 +166,7 @@
   --sidebar-width: 260px;
   --header-height: 64px;
   --max-content-width: 1200px;
-  
+
   /* Safe areas (iOS) */
   --safe-top: env(safe-area-inset-top);
   --safe-bottom: env(safe-area-inset-bottom);

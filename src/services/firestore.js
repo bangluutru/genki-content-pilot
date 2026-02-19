@@ -534,19 +534,123 @@ export async function getTopPerformingContent(limitCount = 3) {
 
 // ===== Campaign Management (Phase 12) =====
 
-export async function saveCampaign(campaignData) {
+// ===== Campaign Management (Phase 4) =====
+
+/**
+ * Save or Update Campaign
+ * @param {Object} campaign - { id, name, brief, startDate, endDate, status, pillars, angles, goals }
+ */
+export async function saveCampaign(campaign) {
     const userId = uid();
     if (!userId) throw new Error('Not authenticated');
 
-    const campaigns = store.get('campaigns') || [];
-    const newCampaign = { ...campaignData, id: Date.now(), userId, createdAt: new Date().toISOString() };
-    campaigns.push(newCampaign);
-    store.set('campaigns', campaigns);
-    return newCampaign;
+    // Sanitize
+    const data = {
+        ...campaign,
+        userId,
+        updatedAt: new Date().toISOString()
+    };
+
+    // Auto-generate ID if new
+    if (!data.id) {
+        data.createdAt = new Date().toISOString();
+        data.status = data.status || 'draft';
+    }
+
+    try {
+        const { db, doc, collection, setDoc } = await getFirestore();
+
+        // Use existing ID or create new ref
+        let campaignRef;
+        if (data.id) {
+            campaignRef = doc(db, 'campaigns', data.id.toString());
+        } else {
+            campaignRef = doc(collection(db, 'campaigns'));
+            data.id = campaignRef.id;
+        }
+
+        await setDoc(campaignRef, data, { merge: true });
+
+        // Update local store
+        const campaigns = store.get('campaigns') || [];
+        const index = campaigns.findIndex(c => c.id === data.id);
+        if (index > -1) {
+            campaigns[index] = data;
+        } else {
+            campaigns.push(data);
+        }
+        store.set('campaigns', campaigns);
+
+        return data;
+    } catch (error) {
+        console.warn('Firestore saveCampaign failed, using local:', error);
+        // Local fallback
+        let campaigns = store.get('campaigns') || [];
+        if (!data.id) data.id = 'local_' + Date.now();
+
+        const index = campaigns.findIndex(c => c.id === data.id);
+        if (index > -1) {
+            campaigns[index] = data;
+        } else {
+            campaigns.push(data);
+        }
+        store.set('campaigns', campaigns);
+        return data;
+    }
 }
 
+/**
+ * Load Campaigns for User
+ */
 export async function loadCampaigns() {
-    return store.get('campaigns') || [];
+    const userId = uid();
+    if (!userId) return store.get('campaigns') || [];
+
+    try {
+        const { db, collection, query, where, orderBy, getDocs } = await getFirestore();
+
+        const q = query(
+            collection(db, 'campaigns'),
+            where('userId', '==', userId),
+            orderBy('createdAt', 'desc')
+        );
+
+        const snapshot = await getDocs(q);
+        const campaigns = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        store.set('campaigns', campaigns);
+        return campaigns;
+    } catch (error) {
+        console.warn('Firestore loadCampaigns failed, using local:', error);
+        return store.get('campaigns') || [];
+    }
+}
+
+/**
+ * Delete Campaign
+ */
+export async function deleteCampaign(campaignId) {
+    const userId = uid();
+    if (!userId) return false;
+
+    try {
+        const { db, doc, deleteDoc } = await getFirestore();
+
+        await deleteDoc(doc(db, 'campaigns', campaignId));
+
+        // Update local
+        let campaigns = store.get('campaigns') || [];
+        campaigns = campaigns.filter(c => c.id !== campaignId);
+        store.set('campaigns', campaigns);
+
+        return true;
+    } catch (error) {
+        console.warn('Firestore deleteCampaign failed, using local:', error);
+        let campaigns = store.get('campaigns') || [];
+        campaigns = campaigns.filter(c => c.id !== campaignId);
+        store.set('campaigns', campaigns);
+        return true;
+    }
 }
 
 // ===== Approval Workflow (Phase 13) =====
