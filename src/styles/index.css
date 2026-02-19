@@ -20,6 +20,33 @@
    are now defined in tokens.css. Components below reference those vars. */
 
 
+/* ---------- Duotone Icon System ---------- */
+.duo-icon {
+    display: inline-block;
+    vertical-align: middle;
+    flex-shrink: 0;
+}
+
+.duo-icon .duo-f {
+    fill: currentColor;
+    opacity: 0.15;
+    transition: opacity 0.2s ease;
+}
+
+.duo-icon .duo-s {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Active/hover states make the fill more visible */
+.nav-item.active .duo-icon .duo-f,
+.nav-item:hover .duo-icon .duo-f {
+    opacity: 0.25;
+}
+
 /* ---------- Base Styles ---------- */
 html {
     font-size: 16px;

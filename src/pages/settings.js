@@ -8,6 +8,7 @@ import { saveConnections, loadConnections, deleteConnection } from '../services/
 import { testFacebookConnection } from '../services/facebook.js';
 import { testWordPressConnection } from '../services/wordpress.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 
 export async function renderSettingsPage() {
   const app = document.getElementById('app');
@@ -20,7 +21,7 @@ export async function renderSettingsPage() {
     ${renderSidebar()}
     <main class="main-content page">
       <div class="mb-6">
-        <h1 style="font-size: var(--font-2xl);">⚙️ ${t('settings.title')}</h1>
+        <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('settings', 28)} ${t('settings.title')}</h1>
         <p class="text-muted text-sm" style="margin-top: var(--space-1);">
           ${t('settings.subtitle')}
         </p>
@@ -62,8 +63,8 @@ export async function renderSettingsPage() {
           </div>
 
           <div class="flex gap-2">
-            <button class="btn btn-secondary btn-sm" id="btn-test-fb">🔍 ${t('settings.testConnection')}</button>
-            <button class="btn btn-primary btn-sm" id="btn-save-fb">💾 ${t('settings.saveConnection')}</button>
+            <button class="btn btn-secondary btn-sm" id="btn-test-fb">${icon('target', 16)} ${t('settings.testConnection')}</button>
+            <button class="btn btn-primary btn-sm" id="btn-save-fb">${icon('save', 16)} ${t('settings.saveConnection')}</button>
             ${fb.pageId ? `<button class="btn btn-ghost btn-sm" id="btn-disconnect-fb" style="color: var(--danger);">${t('settings.disconnect')}</button>` : ''}
           </div>
 
@@ -110,8 +111,8 @@ export async function renderSettingsPage() {
           </div>
 
           <div class="flex gap-2">
-            <button class="btn btn-secondary btn-sm" id="btn-test-wp">🔍 ${t('settings.testConnection')}</button>
-            <button class="btn btn-primary btn-sm" id="btn-save-wp">💾 ${t('settings.saveConnection')}</button>
+            <button class="btn btn-secondary btn-sm" id="btn-test-wp">${icon('target', 16)} ${t('settings.testConnection')}</button>
+            <button class="btn btn-primary btn-sm" id="btn-save-wp">${icon('save', 16)} ${t('settings.saveConnection')}</button>
             ${wp.siteUrl ? `<button class="btn btn-ghost btn-sm" id="btn-disconnect-wp" style="color: var(--danger);">${t('settings.disconnect')}</button>` : ''}
           </div>
 
@@ -120,7 +121,7 @@ export async function renderSettingsPage() {
 
         <!-- WordPress Setup Guide -->
         <div class="mt-6 p-4" style="background: var(--bg-tertiary); border-radius: var(--radius-md);">
-          <p class="text-sm" style="margin-bottom: var(--space-2);"><strong>💡 ${t('settings.appPasswordHelp')}</strong></p>
+          <p class="text-sm" style="margin-bottom: var(--space-2);"><strong>${icon('tip', 16)} ${t('settings.appPasswordHelp')}</strong></p>
           <ol class="text-sm text-muted" style="margin: 0; padding-left: var(--space-5);">
             <li>${t('login.title')} WordPress Admin</li>
             <li>Users → Profile → Application Passwords</li>
@@ -149,7 +150,7 @@ function attachSettingsEvents() {
     }
 
     resultEl.classList.remove('hidden');
-    resultEl.innerHTML = `<span class="text-muted">🔄 ${t('settings.testing')}</span>`;
+    resultEl.innerHTML = `<span class="text-muted">${icon('refresh', 16)} ${t('settings.testing')}</span>`;
 
     const result = await testFacebookConnection(pageId, token);
 
@@ -220,7 +221,7 @@ function attachSettingsEvents() {
     }
 
     resultEl.classList.remove('hidden');
-    resultEl.innerHTML = `<span class="text-muted">🔄 ${t('settings.testing')}</span>`;
+    resultEl.innerHTML = `<span class="text-muted">${icon('refresh', 16)} ${t('settings.testing')}</span>`;
 
     const result = await testWordPressConnection(siteUrl, username, appPassword);
 
@@ -443,7 +444,7 @@ function attachSettingsEvents() {
 
       // Reset preview
       document.getElementById('logo-preview').outerHTML = `
-        <div id="logo-preview" style="width: 64px; height: 64px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; font-size: 2rem;">✈️</div>
+        <div id="logo-preview" style="width: 64px; height: 64px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center;">${icon('plane', 32)}</div>
       `;
       document.getElementById('brand-logo').value = '';
 

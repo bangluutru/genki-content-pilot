@@ -16,6 +16,7 @@ import { copyToClipboard, storage } from '../utils/helpers.js';
 import { publishToFacebook } from '../services/facebook.js';
 import { publishToWordPress } from '../services/wordpress.js';
 import { generateImage, buildImagePrompt, getStylePresets } from '../services/image-gen.js';
+import { icon } from '../utils/icons.js';
 import { t } from '../utils/i18n.js';
 
 let currentContent = null;
@@ -126,7 +127,7 @@ export function renderCreatePage() {
         <div class="flex justify-between items-center mb-4">
           <h3>🎉 ${t('create.contentReady')}</h3>
           <div class="flex gap-2">
-            <button class="btn btn-secondary btn-sm" id="btn-regenerate">🔄 ${t('create.regenerate')}</button>
+            <button class="btn btn-secondary btn-sm" id="btn-regenerate">${icon('refresh', 16)} ${t('create.regenerate')}</button>
             <button class="btn btn-primary btn-sm" id="btn-save-content">💾 ${t('create.saveContent')}</button>
           </div>
         </div>
@@ -136,7 +137,7 @@ export function renderCreatePage() {
           <button class="tab active" data-tab="facebook">📱 ${t('create.tabFacebook')}</button>
           <button class="tab" data-tab="blog">📰 ${t('create.tabBlog')}</button>
           <button class="tab" data-tab="story">📸 ${t('create.tabStory')}</button>
-          <button class="tab" data-tab="image">🖼️ ${t('create.tabImage')}</button>
+          <button class="tab" data-tab="image">${icon('image', 16)} ${t('create.tabImage')}</button>
         </div>
 
         <!-- Tab Content -->
@@ -185,11 +186,11 @@ export function renderCreatePage() {
               <textarea id="image-prompt" class="form-input" rows="3" placeholder="${t('create.promptPlaceholder')}"></textarea>
             </div>
             <button class="btn btn-primary" id="btn-gen-image" style="width: 100%; margin-bottom: var(--space-4);">
-              🖼️ ${t('create.generateImage')}
+              ${icon('image', 16)} ${t('create.generateImage')}
             </button>
             <div id="image-preview" class="image-preview-area">
               <div class="image-placeholder">
-                <span style="font-size: 3rem;">🖼️</span>
+                <span style="color: var(--text-muted);">${icon('image', 48)}</span>
                 <p class="text-sm text-muted">${t('create.imagePlaceholder')}</p>
               </div>
             </div>
@@ -204,14 +205,14 @@ export function renderCreatePage() {
           </div>
           <div id="compliance-violations" class="mb-4"></div>
           <div class="flex gap-2">
-            <button class="btn btn-outline btn-sm" id="btn-add-disclaimer">📌 ${t('create.addDisclaimer')}</button>
+            <button class="btn btn-outline btn-sm" id="btn-add-disclaimer">${icon('pin', 16)} ${t('create.addDisclaimer')}</button>
             <button class="btn btn-ghost btn-sm" id="btn-ignore-compliance">${t('create.ignoreCompliance')}</button>
           </div>
         </div>
 
         <!-- Variation Panel -->
         <div class="card variation-panel" style="margin-top: var(--space-6);" id="variation-panel">
-          <h4 style="margin-bottom: var(--space-4);">🔄 ${t('create.variationTitle')}</h4>
+          <h4 style="margin-bottom: var(--space-4);">${icon('refresh', 18)} ${t('create.variationTitle')}</h4>
           <p class="text-sm text-muted" style="margin-bottom: var(--space-3);">${t('create.variationDesc')}</p>
           <div class="variation-types" id="variation-types">
             ${VARIATION_TYPES.map(v => `
@@ -231,7 +232,7 @@ export function renderCreatePage() {
 
         <!-- Publish Panel -->
         <div class="publish-panel card" style="margin-top: var(--space-6);" id="publish-panel">
-          <h4 style="margin-bottom: var(--space-4);">🚀 ${t('create.publishTitle')}</h4>
+          <h4 style="margin-bottom: var(--space-4);">${icon('publish', 18)} ${t('create.publishTitle')}</h4>
           <div class="publish-toggles flex flex-col gap-3" style="margin-bottom: var(--space-4);">
             <label class="publish-toggle" id="toggle-fb-label">
               <input type="checkbox" id="toggle-fb" class="toggle-input">
@@ -248,7 +249,7 @@ export function renderCreatePage() {
           </div>
           <div class="flex gap-2 items-center">
             <button class="btn btn-accent btn-lg" id="btn-publish" style="flex: 1;" disabled>
-              🚀 ${t('create.publishButton')}
+              ${icon('publish', 16)} ${t('create.publishButton')}
             </button>
             <a href="#/settings" class="btn btn-ghost btn-sm">⚙️ ${t('create.settingsLink')}</a>
           </div>

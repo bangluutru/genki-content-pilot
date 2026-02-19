@@ -6,6 +6,7 @@ import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { loadConversions } from '../services/firestore.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 
 export async function renderConversionDashboard() {
   const app = document.getElementById('app');
@@ -55,7 +56,7 @@ export async function renderConversionDashboard() {
           </div>
         </div>
         <div class="stat-card">
-          <span class="stat-icon">📊</span>
+          <span class="stat-icon">${icon('chart', 24)}</span>
           <div>
             <div class="stat-value">${avgConversionRate}%</div>
             <div class="stat-label">${t('conversion.conversionRate')}</div>
@@ -89,7 +90,7 @@ export async function renderConversionDashboard() {
         
         ${conversions.length === 0 ? `
           <div class="empty-state" style="text-align: center; padding: var(--space-8);">
-            <p style="font-size: 3rem; margin-bottom: var(--space-4);">📊</p>
+            <p style="margin-bottom: var(--space-4); color: var(--text-muted);">${icon('chart', 48)}</p>
             <h3>${t('conversion.noData')}</h3>
             <p class="text-muted" style="margin-top: var(--space-2);">
               ${t('conversion.noDataDesc')}
@@ -138,7 +139,7 @@ export async function renderConversionDashboard() {
 
       <!-- How to Use Guide -->
       <div class="card-flat" style="margin-top: var(--space-6); padding: var(--space-6); background: var(--bg-secondary); border-radius: var(--radius-lg);">
-        <h4 style="margin-bottom: var(--space-3);">💡 ${t('conversion.howToTitle')}</h4>
+        <h4 style="margin-bottom: var(--space-3);">${icon('tip', 18)} ${t('conversion.howToTitle')}</h4>
         <ol class="text-sm text-muted" style="padding-left: var(--space-4); line-height: 1.8;">
           <li><strong>${t('conversion.step1Title')}:</strong> ${t('conversion.step1Desc')}</li>
           <li><strong>${t('conversion.step2Title')}:</strong> ${t('conversion.step2Desc')}</li>

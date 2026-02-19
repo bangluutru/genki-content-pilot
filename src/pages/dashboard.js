@@ -10,6 +10,7 @@ import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { checkDailyLimit } from '../services/gemini.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 
 const TYPE_COLORS = [
   '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b',
@@ -40,16 +41,16 @@ export async function renderDashboard() {
 
       <!-- Stats Cards -->
       <div class="stats-grid" id="stats-grid">
-        ${renderStatCard('📝', t('dashboard.totalPosts'), '—', 'stat-total', 'var(--accent)')}
-        ${renderStatCard('🚀', t('dashboard.published'), '—', 'stat-published', '#10b981')}
-        ${renderStatCard('📄', t('dashboard.drafts'), '—', 'stat-drafts', '#f59e0b')}
-        ${renderStatCard('⚡', t('dashboard.today'), '—', 'stat-today', '#8b5cf6')}
+        ${renderStatCard(icon('create', 24), t('dashboard.totalPosts'), '—', 'stat-total', 'var(--accent)')}
+        ${renderStatCard(icon('publish', 24), t('dashboard.published'), '—', 'stat-published', '#10b981')}
+        ${renderStatCard(icon('library', 24), t('dashboard.drafts'), '—', 'stat-drafts', '#f59e0b')}
+        ${renderStatCard(icon('sparkle', 24), t('dashboard.today'), '—', 'stat-today', '#8b5cf6')}
       </div>
 
       <!-- Charts Row -->
       <div class="charts-row">
         <div class="card chart-card">
-          <h3 class="chart-title">📊 ${t('dashboard.last7Days')}</h3>
+          <h3 class="chart-title">${icon('chart', 20)} ${t('dashboard.last7Days')}</h3>
           <div class="bar-chart" id="bar-chart">
             <div class="chart-skeleton">${t('common.loading')}</div>
           </div>

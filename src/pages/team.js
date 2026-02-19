@@ -7,11 +7,12 @@ import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { timeAgo } from '../utils/helpers.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 
 const ROLE_LABELS = {
-  admin: { label: t('roles.admin'), badge: 'badge-accent', icon: '👑' },
-  editor: { label: t('roles.editor'), badge: 'badge-success', icon: '✏️' },
-  viewer: { label: t('roles.viewer'), badge: 'badge-warning', icon: '👁️' },
+  admin: { label: t('roles.admin'), badge: 'badge-accent', iconName: 'crown' },
+  editor: { label: t('roles.editor'), badge: 'badge-success', iconName: 'pencil' },
+  viewer: { label: t('roles.viewer'), badge: 'badge-warning', iconName: 'eye' },
 };
 
 export async function renderTeamPage() {
@@ -23,7 +24,7 @@ export async function renderTeamPage() {
     <main class="main-content page">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 style="font-size: var(--font-2xl);">👥 ${t('team.title')}</h1>
+          <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('team', 28)} ${t('team.title')}</h1>
           <p class="text-muted text-sm" style="margin-top: var(--space-1);">${t('team.subtitle')}</p>
         </div>
         <button class="btn btn-primary" id="btn-invite">+ ${t('team.invite')}</button>
@@ -36,18 +37,18 @@ export async function renderTeamPage() {
             <h3 id="workspace-name" style="margin-bottom: var(--space-1);">Workspace</h3>
             <p class="text-sm text-muted" id="workspace-desc">${t('common.loading')}</p>
           </div>
-          <button class="btn btn-ghost btn-sm" id="btn-edit-workspace">✏️ ${t('actions.edit')}</button>
+          <button class="btn btn-ghost btn-sm" id="btn-edit-workspace">${icon('edit', 16)} ${t('actions.edit')}</button>
         </div>
       </div>
 
       <!-- Members Grid -->
-      <h3 style="margin-bottom: var(--space-4);">👤 ${t('team.members')}</h3>
+      <h3 style="margin-bottom: var(--space-4);">${icon('team', 20)} ${t('team.members')}</h3>
       <div class="team-members" id="team-members">
         <div class="skeleton" style="height: 80px; margin-bottom: var(--space-3);"></div>
       </div>
 
       <!-- Activity Log -->
-      <h3 style="margin-top: var(--space-8); margin-bottom: var(--space-4);">📋${t('team.recentActivity')}</h3>
+      <h3 style="margin-top: var(--space-8); margin-bottom: var(--space-4);">${icon('templates', 20)}${t('team.recentActivity')}</h3>
       <div class="activity-log" id="activity-log">
         <div class="skeleton" style="height: 60px; margin-bottom: var(--space-2);"></div>
       </div>
@@ -55,7 +56,7 @@ export async function renderTeamPage() {
       <!-- Invite Modal -->
       <div class="modal-overlay hidden" id="invite-modal">
         <div class="card" style="max-width: 440px; width: 90%; padding: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">✉️ ${t('team.inviteTitle')}</h3>
+          <h3 style="margin-bottom: var(--space-4);">${icon('publish', 20)} ${t('team.inviteTitle')}</h3>
 
           <div class="form-group" style="margin-bottom: var(--space-3);">
             <label class="form-label">${t('team.email')} *</label>
@@ -65,13 +66,13 @@ export async function renderTeamPage() {
           <div class="form-group" style="margin-bottom: var(--space-4);">
             <label class="form-label">${t('team.role')}</label>
             <select class="form-input" id="invite-role">
-              <option value="editor">✏️ ${t('roles.editor')} — ${t('team.editorDesc')}</option>
-              <option value="viewer">👁️ ${t('roles.viewer')} — ${t('team.viewerDesc')}</option>
+              <option value="editor">${t('roles.editor')} — ${t('team.editorDesc')}</option>
+              <option value="viewer">${t('roles.viewer')} — ${t('team.viewerDesc')}</option>
             </select>
           </div>
 
           <div class="flex gap-2">
-            <button class="btn btn-primary" id="btn-send-invite" style="flex: 1;">📩 ${t('team.sendInvite')}</button>
+            <button class="btn btn-primary" id="btn-send-invite" style="flex: 1;">${icon('publish', 16)} ${t('team.sendInvite')}</button>
             <button class="btn btn-ghost" id="btn-close-invite">${t('actions.cancel')}</button>
           </div>
         </div>
@@ -80,7 +81,7 @@ export async function renderTeamPage() {
       <!-- Edit Workspace Modal -->
       <div class="modal-overlay hidden" id="workspace-modal">
         <div class="card" style="max-width: 440px; width: 90%; padding: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">✏️ ${t('team.editWorkspace')}</h3>
+          <h3 style="margin-bottom: var(--space-4);">${icon('edit', 20)} ${t('team.editWorkspace')}</h3>
 
           <div class="form-group" style="margin-bottom: var(--space-3);">
             <label class="form-label">${t('team.workspaceName')}</label>
@@ -93,7 +94,7 @@ export async function renderTeamPage() {
           </div>
 
           <div class="flex gap-2">
-            <button class="btn btn-primary" id="btn-save-workspace" style="flex: 1;">💾 ${t('actions.save')}</button>
+            <button class="btn btn-primary" id="btn-save-workspace" style="flex: 1;">${icon('save', 16)} ${t('actions.save')}</button>
             <button class="btn btn-ghost" id="btn-close-ws-modal">${t('actions.cancel')}</button>
           </div>
         </div>
@@ -212,7 +213,7 @@ function renderMembers(members) {
             </div>
             <div class="text-sm text-muted">${m.email || ''}</div>
           </div>
-          <span class="badge ${r.badge}">${r.icon} ${r.label}</span>
+          <span class="badge ${r.badge}">${icon(r.iconName, 14)} ${r.label}</span>
           ${!isMe && members.find(x => x.uid === currentUser?.uid)?.role === 'admin' ? `
             <select class="form-input" style="width: auto; padding: var(--space-1) var(--space-2); font-size: var(--font-xs);" 
                     data-uid="${m.uid}" onchange="this.dispatchEvent(new CustomEvent('role-change', {bubbles:true, detail:{uid:'${m.uid}',role:this.value}}))">
@@ -250,7 +251,7 @@ function renderActivity(activities) {
   if (!activities.length) {
     container.innerHTML = `
       <div class="card-flat text-center" style="padding: var(--space-6);">
-        <span style="font-size: 2rem;">📋</span>
+        <span style="color: var(--text-muted);">${icon('templates', 40)}</span>
         <p class="text-sm text-muted" style="margin-top: var(--space-2);">${t('team.noActivity')}</p>
       </div>
     `;

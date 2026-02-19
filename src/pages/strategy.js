@@ -9,23 +9,24 @@ import { generateStrategy } from '../services/gemini.js';
 import { loadBrand } from '../services/firestore.js';
 import { t } from '../utils/i18n.js';
 import { router } from '../utils/router.js';
+import { icon } from '../utils/icons.js';
 
 export async function renderStrategyPage() {
-    const app = document.getElementById('app');
-    const brand = store.get('brand') || await loadBrand();
+  const app = document.getElementById('app');
+  const brand = store.get('brand') || await loadBrand();
 
-    if (!brand || !brand.name) {
-        showToast(t('dashboard.brandSetupTip'), 'warning');
-        router.navigate('brand');
-        return;
-    }
+  if (!brand || !brand.name) {
+    showToast(t('dashboard.brandSetupTip'), 'warning');
+    router.navigate('brand');
+    return;
+  }
 
-    app.innerHTML = `
+  app.innerHTML = `
     ${renderSidebar()}
     <main class="main-content page">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 style="font-size: var(--font-2xl);">🧠 ${t('strategy.title')}</h1>
+          <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('strategy', 28)} ${t('strategy.title')}</h1>
           <p class="text-muted text-sm" style="margin-top: var(--space-1);">
             ${t('strategy.subtitle')}
           </p>
@@ -35,7 +36,7 @@ export async function renderStrategyPage() {
       <!-- Business Goal Input -->
       <div class="card" style="margin-bottom: var(--space-6);">
         <label style="font-weight: 600; display: block; margin-bottom: var(--space-2);">
-          🎯 ${t('strategy.businessGoal')}
+          ${icon('target', 18)} ${t('strategy.businessGoal')}
         </label>
         <div class="flex gap-4">
           <input type="text" id="business-goal" class="input" 
@@ -64,55 +65,55 @@ export async function renderStrategyPage() {
     </main>
   `;
 
-    attachSidebarEvents();
-    attachStrategyEvents(brand);
+  attachSidebarEvents();
+  attachStrategyEvents(brand);
 }
 
 function attachStrategyEvents(brand) {
-    const btnGenerate = document.getElementById('btn-generate-ideas');
-    const inputGoal = document.getElementById('business-goal');
-    const resultsDiv = document.getElementById('strategy-results');
-    const loadingDiv = document.getElementById('strategy-loading');
-    const ideasGrid = document.getElementById('ideas-grid');
+  const btnGenerate = document.getElementById('btn-generate-ideas');
+  const inputGoal = document.getElementById('business-goal');
+  const resultsDiv = document.getElementById('strategy-results');
+  const loadingDiv = document.getElementById('strategy-loading');
+  const ideasGrid = document.getElementById('ideas-grid');
 
-    btnGenerate?.addEventListener('click', async () => {
-        const goal = inputGoal.value.trim();
-        if (!goal) {
-            showToast(t('validation.required'), 'warning');
-            return;
-        }
+  btnGenerate?.addEventListener('click', async () => {
+    const goal = inputGoal.value.trim();
+    if (!goal) {
+      showToast(t('validation.required'), 'warning');
+      return;
+    }
 
-        // UI state: Loading
-        btnGenerate.disabled = true;
-        resultsDiv.classList.add('hidden');
-        loadingDiv.classList.remove('hidden');
+    // UI state: Loading
+    btnGenerate.disabled = true;
+    resultsDiv.classList.add('hidden');
+    loadingDiv.classList.remove('hidden');
 
-        try {
-            const ideas = await generateStrategy(brand, goal);
-            renderIdeas(ideas);
+    try {
+      const ideas = await generateStrategy(brand, goal);
+      renderIdeas(ideas);
 
-            loadingDiv.classList.add('hidden');
-            resultsDiv.classList.remove('hidden');
-        } catch (error) {
-            console.error('Strategy error:', error);
-            showToast(t('errors.generic') + ': ' + error.message, 'error');
-            loadingDiv.classList.add('hidden');
-        } finally {
-            btnGenerate.disabled = false;
-        }
-    });
+      loadingDiv.classList.add('hidden');
+      resultsDiv.classList.remove('hidden');
+    } catch (error) {
+      console.error('Strategy error:', error);
+      showToast(t('errors.generic') + ': ' + error.message, 'error');
+      loadingDiv.classList.add('hidden');
+    } finally {
+      btnGenerate.disabled = false;
+    }
+  });
 }
 
 function renderIdeas(ideas) {
-    const grid = document.getElementById('ideas-grid');
-    if (!grid) return;
+  const grid = document.getElementById('ideas-grid');
+  if (!grid) return;
 
-    if (!ideas || ideas.length === 0) {
-        grid.innerHTML = `<p>${t('strategy.noIdeas')}</p>`;
-        return;
-    }
+  if (!ideas || ideas.length === 0) {
+    grid.innerHTML = `<p>${t('strategy.noIdeas')}</p>`;
+    return;
+  }
 
-    grid.innerHTML = ideas.map(idea => `
+  grid.innerHTML = ideas.map(idea => `
     <div class="card strategy-card" style="display: flex; flex-direction: column; height: 100%;">
       <div style="margin-bottom: var(--space-4);">
         <span class="badge badge-info" style="margin-bottom: var(--space-2); display: inline-block;">
@@ -131,31 +132,31 @@ function renderIdeas(ideas) {
       </div>
 
       <button class="btn btn-outline btn-full btn-use-strategy" data-json='${JSON.stringify(idea).replace(/'/g, "&#39;")}'>
-        🚀 ${t('strategy.createCampaign')}
+        ${icon('publish', 16)} ${t('strategy.createCampaign')}
       </button>
     </div>
   `).join('');
 
-    // Attach events to new buttons
-    document.querySelectorAll('.btn-use-strategy').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const idea = JSON.parse(e.target.dataset.json);
-            useStrategy(idea);
-        });
+  // Attach events to new buttons
+  document.querySelectorAll('.btn-use-strategy').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const idea = JSON.parse(e.target.dataset.json);
+      useStrategy(idea);
     });
+  });
 }
 
 function useStrategy(idea) {
-    // Store idea in session to pre-fill campaign modal
-    // We can use query params or store, but store is cleaner for complex objects
-    // For MVP, allow copying name/desc to clipboard or redirecting
+  // Store idea in session to pre-fill campaign modal
+  // We can use query params or store, but store is cleaner for complex objects
+  // For MVP, allow copying name/desc to clipboard or redirecting
 
-    // Navigate to Campaigns page with query params
-    const params = new URLSearchParams({
-        action: 'create',
-        name: idea.name,
-        brief: idea.description
-    });
+  // Navigate to Campaigns page with query params
+  const params = new URLSearchParams({
+    action: 'create',
+    name: idea.name,
+    brief: idea.description
+  });
 
-    window.location.hash = `#/campaigns?${params.toString()}`;
+  window.location.hash = `#/campaigns?${params.toString()}`;
 }

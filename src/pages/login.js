@@ -4,6 +4,7 @@
 import { signInWithGoogle } from '../services/auth.js';
 import { store } from '../utils/state.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 
 export function renderLoginPage() {
   const app = document.getElementById('app');
@@ -16,7 +17,7 @@ export function renderLoginPage() {
         <div class="login-card card">
           <div class="login-header text-center">
             <div class="login-logo">
-              <span style="font-size: 3rem;">✈️</span>
+              <span style="color: var(--primary);">${icon('plane', 48)}</span>
             </div>
             <h1 style="font-size: var(--font-3xl); margin-top: var(--space-4);">
               <span class="logo-text">${t('login.title')}</span>
@@ -28,21 +29,21 @@ export function renderLoginPage() {
 
           <div class="login-features" style="margin: var(--space-8) 0;">
             <div class="feature-item">
-              <span class="feature-icon">✨</span>
+              <span class="feature-icon">${icon('sparkle', 24)}</span>
               <div>
                 <strong>${t('login.feature1Title')}</strong>
                 <span class="text-muted text-sm"> — ${t('login.feature1Desc')}</span>
               </div>
             </div>
             <div class="feature-item">
-              <span class="feature-icon">🎨</span>
+              <span class="feature-icon">${icon('brand', 24)}</span>
               <div>
                 <strong>${t('login.feature2Title')}</strong>
                 <span class="text-muted text-sm"> — ${t('login.feature2Desc')}</span>
               </div>
             </div>
             <div class="feature-item">
-              <span class="feature-icon">📋</span>
+              <span class="feature-icon">${icon('copy', 24)}</span>
               <div>
                 <strong>${t('login.feature3Title')}</strong>
                 <span class="text-muted text-sm"> — ${t('login.feature3Desc')}</span>

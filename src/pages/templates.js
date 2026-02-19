@@ -6,6 +6,7 @@ import { loadTemplates, saveTemplate, deleteTemplate } from '../services/firesto
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 
 const DEFAULT_TEMPLATES = [
   { id: '_default_1', name: `📦 ${t('templates.defaultProduct')}`, desc: t('templates.defaultProductDesc'), isDefault: true, fields: { contentType: 'product', product: '', highlight: '', promotion: '', cta: t('templates.ctaBuyNow'), additionalNotes: t('templates.defaultProductNotes') } },
@@ -24,20 +25,20 @@ export async function renderTemplatesPage() {
     <main class="main-content page">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 style="font-size: var(--font-2xl);">📋 ${t('templates.title')}</h1>
+          <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('templates', 28)} ${t('templates.title')}</h1>
           <p class="text-muted text-sm" style="margin-top: var(--space-1);">${t('templates.subtitle')}</p>
         </div>
         <button class="btn btn-primary" id="btn-new-template">+ ${t('templates.createNew')}</button>
       </div>
 
       <!-- Default Templates -->
-      <h3 style="margin-bottom: var(--space-4);">🎯 ${t('templates.defaultSection')}</h3>
+      <h3 style="margin-bottom: var(--space-4);">${icon('target', 20)} ${t('templates.defaultSection')}</h3>
       <div class="templates-grid" id="default-templates">
         ${DEFAULT_TEMPLATES.map(t => renderTemplateCard(t)).join('')}
       </div>
 
       <!-- User Templates -->
-      <h3 style="margin-top: var(--space-8); margin-bottom: var(--space-4);">💾 ${t('templates.userSection')}</h3>
+      <h3 style="margin-top: var(--space-8); margin-bottom: var(--space-4);">${icon('save', 20)} ${t('templates.userSection')}</h3>
       <div class="templates-grid" id="user-templates">
         <div class="skeleton" style="height: 120px;"></div>
       </div>
@@ -45,7 +46,7 @@ export async function renderTemplatesPage() {
       <!-- Create Template Modal -->
       <div class="modal-overlay hidden" id="template-modal">
         <div class="card" style="max-width: 520px; width: 90%; padding: var(--space-6);">
-          <h3 style="margin-bottom: var(--space-4);">📋 ${t('templates.createModalTitle')}</h3>
+          <h3 style="margin-bottom: var(--space-4);">${icon('templates', 20)} ${t('templates.createModalTitle')}</h3>
 
           <div class="form-group" style="margin-bottom: var(--space-3);">
             <label class="form-label">${t('templates.name')} *</label>
@@ -80,7 +81,7 @@ export async function renderTemplatesPage() {
           </div>
 
           <div class="flex gap-2">
-            <button class="btn btn-primary" id="btn-save-template" style="flex: 1;">💾 ${t('templates.save')}</button>
+            <button class="btn btn-primary" id="btn-save-template" style="flex: 1;">${icon('save', 16)} ${t('templates.save')}</button>
             <button class="btn btn-ghost" id="btn-close-tmpl-modal">${t('actions.cancel')}</button>
           </div>
         </div>
@@ -134,7 +135,7 @@ function renderTemplateCard(tmpl) {
       </div>
       <p class="text-sm text-muted" style="margin-bottom: var(--space-3);">${tmpl.desc || ''}</p>
       <button class="btn btn-primary btn-sm use-template-btn" data-id="${tmpl.id}" style="width: 100%;">
-        ✨ ${t('templates.useTemplate')}
+        ${icon('sparkle', 16)} ${t('templates.useTemplate')}
       </button>
     </div>
   `;
@@ -147,7 +148,7 @@ function renderUserTemplates(templates) {
   if (!templates.length) {
     container.innerHTML = `
       <div class="card-flat text-center" style="padding: var(--space-8); grid-column: 1 / -1;">
-        <span style="font-size: 2rem;">📋</span>
+        <span style="color: var(--text-muted);">${icon('templates', 40)}</span>
         <p class="text-sm text-muted" style="margin-top: var(--space-2);">${t('templates.noCustomTemplates')}</p>
       </div>
     `;

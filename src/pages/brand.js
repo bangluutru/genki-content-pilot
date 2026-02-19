@@ -6,6 +6,7 @@ import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { saveBrand, loadBrand } from '../services/firestore.js';
 import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
 
 export async function renderBrandPage() {
   const app = document.getElementById('app');
@@ -17,7 +18,7 @@ export async function renderBrandPage() {
     <main class="main-content page">
       <div class="flex justify-between items-center mb-6">
         <div>
-          <h1 style="font-size: var(--font-2xl);">🎨 ${t('brand.title')}</h1>
+          <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('brand', 28)} ${t('brand.title')}</h1>
           <p class="text-muted text-sm" style="margin-top: var(--space-1);">
             ${t('brand.subtitle')}
           </p>
@@ -29,7 +30,7 @@ export async function renderBrandPage() {
       <form id="brand-form" class="card">
         <div class="flex flex-col gap-6">
           <!-- Basic Info -->
-          <h4>📌 ${t('brand.basicInfo')}</h4>
+          <h4>${icon('pin', 18)} ${t('brand.basicInfo')}</h4>
 
           <div class="input-group">
             <label for="brand-name">${t('brand.brandName')} *</label>
@@ -47,16 +48,16 @@ export async function renderBrandPage() {
                   <img id="logo-preview" src="${brand.logoUrl}" alt="Brand Logo" style="width: 100%; height: 100%; object-fit: cover;">
                 </div>
               ` : `
-                <div id="logo-preview-placeholder" style="width: 120px; height: 120px; border-radius: var(--radius-md); background: var(--surface-hover); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
-                  🎨
+                <div id="logo-preview-placeholder" style="width: 120px; height: 120px; border-radius: var(--radius-md); background: var(--surface-hover); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                  ${icon('brand', 48)}
                 </div>
               `}
               <div style="display: flex; gap: var(--space-2); align-items: center;">
                 <input type="file" id="brand-logo" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display: none;">
                 <button type="button" class="btn btn-secondary" id="upload-logo-btn">
-                  📤 ${brand.logoUrl ? t('brand.changeLogo') : t('brand.uploadLogo')}
+                  ${icon('upload', 16)} ${brand.logoUrl ? t('brand.changeLogo') : t('brand.uploadLogo')}
                 </button>
-                ${brand.logoUrl ? `<button type="button" class="btn btn-ghost" id="remove-logo-btn">🗑️ ${t('brand.removeLogo')}</button>` : ''}
+                ${brand.logoUrl ? `<button type="button" class="btn btn-ghost" id="remove-logo-btn">${icon('trash', 16)} ${t('brand.removeLogo')}</button>` : ''}
               </div>
               <p class="text-sm text-muted">${t('brand.logoHint')}</p>
             </div>
@@ -85,7 +86,7 @@ export async function renderBrandPage() {
           </div>
 
           <!-- Tone & Style -->
-          <h4 style="margin-top: var(--space-4);">🗣️ ${t('brand.toneAndStyle')}</h4>
+          <h4 style="margin-top: var(--space-4);">${icon('mic', 18)} ${t('brand.toneAndStyle')}</h4>
 
           <div class="input-group">
             <label for="brand-tone">${t('brand.toneOfVoice')}</label>
@@ -112,7 +113,7 @@ export async function renderBrandPage() {
           </div>
 
           <!-- Strategy & Identity -->
-          <h4 style="margin-top: var(--space-4);">🧠 ${t('brand.strategyIdentity')}</h4>
+          <h4 style="margin-top: var(--space-4);">${icon('strategy', 18)} ${t('brand.strategyIdentity')}</h4>
 
           <div class="input-group">
             <label for="brand-archetype">${t('brand.archetype')}</label>
@@ -147,7 +148,7 @@ export async function renderBrandPage() {
           </div>
 
           <!-- Legal -->
-          <h4 style="margin-top: var(--space-4);">⚖️ ${t('brand.legalSection')}</h4>
+          <h4 style="margin-top: var(--space-4);">${icon('shield', 18)} ${t('brand.legalSection')}</h4>
 
           <div class="input-group">
             <label for="brand-disclaimer">${t('brand.disclaimer')}</label>
@@ -161,7 +162,7 @@ export async function renderBrandPage() {
           </div>
 
           <button type="submit" class="btn btn-primary btn-lg btn-full" style="margin-top: var(--space-4);">
-            💾 ${t('brand.saveBrand')}
+            ${icon('save', 18)} ${t('brand.saveBrand')}
           </button>
         </div>
       </form>

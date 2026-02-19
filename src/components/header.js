@@ -1,25 +1,27 @@
 /**
  * Header component — Enhanced sidebar with i18n, theme switching, and brand logo
+ * Uses Duotone SVG icons for professional aesthetic.
  */
 import { store } from '../utils/state.js';
 import { router } from '../utils/router.js';
 import { t, getLocale, getLocaleFlag, setLocale } from '../utils/i18n.js';
 import { getTheme, getThemeIcon, toggleTheme } from '../utils/theme.js';
+import { icon } from '../utils/icons.js';
 
 // Navigation items (will be translated dynamically)
 const NAV_ITEMS = [
-  { route: 'dashboard', icon: '🏠', labelKey: 'nav.dashboard' },
-  { route: 'campaigns', icon: '📂', labelKey: 'nav.campaigns' },
-  { route: 'strategy', icon: '🧠', labelKey: 'strategy.title' },
-  { route: 'create', icon: '✨', labelKey: 'content.draftStudio' },
-  { route: 'library', icon: '📚', labelKey: 'nav.library' },
-  { route: 'calendar', icon: '📅', labelKey: 'nav.calendar' },
-  { route: 'conversions', icon: '📈', labelKey: 'nav.conversions' },
-  { route: 'approvals', icon: '✅', labelKey: 'nav.approvals' },
-  { route: 'templates', icon: '📋', labelKey: 'nav.templates' },
-  { route: 'brand', icon: '🎨', labelKey: 'brand.title' },
-  { route: 'team', icon: '👥', labelKey: 'nav.team' },
-  { route: 'settings', icon: '⚙️', labelKey: 'nav.connections' },
+  { route: 'dashboard', iconName: 'dashboard', labelKey: 'nav.dashboard' },
+  { route: 'campaigns', iconName: 'campaigns', labelKey: 'nav.campaigns' },
+  { route: 'strategy', iconName: 'strategy', labelKey: 'strategy.title' },
+  { route: 'create', iconName: 'create', labelKey: 'content.draftStudio' },
+  { route: 'library', iconName: 'library', labelKey: 'nav.library' },
+  { route: 'calendar', iconName: 'calendar', labelKey: 'nav.calendar' },
+  { route: 'conversions', iconName: 'conversions', labelKey: 'nav.conversions' },
+  { route: 'approvals', iconName: 'approvals', labelKey: 'nav.approvals' },
+  { route: 'templates', iconName: 'templates', labelKey: 'nav.templates' },
+  { route: 'brand', iconName: 'brand', labelKey: 'brand.title' },
+  { route: 'team', iconName: 'team', labelKey: 'nav.team' },
+  { route: 'settings', iconName: 'settings', labelKey: 'nav.connections' },
 ];
 
 export function renderSidebar() {
@@ -37,7 +39,7 @@ export function renderSidebar() {
   // Render nav items with translations
   const navItems = NAV_ITEMS.map(item => `
     <a class="nav-item" data-route="${item.route}" href="#/${item.route}">
-      <span class="nav-icon">${item.icon}</span>
+      <span class="nav-icon">${icon(item.iconName)}</span>
       <span class="nav-label">${t(item.labelKey)}</span>
     </a>
   `).join('');
@@ -49,7 +51,7 @@ export function renderSidebar() {
         <div class="flex items-center gap-4" style="padding: var(--space-2) var(--space-4);">
           ${brandLogo
       ? `<img src="${brandLogo}" alt="${brandName}" style="width: 32px; height: 32px; border-radius: 6px; object-fit: contain;" />`
-      : `<span style="font-size: 1.5rem;">✈️</span>`
+      : `<span class="nav-icon">${icon('plane', 28)}</span>`
     }
           <span class="logo-text" style="font-size: var(--font-xl); font-weight: 700;">${brandName}</span>
         </div>
@@ -84,7 +86,7 @@ export function renderSidebar() {
             <div style="font-size: var(--font-sm); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${user.displayName || 'User'}</div>
             <div style="font-size: var(--font-xs); color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${user.email || ''}</div>
           </div>
-          <button class="btn btn-ghost btn-icon" id="btn-logout" title="${t('auth.signOut')}">🚪</button>
+          <button class="btn btn-ghost btn-icon" id="btn-logout" title="${t('auth.signOut')}">${icon('logout', 18)}</button>
         </div>
       </div>
     </nav>
@@ -92,22 +94,22 @@ export function renderSidebar() {
     <!-- Bottom Nav (Mobile) -->
     <nav class="bottom-nav" id="bottom-nav">
       <a href="#/dashboard" class="nav-item-mobile" data-route="dashboard">
-        <span class="nav-icon">🏠</span>
+        <span class="nav-icon">${icon('dashboard', 22)}</span>
         <span class="nav-label">${t('nav.dashboard')}</span>
       </a>
       <a href="#/calendar" class="nav-item-mobile" data-route="calendar">
-        <span class="nav-icon">📅</span>
+        <span class="nav-icon">${icon('calendar', 22)}</span>
         <span class="nav-label">${t('nav.calendar')}</span>
       </a>
       <a href="#/create" class="nav-item-mobile star-btn" data-route="create">
-        <span class="nav-icon">✨</span>
+        <span class="nav-icon">${icon('create', 22)}</span>
       </a>
       <a href="#/library" class="nav-item-mobile" data-route="library">
-        <span class="nav-icon">📚</span>
+        <span class="nav-icon">${icon('library', 22)}</span>
         <span class="nav-label">${t('nav.library')}</span>
       </a>
       <a href="#/settings" class="nav-item-mobile" data-route="settings">
-        <span class="nav-icon">⚙️</span>
+        <span class="nav-icon">${icon('settings', 22)}</span>
         <span class="nav-label">${t('nav.settings')}</span>
       </a>
     </nav>
