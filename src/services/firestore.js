@@ -37,3 +37,6 @@ export { upsertUser, loadUserProfile } from './db/users.js';
 
 // Activity Logs
 export { logActivity, loadActivityLogs } from './db/activity.js';
+
+// Workspace Members
+export { addWorkspaceMember, inviteMember, loadWorkspaceMembers, updateMemberRole, removeMember, getCurrentUserRole, linkInvitedMember } from './db/members.js';

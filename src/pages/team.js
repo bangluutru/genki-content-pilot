@@ -3,6 +3,7 @@
  */
 import { store } from '../utils/state.js';
 import { loadWorkspace, saveWorkspace, loadTeamActivity } from '../services/firestore.js';
+import { loadWorkspaceMembers, addWorkspaceMember, inviteMember, updateMemberRole } from '../services/firestore.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { timeAgo } from '../utils/helpers.js';
@@ -150,16 +151,19 @@ async function loadWorkspaceData() {
       workspace = {
         name: `${user?.displayName || 'My'} Workspace`,
         description: t('team.defaultWorkspaceDesc'),
-        members: [{
-          uid: user.uid,
-          email: user.email,
-          displayName: user.displayName,
-          photoURL: user.photoURL,
-          role: 'admin',
-          joinedAt: new Date().toISOString(),
-        }],
       };
       await saveWorkspace(workspace);
+
+      // Create owner as first member in workspace_members collection
+      await addWorkspaceMember({
+        workspaceId: user.uid, // Using userId as workspaceId for now
+        userId: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        role: 'admin',
+        status: 'active',
+      });
     }
 
     store.set('workspace', workspace);
@@ -168,8 +172,10 @@ async function loadWorkspaceData() {
     document.getElementById('workspace-name').textContent = workspace.name || 'Workspace';
     document.getElementById('workspace-desc').textContent = workspace.description || t('team.noDescription');
 
-    // Render members
-    renderMembers(workspace.members || []);
+    // Load members from workspace_members collection
+    const workspaceId = user.uid; // Using userId as workspaceId
+    const members = await loadWorkspaceMembers(workspaceId);
+    renderMembers(members);
 
     // Load activity
     try {
@@ -199,7 +205,7 @@ function renderMembers(members) {
 
   container.innerHTML = members.map(m => {
     const r = ROLE_LABELS[m.role] || ROLE_LABELS.viewer;
-    const isMe = m.uid === currentUser?.uid;
+    const isMe = m.userId === currentUser?.uid;
     return `
       <div class="member-card card" style="padding: var(--space-4); margin-bottom: var(--space-3);">
         <div class="flex items-center gap-4">
@@ -210,13 +216,14 @@ function renderMembers(members) {
             <div class="flex items-center gap-2">
               <strong>${m.displayName || m.email || 'Unknown'}</strong>
               ${isMe ? `<span class="text-xs text-muted">(${t('team.you')})</span>` : ''}
+              ${m.status === 'invited' ? `<span class="badge badge-warning">Invited</span>` : ''}
             </div>
             <div class="text-sm text-muted">${m.email || ''}</div>
           </div>
           <span class="badge ${r.badge}">${icon(r.iconName, 14)} ${r.label}</span>
-          ${!isMe && members.find(x => x.uid === currentUser?.uid)?.role === 'admin' ? `
+          ${!isMe && members.find(x => x.userId === currentUser?.uid)?.role === 'admin' ? `
             <select class="form-input" style="width: auto; padding: var(--space-1) var(--space-2); font-size: var(--font-xs);" 
-                    data-uid="${m.uid}" onchange="this.dispatchEvent(new CustomEvent('role-change', {bubbles:true, detail:{uid:'${m.uid}',role:this.value}}))">
+                    data-member-id="${m.id}" onchange="this.dispatchEvent(new CustomEvent('role-change', {bubbles:true, detail:{memberId:'${m.id}',role:this.value}}))">
               <option value="editor" ${m.role === 'editor' ? 'selected' : ''}>${t('roles.editor')}</option>
               <option value="viewer" ${m.role === 'viewer' ? 'selected' : ''}>${t('roles.viewer')}</option>
               <option value="admin" ${m.role === 'admin' ? 'selected' : ''}>${t('roles.admin')}</option>
@@ -229,15 +236,10 @@ function renderMembers(members) {
 
   // Role change events
   container.addEventListener('role-change', async (e) => {
-    const { uid: memberUid, role } = e.detail;
+    const { memberId, role } = e.detail;
     try {
-      const workspace = store.get('workspace');
-      const member = workspace.members.find(m => m.uid === memberUid);
-      if (member) {
-        member.role = role;
-        await saveWorkspace(workspace);
-        showToast(t('team.roleUpdated'), 'success');
-      }
+      await updateMemberRole(memberId, role);
+      showToast(t('team.roleUpdated'), 'success');
     } catch (err) {
       showToast(t('common.error') + ': ' + err.message, 'error');
     }
@@ -279,33 +281,19 @@ async function handleInvite() {
   }
 
   try {
-    const workspace = store.get('workspace') || {};
-    const members = workspace.members || [];
+    const user = store.get('user');
+    const workspaceId = user.uid; // Using userId as workspaceId
 
-    // Check if already a member
-    if (members.find(m => m.email === email)) {
-      showToast(t('team.emailAlreadyMember'), 'error');
-      return;
-    }
-
-    members.push({
-      email,
-      role,
-      displayName: email.split('@')[0],
-      photoURL: '',
-      uid: `invited_${Date.now()}`,
-      joinedAt: new Date().toISOString(),
-      status: 'invited',
-    });
-
-    workspace.members = members;
-    await saveWorkspace(workspace);
+    await inviteMember(workspaceId, email, role);
 
     showToast(t('team.inviteSent', { email, role }), 'success');
     document.getElementById('invite-modal')?.classList.add('hidden');
+
+    // Refresh member list
+    const members = await loadWorkspaceMembers(workspaceId);
     renderMembers(members);
   } catch (err) {
-    showToast(t('common.error') + ': ' + err.message, 'error');
+    showToast(err.message || t('common.error'), 'error');
   }
 }
 

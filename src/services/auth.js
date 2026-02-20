@@ -6,6 +6,7 @@ import { store } from '../utils/state.js';
 import { router } from '../utils/router.js';
 import { showToast } from '../components/toast.js';
 import { upsertUser } from './db/users.js';
+import { linkInvitedMember } from './db/members.js';
 
 /** Sign in with Google */
 export async function signInWithGoogle() {
@@ -32,6 +33,9 @@ export async function signInWithGoogle() {
 
         // Persist user profile to Firestore (creates if new)
         await upsertUser(authData);
+
+        // Auto-link any pending invitations for this email
+        linkInvitedMember(authData.email, authData.uid);
 
         showToast(`Xin chào, ${user.displayName}!`, 'success');
         router.navigate('dashboard');
