@@ -42,7 +42,7 @@ export async function inviteMember(workspaceId, email, role = 'editor') {
     const currentUserId = uid();
     if (!currentUserId) throw new Error('Not authenticated');
 
-    const { db, doc, setDoc, serverTimestamp, collection, query, where, getDocs, addDoc } = await getFirestore();
+    const { db, doc, setDoc, serverTimestamp, collection, query, where, getDocs } = await getFirestore();
 
     // Check if already a member by email
     const q = query(
@@ -72,7 +72,7 @@ export async function inviteMember(workspaceId, email, role = 'editor') {
 
     await setDoc(doc(db, 'workspace_members', inviteId), data);
 
-    // --- Send invite email via Firebase Extension "Trigger Email from Firestore" ---
+    // --- Send invite email via Cloudflare Worker + Resend API ---
     const user = store.get('user');
     const inviterName = user?.displayName || user?.email || 'Quản trị viên';
     const brand = store.get('brand');
@@ -81,9 +81,11 @@ export async function inviteMember(workspaceId, email, role = 'editor') {
     const roleLabel = role === 'admin' ? 'Quản trị viên' : role === 'editor' ? 'Biên tập viên' : 'Người xem';
 
     try {
-        await addDoc(collection(db, 'mail'), {
-            to: email,
-            message: {
+        await fetch('/api/send-invite', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                to: email,
                 subject: `${inviterName} mời bạn tham gia ${appName}`,
                 html: `
                     <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px; background: #f8faf9; border-radius: 16px;">
@@ -111,11 +113,11 @@ export async function inviteMember(workspaceId, email, role = 'editor') {
                         </p>
                     </div>
                 `,
-            },
+            }),
         });
     } catch (mailErr) {
         // Don't fail the invite if email sending fails — the invite is already saved
-        console.warn('Could not queue invite email:', mailErr);
+        console.warn('Could not send invite email:', mailErr);
     }
 
     // Log activity
