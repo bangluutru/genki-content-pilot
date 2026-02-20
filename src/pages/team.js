@@ -142,31 +142,8 @@ export async function renderTeamPage() {
 }
 
 async function loadWorkspaceData() {
-  const user = store.get('user');
   try {
-    let workspace = await loadWorkspace();
-
-    // Auto-create workspace for new users
-    if (!workspace) {
-      workspace = {
-        name: `${user?.displayName || 'My'} Workspace`,
-        description: t('team.defaultWorkspaceDesc'),
-      };
-      await saveWorkspace(workspace);
-
-      // Create owner as first member in workspace_members collection
-      await addWorkspaceMember({
-        workspaceId: currentWorkspaceId(), // Uses dynamic workspaceId
-        userId: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoURL: user.photoURL,
-        role: 'admin',
-        status: 'active',
-      });
-    }
-
-    store.set('workspace', workspace);
+    const workspace = await loadWorkspace();
 
     // Render workspace info
     document.getElementById('workspace-name').textContent = workspace.name || 'Workspace';

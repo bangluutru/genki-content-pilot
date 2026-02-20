@@ -35,7 +35,11 @@ export async function signInWithGoogle() {
         await upsertUser(authData);
 
         // Auto-link any pending invitations for this email
-        linkInvitedMember(authData.email, authData.uid);
+        await linkInvitedMember(authData.email, authData.uid);
+
+        // Load or auto-initialize workspace for RBAC
+        const { loadWorkspace } = await import('./firestore.js');
+        await loadWorkspace();
 
         showToast(`Xin chào, ${user.displayName}!`, 'success');
         router.navigate('dashboard');
@@ -96,6 +100,10 @@ export async function initAuthListener() {
                 };
                 // Upsert user profile (updates lastActiveAt)
                 await upsertUser(authData);
+
+                // Load or auto-initialize workspace for RBAC
+                const { loadWorkspace } = await import('./firestore.js');
+                await loadWorkspace();
             } else {
                 store.set('user', null);
             }

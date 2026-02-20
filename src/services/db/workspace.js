@@ -55,18 +55,60 @@ export async function loadWorkspace() {
             }
         }
 
-        // 2. Fallback: Check if user owns a legacy workspace
-        const ref = doc(db, 'workspaces', userId);
-        const snap = await getDoc(ref);
-        if (snap.exists()) {
-            const workspace = { id: userId, ...snap.data() };
-            store.set('workspace', workspace);
-            return workspace;
-        }
+        // 2. Fallback: Auto-initialize personal workspace if neither exists
+        return await initializePersonalWorkspace(userId);
     } catch (err) {
         console.warn('Could not load workspace:', err);
     }
     return null;
+}
+
+/** 
+ * Initialize a personal workspace for a new or legacy user 
+ * Ensures they have both a workspace doc and a workspace_members doc for RBAC
+ */
+async function initializePersonalWorkspace(userId) {
+    const { db, doc, getDoc, setDoc } = await getFirestore();
+    const workspaceId = userId; // Personal workspace ID matches UID
+
+    // 1. Ensure Workspace exists
+    const wsRef = doc(db, 'workspaces', workspaceId);
+    const wsSnap = await getDoc(wsRef);
+    let workspaceData;
+
+    if (wsSnap.exists()) {
+        workspaceData = { id: workspaceId, ...wsSnap.data() };
+    } else {
+        workspaceData = {
+            id: workspaceId,
+            name: `${store.get('user')?.displayName || 'My'} Team`,
+            tier: 'free',
+            ownerId: userId,
+            settings: {},
+            createdAt: new Date().toISOString()
+        };
+        await setDoc(wsRef, workspaceData);
+    }
+
+    // 2. Ensure Workspace Member exists (CRITICAL for firestore.rules RBAC)
+    const memberId = `${userId}_${workspaceId}`;
+    const memberRef = doc(db, 'workspace_members', memberId);
+    const memberSnap = await getDoc(memberRef);
+
+    if (!memberSnap.exists()) {
+        await setDoc(memberRef, {
+            workspaceId,
+            userId,
+            email: store.get('user')?.email || '',
+            displayName: store.get('user')?.displayName || '',
+            role: 'admin',
+            status: 'active',
+            joinedAt: new Date().toISOString()
+        });
+    }
+
+    store.set('workspace', workspaceData);
+    return workspaceData;
 }
 
 /**
