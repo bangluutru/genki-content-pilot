@@ -3,6 +3,7 @@
  */
 import { uid, getFirestore } from './helpers.js';
 import { store } from '../../utils/state.js';
+import { logActivity } from './activity.js';
 
 /**
  * Save or Update Campaign
@@ -58,6 +59,11 @@ export async function saveCampaign(campaign) {
             campaigns.push(localData);
         }
         store.set('campaigns', campaigns);
+
+        // Log activity (fire-and-forget)
+        if (!campaign.id) {
+            logActivity('campaign.create', 'campaign', localData.id, { name: localData.name || '' });
+        }
 
         return localData;
     } catch (error) {
@@ -120,6 +126,9 @@ export async function deleteCampaign(campaignId) {
         const { db, doc, deleteDoc } = await getFirestore();
 
         await deleteDoc(doc(db, 'campaigns', campaignId));
+
+        // Log activity (fire-and-forget)
+        logActivity('campaign.delete', 'campaign', campaignId);
 
         // Update local
         let campaigns = store.get('campaigns') || [];

@@ -3,6 +3,7 @@
  */
 import { uid, getFirestore } from './helpers.js';
 import { store } from '../../utils/state.js';
+import { logActivity } from './activity.js';
 
 /** Save content to Firestore */
 export async function saveContent(content) {
@@ -21,6 +22,9 @@ export async function saveContent(content) {
     };
 
     await setDoc(ref, data);
+
+    // Log activity (fire-and-forget)
+    logActivity('content.create', 'content', data.id, { brief: content.brief || '' });
 
     // Update local state
     const contents = store.get('contents') || [];
@@ -50,6 +54,9 @@ export async function deleteContent(contentId) {
     const { db, doc, deleteDoc } = await getFirestore();
     const ref = doc(db, 'contents', contentId);
     await deleteDoc(ref);
+
+    // Log activity (fire-and-forget)
+    logActivity('content.delete', 'content', contentId);
 
     const contents = store.get('contents') || [];
     store.set('contents', contents.filter(c => c.id !== contentId));
@@ -103,6 +110,7 @@ export async function approveContent(contentId) {
     try {
         const { db, doc, updateDoc } = await getFirestore();
         await updateDoc(doc(db, 'contents', contentId), updates);
+        logActivity('content.approve', 'content', contentId, { newStatus: 'approved' });
     } catch (error) {
         console.warn('Firestore approveContent failed, updating local only:', error);
     }
@@ -130,6 +138,7 @@ export async function rejectContent(contentId, reason) {
     try {
         const { db, doc, updateDoc } = await getFirestore();
         await updateDoc(doc(db, 'contents', contentId), updates);
+        logActivity('content.reject', 'content', contentId, { reason, newStatus: 'rejected' });
     } catch (error) {
         console.warn('Firestore rejectContent failed, updating local only:', error);
     }

@@ -34,3 +34,6 @@ export { saveCampaign, loadCampaigns, deleteCampaign, updateCampaignPillars, upd
 
 // Users
 export { upsertUser, loadUserProfile } from './db/users.js';
+
+// Activity Logs
+export { logActivity, loadActivityLogs } from './db/activity.js';
