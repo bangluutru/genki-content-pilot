@@ -3,7 +3,8 @@
  * Click a campaign card → see full detail with pillar/angle management
  */
 import { store } from '../utils/state.js';
-import { loadCampaigns, updateCampaignPillars, updateCampaignAngles, loadContents } from '../services/firestore.js';
+import { loadCampaigns, loadContents } from '../services/firestore.js';
+import { loadPillars, savePillarsBulk, savePillar, deletePillar, loadAngles, saveAnglesBulk, saveAngle, deleteAngle } from '../services/firestore.js';
 import { loadBrand } from '../services/firestore.js';
 import { generatePillars, generateAngles } from '../services/gemini.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
@@ -35,6 +36,11 @@ export async function renderCampaignDetailPage(params) {
   }
 
   currentTab = 'pillars';
+
+  // Load pillars and angles from subcollections (with legacy fallback)
+  currentCampaign.pillars = await loadPillars(currentCampaign.id, currentCampaign);
+  currentCampaign.angles = await loadAngles(currentCampaign.id, currentCampaign.pillars, currentCampaign);
+
   renderPage(app);
 }
 
@@ -434,18 +440,14 @@ async function handleGeneratePillars() {
     const brief = currentCampaign.brief || currentCampaign.name;
     const aiPillars = await generatePillars(brand, brief);
 
-    // Add IDs to pillars and merge with existing
+    // Save to subcollection (get real Firestore IDs)
     const existingPillars = currentCampaign.pillars || [];
-    const newPillars = aiPillars.map(p => ({
-      ...p,
-      id: generateId()
-    }));
+    const savedPillars = await savePillarsBulk(currentCampaign.id, aiPillars);
 
-    const allPillars = [...existingPillars, ...newPillars];
+    const allPillars = [...existingPillars, ...savedPillars];
     currentCampaign.pillars = allPillars;
 
-    await updateCampaignPillars(currentCampaign.id, allPillars);
-    showToast(`${allPillars.length} pillars ${t('toasts.saved')}`, 'success');
+    showToast(`${savedPillars.length} pillars ${t('toasts.saved')}`, 'success');
 
     // Re-render
     renderPage(document.getElementById('app'));
@@ -463,20 +465,19 @@ function handleAddPillarManual() {
 
   const description = prompt(t('campaignDetail.pillarDescPrompt') + ':') || '';
 
-  const pillar = {
-    id: generateId(),
+  const pillarData = {
     name: name.trim(),
     description: description.trim(),
     priority: 'medium',
     suggestedCadence: ''
   };
 
-  const pillars = [...(currentCampaign.pillars || []), pillar];
-  currentCampaign.pillars = pillars;
-
-  updateCampaignPillars(currentCampaign.id, pillars);
-  showToast(t('toasts.saved'), 'success');
-  renderPage(document.getElementById('app'));
+  // Save to subcollection
+  savePillar(currentCampaign.id, pillarData).then(saved => {
+    currentCampaign.pillars = [...(currentCampaign.pillars || []), saved];
+    showToast(t('toasts.saved'), 'success');
+    renderPage(document.getElementById('app'));
+  });
 }
 
 async function handleDeletePillar(index) {
@@ -487,14 +488,13 @@ async function handleDeletePillar(index) {
   pillars.splice(index, 1);
   currentCampaign.pillars = pillars;
 
-  // Also remove angles associated with this pillar
-  if (removedPillar) {
+  // Delete from subcollection (also deletes child angles)
+  if (removedPillar?.id) {
+    await deletePillar(currentCampaign.id, removedPillar.id);
     const angles = (currentCampaign.angles || []).filter(a => a.pillarId !== removedPillar.id);
     currentCampaign.angles = angles;
-    await updateCampaignAngles(currentCampaign.id, angles);
   }
 
-  await updateCampaignPillars(currentCampaign.id, pillars);
   showToast(t('toasts.deleted'), 'success');
   renderPage(document.getElementById('app'));
 }
@@ -514,17 +514,13 @@ async function handleGenerateAnglesForPillar(pillarIndex) {
     const brief = currentCampaign.brief || currentCampaign.name;
     const aiAngles = await generateAngles(brand, pillar, brief);
 
-    const newAngles = aiAngles.map(a => ({
-      ...a,
-      id: generateId(),
-      pillarId: pillar.id
-    }));
+    // Save to subcollection
+    const savedAngles = await saveAnglesBulk(currentCampaign.id, pillar.id, aiAngles);
 
-    const allAngles = [...(currentCampaign.angles || []), ...newAngles];
+    const allAngles = [...(currentCampaign.angles || []), ...savedAngles];
     currentCampaign.angles = allAngles;
 
-    await updateCampaignAngles(currentCampaign.id, allAngles);
-    showToast(`${newAngles.length} angles ${t('toasts.created')}`, 'success');
+    showToast(`${savedAngles.length} angles ${t('toasts.created')}`, 'success');
 
     // Switch to angles tab
     currentTab = 'angles';
@@ -559,18 +555,13 @@ async function handleGenerateAllAngles() {
 
     for (const pillar of pillars) {
       const aiAngles = await generateAngles(brand, pillar, brief);
-      const tagged = aiAngles.map(a => ({
-        ...a,
-        id: generateId(),
-        pillarId: pillar.id
-      }));
-      allNewAngles = [...allNewAngles, ...tagged];
+      const saved = await saveAnglesBulk(currentCampaign.id, pillar.id, aiAngles);
+      allNewAngles = [...allNewAngles, ...saved];
     }
 
     const allAngles = [...(currentCampaign.angles || []), ...allNewAngles];
     currentCampaign.angles = allAngles;
 
-    await updateCampaignAngles(currentCampaign.id, allAngles);
     showToast(`${allNewAngles.length} angles ${t('toasts.created')}`, 'success');
 
     renderPage(document.getElementById('app'));
@@ -605,9 +596,7 @@ function handleAddAngleManual() {
 
   const hook = prompt('Hook:') || '';
 
-  const angle = {
-    id: generateId(),
-    pillarId: pillars[pillarIndex].id,
+  const angleData = {
     name: name.trim(),
     type: 'general',
     hook: hook.trim(),
@@ -615,21 +604,28 @@ function handleAddAngleManual() {
     suggestedFormat: 'Facebook Post'
   };
 
-  const angles = [...(currentCampaign.angles || []), angle];
-  currentCampaign.angles = angles;
-
-  updateCampaignAngles(currentCampaign.id, angles);
-  showToast(t('toasts.created'), 'success');
-  renderPage(document.getElementById('app'));
+  // Save to subcollection
+  const pillarId = pillars[pillarIndex].id;
+  saveAngle(currentCampaign.id, pillarId, angleData).then(saved => {
+    const angles = [...(currentCampaign.angles || []), saved];
+    currentCampaign.angles = angles;
+    showToast(t('toasts.created'), 'success');
+    renderPage(document.getElementById('app'));
+  });
 }
 
 async function handleDeleteAngle(angleId) {
   if (!confirm(t('common.confirm'))) return;
 
+  // Find the angle to get its pillarId for subcollection path
+  const angle = (currentCampaign.angles || []).find(a => a.id === angleId);
+  if (angle?.pillarId) {
+    await deleteAngle(currentCampaign.id, angle.pillarId, angleId);
+  }
+
   const angles = (currentCampaign.angles || []).filter(a => a.id !== angleId);
   currentCampaign.angles = angles;
 
-  await updateCampaignAngles(currentCampaign.id, angles);
   showToast(t('toasts.deleted'), 'success');
   renderPage(document.getElementById('app'));
 }

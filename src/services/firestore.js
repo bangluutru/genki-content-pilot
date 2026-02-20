@@ -40,3 +40,6 @@ export { logActivity, loadActivityLogs } from './db/activity.js';
 
 // Workspace Members
 export { addWorkspaceMember, inviteMember, loadWorkspaceMembers, updateMemberRole, removeMember, getCurrentUserRole, linkInvitedMember } from './db/members.js';
+
+// Pillars & Angles (Subcollections)
+export { loadPillars, savePillar, savePillarsBulk, deletePillar, loadAngles, saveAngle, saveAnglesBulk, deleteAngle } from './db/pillars.js';
