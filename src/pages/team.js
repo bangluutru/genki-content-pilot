@@ -3,7 +3,7 @@
  */
 import { store } from '../utils/state.js';
 import { loadWorkspace, saveWorkspace, loadTeamActivity, currentWorkspaceId } from '../services/firestore.js';
-import { loadWorkspaceMembers, addWorkspaceMember, inviteMember, updateMemberRole } from '../services/firestore.js';
+import { loadWorkspaceMembers, addWorkspaceMember, inviteMember, updateMemberRole, removeMember } from '../services/firestore.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { timeAgo } from '../utils/helpers.js';
@@ -205,6 +205,10 @@ function renderMembers(members) {
               <option value="viewer" ${m.role === 'viewer' ? 'selected' : ''}>${t('roles.viewer')}</option>
               <option value="admin" ${m.role === 'admin' ? 'selected' : ''}>${t('roles.admin')}</option>
             </select>
+            <button class="btn btn-ghost btn-sm" style="color: var(--danger); padding: var(--space-1);" 
+                    title="${t('team.removeMember') || 'Xóa thành viên'}"
+                    onclick="this.dispatchEvent(new CustomEvent('remove-member', {bubbles:true, detail:{memberId:'${m.id}', memberName:'${(m.displayName || m.email || '').replace(/'/g, '\\&#39;')}'}}))"
+            >${icon('trash', 16)}</button>
           ` : ''}
         </div>
       </div>
@@ -217,6 +221,24 @@ function renderMembers(members) {
     try {
       await updateMemberRole(memberId, role);
       showToast(t('team.roleUpdated'), 'success');
+    } catch (err) {
+      showToast(t('common.error') + ': ' + err.message, 'error');
+    }
+  });
+
+  // Remove member events
+  container.addEventListener('remove-member', async (e) => {
+    const { memberId, memberName } = e.detail;
+    const confirmed = confirm(t('team.confirmRemove', { name: memberName }) || `Bạn có chắc muốn xóa ${memberName} khỏi workspace?`);
+    if (!confirmed) return;
+
+    try {
+      await removeMember(memberId);
+      showToast(t('team.memberRemoved') || 'Đã xóa thành viên', 'success');
+      // Refresh member list
+      const workspaceId = currentWorkspaceId();
+      const updatedMembers = await loadWorkspaceMembers(workspaceId);
+      renderMembers(updatedMembers);
     } catch (err) {
       showToast(t('common.error') + ': ' + err.message, 'error');
     }
