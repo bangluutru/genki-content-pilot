@@ -10,6 +10,11 @@ export function uid() {
     return store.get('user')?.uid;
 }
 
+/** Get active workspace ID */
+export function currentWorkspaceId() {
+    return store.get('workspace')?.id || store.get('user')?.uid;
+}
+
 /** Get Firestore instance and modules lazily */
 export async function getFirestore() {
     if (!hasFirebaseConfig()) {

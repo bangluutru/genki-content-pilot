@@ -1,18 +1,20 @@
 /**
  * Brand Profile — Firestore CRUD
  */
-import { uid, getFirestore } from './helpers.js';
+import { uid, currentWorkspaceId, getFirestore } from './helpers.js';
 import { store } from '../../utils/state.js';
 
 /** Save or update brand profile */
 export async function saveBrand(brandData) {
     const userId = uid();
-    if (!userId) throw new Error('Not authenticated');
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) throw new Error('Not authenticated');
 
     const { db, doc, setDoc, serverTimestamp } = await getFirestore();
-    const ref = doc(db, 'brands', userId);
+    const ref = doc(db, 'brands', workspaceId);
     await setDoc(ref, {
         ...brandData,
+        workspaceId,
         userId,
         updatedAt: serverTimestamp(),
     }, { merge: true });
@@ -23,12 +25,12 @@ export async function saveBrand(brandData) {
 
 /** Load brand profile */
 export async function loadBrand() {
-    const userId = uid();
-    if (!userId) return null;
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) return null;
 
     try {
         const { db, doc, getDoc } = await getFirestore();
-        const ref = doc(db, 'brands', userId);
+        const ref = doc(db, 'brands', workspaceId);
         const snap = await getDoc(ref);
 
         if (snap.exists()) {

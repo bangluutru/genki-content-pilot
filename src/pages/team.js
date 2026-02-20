@@ -2,7 +2,7 @@
  * Team Page — Workspace management, members, roles, activity log
  */
 import { store } from '../utils/state.js';
-import { loadWorkspace, saveWorkspace, loadTeamActivity } from '../services/firestore.js';
+import { loadWorkspace, saveWorkspace, loadTeamActivity, currentWorkspaceId } from '../services/firestore.js';
 import { loadWorkspaceMembers, addWorkspaceMember, inviteMember, updateMemberRole } from '../services/firestore.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
@@ -156,7 +156,7 @@ async function loadWorkspaceData() {
 
       // Create owner as first member in workspace_members collection
       await addWorkspaceMember({
-        workspaceId: user.uid, // Using userId as workspaceId for now
+        workspaceId: currentWorkspaceId(), // Uses dynamic workspaceId
         userId: user.uid,
         email: user.email,
         displayName: user.displayName,
@@ -173,7 +173,7 @@ async function loadWorkspaceData() {
     document.getElementById('workspace-desc').textContent = workspace.description || t('team.noDescription');
 
     // Load members from workspace_members collection
-    const workspaceId = user.uid; // Using userId as workspaceId
+    const workspaceId = currentWorkspaceId();
     const members = await loadWorkspaceMembers(workspaceId);
     renderMembers(members);
 
@@ -282,7 +282,7 @@ async function handleInvite() {
 
   try {
     const user = store.get('user');
-    const workspaceId = user.uid; // Using userId as workspaceId
+    const workspaceId = currentWorkspaceId();
 
     await inviteMember(workspaceId, email, role);
 

@@ -10,16 +10,21 @@ export async function saveWorkspace(workspaceData) {
     const userId = uid();
     if (!userId) throw new Error('Not authenticated');
 
+    const workspaceId = workspaceData.id || userId;
     const { db, doc, setDoc, serverTimestamp } = await getFirestore();
-    const ref = doc(db, 'workspaces', userId);
-    await setDoc(ref, {
-        ...workspaceData,
-        ownerId: userId,
-        updatedAt: serverTimestamp(),
-    }, { merge: true });
+    const ref = doc(db, 'workspaces', workspaceId);
 
-    store.set('workspace', workspaceData);
-    return workspaceData;
+    const dataToSave = {
+        ...workspaceData,
+        id: workspaceId,
+        ownerId: workspaceData.ownerId || userId,
+        updatedAt: serverTimestamp(),
+    };
+
+    await setDoc(ref, dataToSave, { merge: true });
+
+    store.set('workspace', dataToSave);
+    return dataToSave;
 }
 
 /** Load workspace */
@@ -28,17 +33,38 @@ export async function loadWorkspace() {
     if (!userId) return null;
 
     try {
-        const { db, doc, getDoc } = await getFirestore();
+        const { db, collection, query, where, getDocs, doc, getDoc } = await getFirestore();
+
+        // 1. Check workspace_members to see which workspace user belongs to
+        const q = query(
+            collection(db, 'workspace_members'),
+            where('userId', '==', userId),
+            where('status', '==', 'active')
+        );
+        const memberSnap = await getDocs(q);
+
+        if (!memberSnap.empty) {
+            // Load the first workspace found
+            const workspaceId = memberSnap.docs[0].data().workspaceId;
+            const ref = doc(db, 'workspaces', workspaceId);
+            const snap = await getDoc(ref);
+            if (snap.exists()) {
+                const workspace = { id: workspaceId, ...snap.data() };
+                store.set('workspace', workspace);
+                return workspace;
+            }
+        }
+
+        // 2. Fallback: Check if user owns a legacy workspace
         const ref = doc(db, 'workspaces', userId);
         const snap = await getDoc(ref);
-
         if (snap.exists()) {
-            const workspace = snap.data();
+            const workspace = { id: userId, ...snap.data() };
             store.set('workspace', workspace);
             return workspace;
         }
-    } catch {
-        console.warn('Could not load workspace');
+    } catch (err) {
+        console.warn('Could not load workspace:', err);
     }
     return null;
 }

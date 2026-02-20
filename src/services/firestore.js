@@ -5,6 +5,9 @@
  * This file re-exports everything for backward compatibility.
  */
 
+// Helpers
+export { currentWorkspaceId } from './db/helpers.js';
+
 // Brand
 export { saveBrand, loadBrand } from './db/brand.js';
 

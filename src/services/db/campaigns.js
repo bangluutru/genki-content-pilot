@@ -1,7 +1,7 @@
 /**
  * Campaign Management — Firestore CRUD
  */
-import { uid, getFirestore } from './helpers.js';
+import { uid, currentWorkspaceId, getFirestore } from './helpers.js';
 import { store } from '../../utils/state.js';
 import { logActivity } from './activity.js';
 
@@ -11,11 +11,13 @@ import { logActivity } from './activity.js';
  */
 export async function saveCampaign(campaign) {
     const userId = uid();
-    if (!userId) throw new Error('Not authenticated');
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) throw new Error('Not authenticated');
 
     // Sanitize — remove client-side timestamps (will use serverTimestamp)
     const data = {
         ...campaign,
+        workspaceId,
         userId,
     };
 
@@ -67,34 +69,22 @@ export async function saveCampaign(campaign) {
 
         return localData;
     } catch (error) {
-        console.warn('Firestore saveCampaign failed, using local:', error);
-        // Local fallback
-        let campaigns = store.get('campaigns') || [];
-        if (!data.id) data.id = 'local_' + Date.now();
-
-        const localData = { ...data, updatedAt: new Date(), createdAt: data.createdAt || new Date() };
-        const index = campaigns.findIndex(c => c.id === data.id);
-        if (index > -1) {
-            campaigns[index] = localData;
-        } else {
-            campaigns.push(localData);
-        }
-        store.set('campaigns', campaigns);
-        return localData;
+        console.warn('Firestore saveCampaign failed:', error);
+        throw error; // Let UI handle the error (e.g., show Toast)
     }
 }
 
 /** Load Campaigns for User */
 export async function loadCampaigns() {
-    const userId = uid();
-    if (!userId) return store.get('campaigns') || [];
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) return store.get('campaigns') || [];
 
     try {
         const { db, collection, query, where, orderBy, getDocs } = await getFirestore();
 
         const q = query(
             collection(db, 'campaigns'),
-            where('userId', '==', userId),
+            where('workspaceId', '==', workspaceId),
             orderBy('createdAt', 'desc')
         );
 
@@ -119,12 +109,30 @@ export async function loadCampaigns() {
 
 /** Delete Campaign */
 export async function deleteCampaign(campaignId) {
-    const userId = uid();
-    if (!userId) return false;
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) return false;
 
     try {
-        const { db, doc, deleteDoc } = await getFirestore();
+        const { db, doc, collection, getDocs, deleteDoc } = await getFirestore();
 
+        // 1. Cascading Delete: Pillars and Angles subcollections
+        const pillarsRef = collection(db, 'campaigns', campaignId, 'pillars');
+        const pillarsSnap = await getDocs(pillarsRef);
+
+        for (const pillarDoc of pillarsSnap.docs) {
+            const pillarId = pillarDoc.id;
+            const anglesRef = collection(db, 'campaigns', campaignId, 'pillars', pillarId, 'angles');
+            const anglesSnap = await getDocs(anglesRef);
+
+            // Delete all angles under this pillar
+            for (const angleDoc of anglesSnap.docs) {
+                await deleteDoc(angleDoc.ref);
+            }
+            // Delete the pillar itself
+            await deleteDoc(pillarDoc.ref);
+        }
+
+        // 2. Delete the campaign document
         await deleteDoc(doc(db, 'campaigns', campaignId));
 
         // Log activity (fire-and-forget)
@@ -137,11 +145,8 @@ export async function deleteCampaign(campaignId) {
 
         return true;
     } catch (error) {
-        console.warn('Firestore deleteCampaign failed, using local:', error);
-        let campaigns = store.get('campaigns') || [];
-        campaigns = campaigns.filter(c => c.id !== campaignId);
-        store.set('campaigns', campaigns);
-        return true;
+        console.warn('Firestore deleteCampaign failed:', error);
+        throw error;
     }
 }
 

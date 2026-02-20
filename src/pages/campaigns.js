@@ -200,8 +200,12 @@ function attachCampaignEvents() {
       e.stopPropagation(); // Prevent card click
       if (!confirm(t('common.confirm'))) return;
       const id = e.currentTarget.dataset.id;
-      await deleteCampaign(id);
-      renderCampaignsPage();
+      try {
+        await deleteCampaign(id);
+        renderCampaignsPage();
+      } catch (err) {
+        showToast(err.message || t('errors.generic'), 'error');
+      }
     });
   });
 

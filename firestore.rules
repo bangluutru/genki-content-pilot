@@ -1,0 +1,123 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // --- Reusable Functions ---
+    // Check if user is signed in
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Check if user is a member of the workspace
+    // Document ID for members is `{userId}_{workspaceId}`
+    function isWorkspaceMember(workspaceId) {
+      return isAuthenticated() && exists(/databases/$(database)/documents/workspace_members/$(request.auth.uid + "_" + workspaceId));
+    }
+
+    // Check user's role in the workspace
+    function getWorkspaceRole(workspaceId) {
+      return get(/databases/$(database)/documents/workspace_members/$(request.auth.uid + "_" + workspaceId)).data.role;
+    }
+
+    function isWorkspaceAdmin(workspaceId) {
+      return isAuthenticated() && isWorkspaceMember(workspaceId) && getWorkspaceRole(workspaceId) == 'admin';
+    }
+
+    function isWorkspaceEditor(workspaceId) {
+      return isAuthenticated() && isWorkspaceMember(workspaceId) && getWorkspaceRole(workspaceId) in ['admin', 'editor'];
+    }
+
+    function isWorkspaceViewer(workspaceId) {
+      return isAuthenticated() && isWorkspaceMember(workspaceId);
+    }
+
+    // --- Rules by Collection ---
+
+    // 1. Users Collection
+    match /users/{userId} {
+      // Users can only read and write their own profile
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // 2. Workspaces
+    match /workspaces/{workspaceId} {
+      // Members can read workspace details
+      allow read: if isWorkspaceMember(workspaceId);
+      // Only admins can update workspace settings
+      allow write: if isWorkspaceAdmin(workspaceId);
+      // Any authenticated user can create a workspace (they become owner)
+      allow create: if isAuthenticated();
+    }
+
+    // 3. Workspace Members
+    match /workspace_members/{memberId} {
+      // Note: memberId format is `{userId}_{workspaceId}`
+      // User can read their own membership, or members can read others in the same workspace
+      allow read: if isAuthenticated() && (
+        memberId.split("_")[0] == request.auth.uid || 
+        isWorkspaceMember(resource.data.workspaceId)
+      );
+      
+      // Admins can manage members. Users can accept invitations (create)
+      allow create, update, delete: if isAuthenticated() && (
+        memberId.split("_")[0] == request.auth.uid || 
+        isWorkspaceAdmin(resource.data.workspaceId)
+      );
+    }
+
+    // 4. Multi-tenant Collections (Secured by workspaceId field)
+    match /campaigns/{campaignId} {
+      allow read: if isWorkspaceViewer(resource.data.workspaceId);
+      allow create: if isWorkspaceEditor(request.resource.data.workspaceId);
+      allow update, delete: if isWorkspaceEditor(resource.data.workspaceId);
+      
+      // Subcollections
+      match /pillars/{pillarId} {
+        allow read: if isWorkspaceViewer(get(/databases/$(database)/documents/campaigns/$(campaignId)).data.workspaceId);
+        allow write: if isWorkspaceEditor(get(/databases/$(database)/documents/campaigns/$(campaignId)).data.workspaceId);
+        
+        match /angles/{angleId} {
+          allow read: if isWorkspaceViewer(get(/databases/$(database)/documents/campaigns/$(campaignId)).data.workspaceId);
+          allow write: if isWorkspaceEditor(get(/databases/$(database)/documents/campaigns/$(campaignId)).data.workspaceId);
+        }
+      }
+    }
+
+    match /contents/{contentId} {
+      allow read: if isWorkspaceViewer(resource.data.workspaceId);
+      allow create: if isWorkspaceEditor(request.resource.data.workspaceId);
+      allow update, delete: if isWorkspaceEditor(resource.data.workspaceId);
+    }
+
+    match /schedules/{scheduleId} {
+      allow read: if isWorkspaceViewer(resource.data.workspaceId);
+      allow create: if isWorkspaceEditor(request.resource.data.workspaceId);
+      allow update, delete: if isWorkspaceEditor(resource.data.workspaceId);
+    }
+
+    match /templates/{templateId} {
+      allow read: if isWorkspaceViewer(resource.data.workspaceId);
+      allow create: if isWorkspaceEditor(request.resource.data.workspaceId);
+      allow update, delete: if isWorkspaceEditor(resource.data.workspaceId);
+    }
+
+    match /brands/{workspaceId} {
+      allow read: if isWorkspaceViewer(workspaceId);
+      allow create, update: if isWorkspaceEditor(workspaceId);
+      allow delete: if isWorkspaceAdmin(workspaceId);
+    }
+
+    // 5. Activity Logs
+    match /activity_logs/{logId} {
+      allow read: if isWorkspaceViewer(resource.data.workspaceId);
+      // Fire-and-forget logging: any authenticated user with a valid workspaceId can create logs
+      allow create: if isAuthenticated() && isWorkspaceViewer(request.resource.data.workspaceId);
+      allow update, delete: if false; // Immutable audit trail
+    }
+
+    // Block all other access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

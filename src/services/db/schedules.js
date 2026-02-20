@@ -1,18 +1,20 @@
 /**
  * Schedules — Firestore CRUD
  */
-import { uid, getFirestore } from './helpers.js';
+import { uid, currentWorkspaceId, getFirestore } from './helpers.js';
 
 /** Save a content schedule */
 export async function saveSchedule(scheduleData) {
     const userId = uid();
-    if (!userId) throw new Error('Not authenticated');
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) throw new Error('Not authenticated');
 
     const { db, doc, collection, setDoc, serverTimestamp } = await getFirestore();
     const ref = doc(collection(db, 'schedules'));
     const data = {
         ...scheduleData,
         id: ref.id,
+        workspaceId,
         userId,
         createdAt: serverTimestamp(),
     };
@@ -22,8 +24,8 @@ export async function saveSchedule(scheduleData) {
 
 /** Load schedules for a given month */
 export async function loadSchedules(month, year) {
-    const userId = uid();
-    if (!userId) return [];
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) return [];
 
     const startDate = `${year}-${String(month + 1).padStart(2, '0')}-01`;
     const endDate = `${year}-${String(month + 1).padStart(2, '0')}-31`;
@@ -32,7 +34,7 @@ export async function loadSchedules(month, year) {
         const { db, collection, query, where, getDocs } = await getFirestore();
         const q = query(
             collection(db, 'schedules'),
-            where('userId', '==', userId),
+            where('workspaceId', '==', workspaceId),
             where('date', '>=', startDate),
             where('date', '<=', endDate),
         );

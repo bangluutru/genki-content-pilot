@@ -1,20 +1,22 @@
 /**
  * Content — Firestore CRUD
  */
-import { uid, getFirestore } from './helpers.js';
+import { uid, currentWorkspaceId, getFirestore } from './helpers.js';
 import { store } from '../../utils/state.js';
 import { logActivity } from './activity.js';
 
 /** Save content to Firestore */
 export async function saveContent(content) {
     const userId = uid();
-    if (!userId) throw new Error('Not authenticated');
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) throw new Error('Not authenticated');
 
     const { db, doc, collection, setDoc, serverTimestamp } = await getFirestore();
     const ref = doc(collection(db, 'contents'));
     const data = {
         ...content,
         id: ref.id,
+        workspaceId,
         userId,
         status: content.status || 'draft',
         createdAt: serverTimestamp(),
@@ -64,14 +66,16 @@ export async function deleteContent(contentId) {
 
 /** Load all contents for current user */
 export async function loadContents(limitCount = 50) {
-    const userId = uid();
-    if (!userId) return [];
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) return [];
 
     try {
         const { db, collection, query, where, orderBy, limit, getDocs } = await getFirestore();
         const q = query(
             collection(db, 'contents'),
-            where('userId', '==', userId),
+            // Migrate: Query by workspaceId (Note: older docs may only have userId, 
+            // a data migration might be needed if old data disappears)
+            where('workspaceId', '==', workspaceId),
             orderBy('createdAt', 'desc'),
             limit(limitCount)
         );
@@ -106,16 +110,13 @@ export async function approveContent(contentId) {
         approvedAt: new Date().toISOString(),
     };
 
-    // Persist to Firestore
-    try {
-        const { db, doc, updateDoc } = await getFirestore();
-        await updateDoc(doc(db, 'contents', contentId), updates);
-        logActivity('content.approve', 'content', contentId, { newStatus: 'approved' });
-    } catch (error) {
-        console.warn('Firestore approveContent failed, updating local only:', error);
-    }
+    // Persist to Firestore (let errors bubble up to UI)
+    const { db, doc, updateDoc } = await getFirestore();
+    await updateDoc(doc(db, 'contents', contentId), updates);
 
-    // Update local state
+    // Only log and update local state if DB write succeeds
+    logActivity('content.approve', 'content', contentId, { newStatus: 'approved' });
+
     const contents = store.get('contents') || [];
     const content = contents.find(c => c.id === contentId);
     if (content) {
@@ -134,16 +135,13 @@ export async function rejectContent(contentId, reason) {
         rejectedAt: new Date().toISOString(),
     };
 
-    // Persist to Firestore
-    try {
-        const { db, doc, updateDoc } = await getFirestore();
-        await updateDoc(doc(db, 'contents', contentId), updates);
-        logActivity('content.reject', 'content', contentId, { reason, newStatus: 'rejected' });
-    } catch (error) {
-        console.warn('Firestore rejectContent failed, updating local only:', error);
-    }
+    // Persist to Firestore (let errors bubble up to UI)
+    const { db, doc, updateDoc } = await getFirestore();
+    await updateDoc(doc(db, 'contents', contentId), updates);
 
-    // Update local state
+    // Only log and update local state if DB write succeeds
+    logActivity('content.reject', 'content', contentId, { reason, newStatus: 'rejected' });
+
     const contents = store.get('contents') || [];
     const content = contents.find(c => c.id === contentId);
     if (content) {

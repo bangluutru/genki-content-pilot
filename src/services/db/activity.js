@@ -2,7 +2,7 @@
  * Activity Logs — Firestore CRUD
  * Records user actions for audit trail and activity feed
  */
-import { uid, getFirestore } from './helpers.js';
+import { uid, currentWorkspaceId, getFirestore } from './helpers.js';
 import { store } from '../../utils/state.js';
 
 /**
@@ -15,10 +15,12 @@ import { store } from '../../utils/state.js';
  */
 export async function logActivity(action, targetType, targetId, metadata = {}) {
     const userId = uid();
-    if (!userId) return;
+    const workspaceId = currentWorkspaceId();
+    if (!userId || !workspaceId) return;
 
     const user = store.get('user');
     const logEntry = {
+        workspaceId,
         userId,
         userDisplayName: user?.displayName || user?.email || 'Unknown',
         action,
@@ -46,14 +48,14 @@ export async function logActivity(action, targetType, targetId, metadata = {}) {
  * @returns {Array} Activity log entries sorted by most recent
  */
 export async function loadActivityLogs(limitCount = 30) {
-    const userId = uid();
-    if (!userId) return [];
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) return [];
 
     try {
         const { db, collection, query, where, orderBy, limit, getDocs } = await getFirestore();
         const q = query(
             collection(db, 'activity_logs'),
-            where('userId', '==', userId),
+            where('workspaceId', '==', workspaceId),
             orderBy('createdAt', 'desc'),
             limit(limitCount)
         );

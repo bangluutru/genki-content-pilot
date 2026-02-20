@@ -26,6 +26,15 @@ export async function onRequest(context) {
         });
     }
 
+    // --- Rate Limiting (In-Memory per Isolate) ---
+    const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
+    if (!checkRateLimit(clientIP)) {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded (Max 20 req/min). Please try again later.' }), {
+            status: 429,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+    }
+
     // --- Validate API Key exists ---
     const apiKey = env.GEMINI_API_KEY;
     if (!apiKey) {
@@ -91,4 +100,40 @@ export async function onRequest(context) {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
     }
+}
+
+// --- Rate Limiter Implementation ---
+const rateLimitMap = new Map();
+const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const MAX_REQUESTS_PER_WINDOW = 20;
+let lastCleanup = Date.now();
+
+function checkRateLimit(ip) {
+    const now = Date.now();
+
+    // Cleanup old entries every 5 mins to prevent memory leaks
+    if (now - lastCleanup > 5 * 60 * 1000) {
+        for (const [key, record] of rateLimitMap.entries()) {
+            if (now > record.resetTime) rateLimitMap.delete(key);
+        }
+        lastCleanup = now;
+    }
+
+    const record = rateLimitMap.get(ip);
+    if (!record) {
+        rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+        return true;
+    }
+
+    if (now > record.resetTime) {
+        rateLimitMap.set(ip, { count: 1, resetTime: now + RATE_LIMIT_WINDOW });
+        return true;
+    }
+
+    if (record.count >= MAX_REQUESTS_PER_WINDOW) {
+        return false;
+    }
+
+    record.count += 1;
+    return true;
 }
