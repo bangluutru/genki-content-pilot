@@ -11,8 +11,8 @@ import { icon } from '../utils/icons.js';
 // Navigation items (will be translated dynamically)
 const NAV_ITEMS = [
   { route: 'dashboard', iconName: 'dashboard', labelKey: 'nav.dashboard' },
-  { route: 'campaigns', iconName: 'campaigns', labelKey: 'nav.campaigns' },
   { route: 'strategy', iconName: 'strategy', labelKey: 'strategy.title' },
+  { route: 'campaigns', iconName: 'campaigns', labelKey: 'nav.campaigns' },
   { route: 'create', iconName: 'create', labelKey: 'content.draftStudio' },
   { route: 'library', iconName: 'library', labelKey: 'nav.library' },
   { route: 'calendar', iconName: 'calendar', labelKey: 'nav.calendar' },

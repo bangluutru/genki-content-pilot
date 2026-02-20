@@ -125,7 +125,8 @@
     gap: var(--space-2);
 }
 
-.input-group label {
+.input-group label,
+.form-label {
     font-size: var(--font-sm);
     font-weight: 500;
     color: var(--text-secondary);
@@ -133,7 +134,8 @@
 
 .input,
 .textarea,
-.select {
+.select,
+.form-input {
     width: 100%;
     padding: var(--space-3) var(--space-4);
     font-size: 16px !important;
@@ -150,13 +152,15 @@
 
 .input:focus,
 .textarea:focus,
-.select:focus {
+.select:focus,
+.form-input:focus {
     border-color: var(--focus-ring);
     box-shadow: 0 0 0 3px var(--primary-light);
 }
 
 .input::placeholder,
-.textarea::placeholder {
+.textarea::placeholder,
+.form-input::placeholder {
     color: var(--text-muted);
 }
 

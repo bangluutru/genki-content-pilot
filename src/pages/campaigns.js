@@ -61,11 +61,11 @@ export async function renderCampaignsPage() {
             <div class="form-row">
               <div class="form-group">
                 <label>${t('campaign.startDate')}</label>
-                <input type="date" id="campaign-start" class="input">
+                <input type="date" id="campaign-start" class="input" max="9999-12-31">
               </div>
               <div class="form-group">
                 <label>${t('campaign.endDate')}</label>
-                <input type="date" id="campaign-end" class="input">
+                <input type="date" id="campaign-end" class="input" max="9999-12-31">
               </div>
             </div>
           </div>

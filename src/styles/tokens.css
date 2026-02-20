@@ -62,6 +62,8 @@
 
 /* ---------- Dark Mode (.dark class on <html>) ---------- */
 .dark {
+  color-scheme: dark;
+
   --bg: #0f1112;
   --surface: rgba(215, 237, 230, 0.08);
   --surface-elevated: rgba(215, 237, 230, 0.12);

@@ -68,10 +68,10 @@ export async function renderConversionDashboard() {
       <div class="card" style="margin-bottom: var(--space-6);">
         <div class="flex gap-4 items-center">
           <div style="flex: 1;">
-            <input type="date" id="date-from" class="form-input" placeholder="${t('conversion.fromDate')}">
+            <input type="date" id="date-from" class="form-input" max="9999-12-31" placeholder="${t('conversion.fromDate')}">
           </div>
           <div style="flex: 1;">
-            <input type="date" id="date-to" class="form-input" placeholder="${t('conversion.toDate')}">
+            <input type="date" id="date-to" class="form-input" max="9999-12-31" placeholder="${t('conversion.toDate')}">
           </div>
           <div style="flex: 1;">
             <select id="filter-platform" class="select">
