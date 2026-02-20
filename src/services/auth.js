@@ -90,24 +90,29 @@ export async function initAuthListener() {
     const { onAuthStateChanged } = await import('firebase/auth');
 
     return new Promise((resolve) => {
+        let firstRun = true;
         onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const authData = {
-                    uid: user.uid,
-                    email: user.email,
-                    displayName: user.displayName,
-                    photoURL: user.photoURL,
-                };
-                // Upsert user profile (updates lastActiveAt)
-                await upsertUser(authData);
+            try {
+                if (user) {
+                    const authData = {
+                        uid: user.uid,
+                        email: user.email,
+                        displayName: user.displayName,
+                        photoURL: user.photoURL,
+                    };
+                    // Upsert user profile (updates lastActiveAt)
+                    await upsertUser(authData);
 
-                // Load or auto-initialize workspace for RBAC
-                const { loadWorkspace } = await import('./firestore.js');
-                await loadWorkspace();
-            } else {
-                store.set('user', null);
+                    // Load or auto-initialize workspace for RBAC
+                    const { loadWorkspace } = await import('./firestore.js');
+                    await loadWorkspace();
+                } else {
+                    store.set('user', null);
+                }
+            } catch (err) {
+                console.error('Auth state handler error:', err);
             }
-            resolve(user);
+            if (firstRun) { resolve(user); firstRun = false; }
         });
     });
 }

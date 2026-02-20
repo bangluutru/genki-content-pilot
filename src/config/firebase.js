@@ -29,7 +29,7 @@ export async function initFirebase() {
     if (!hasFirebaseConfig()) {
         console.warn('⚠️ Firebase config missing. Running in offline/demo mode.');
         _initialized = true;
-        return { app: null, auth: null, db: null };
+        return { app: null, auth: null, db: null, storage: null };
     }
 
     try {

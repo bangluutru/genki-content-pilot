@@ -51,7 +51,7 @@ export const DISCLAIMER_TEMPLATES = {
 
     myPham: `📌 LƯU Ý: Hiệu quả sử dụng tuỳ thuộc vào cơ địa từng người. Sản phẩm không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh.`,
 
-    thucPham: `📌 LƢU Ý: Sản phẩm này là thực phẩm, không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh.`,
+    thucPham: `📌 LƯU Ý: Sản phẩm này là thực phẩm, không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh.`,
 };
 
 /**
@@ -66,9 +66,10 @@ export function checkCompliance(text) {
     const violations = [];
     const warnings = [];
 
-    // Check banned words
+    // Check banned words (use custom boundary for Vietnamese Unicode)
     BANNED_WORDS.forEach(word => {
-        const regex = new RegExp(`\\b${word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'gi');
+        const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(?<=\\s|^|[.,!?;:\"\'])${escaped}(?=\\s|$|[.,!?;:\"\'])`, 'gi');
         const matches = text.match(regex);
         if (matches) {
             violations.push({
@@ -82,9 +83,10 @@ export function checkCompliance(text) {
         }
     });
 
-    // Check warning words (context-dependent)
+    // Check warning words (context-dependent, use custom boundary for Vietnamese)
     WARNING_WORDS.forEach(word => {
-        const regex = new RegExp(`\\b${word}\\b`, 'gi');
+        const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(`(?<=\\s|^|[.,!?;:\"\'])${escaped}(?=\\s|$|[.,!?;:\"\'])`, 'gi');
         if (regex.test(text)) {
             warnings.push({
                 word,

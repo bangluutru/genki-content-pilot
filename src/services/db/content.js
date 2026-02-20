@@ -119,12 +119,11 @@ export async function approveContent(contentId) {
     // Only log and update local state if DB write succeeds
     logActivity('content.approve', 'content', contentId, { newStatus: 'approved' });
 
+    // Update local state (immutable update)
     const contents = store.get('contents') || [];
-    const content = contents.find(c => c.id === contentId);
-    if (content) {
-        Object.assign(content, updates);
-        store.set('contents', [...contents]);
-    }
+    store.set('contents', contents.map(c =>
+        c.id === contentId ? { ...c, ...updates } : c
+    ));
 }
 
 /** Reject content — persists to Firestore */
@@ -144,10 +143,9 @@ export async function rejectContent(contentId, reason) {
     // Only log and update local state if DB write succeeds
     logActivity('content.reject', 'content', contentId, { reason, newStatus: 'rejected' });
 
+    // Update local state (immutable update)
     const contents = store.get('contents') || [];
-    const content = contents.find(c => c.id === contentId);
-    if (content) {
-        Object.assign(content, updates);
-        store.set('contents', [...contents]);
-    }
+    store.set('contents', contents.map(c =>
+        c.id === contentId ? { ...c, ...updates } : c
+    ));
 }

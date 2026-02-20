@@ -4,7 +4,7 @@
  */
 import { store } from '../../utils/state.js';
 import { showToast } from '../../components/toast.js';
-import { loadConnections, saveContent } from '../../services/firestore.js';
+import { loadConnections, saveContent, updateContent } from '../../services/firestore.js';
 import { publishToFacebook } from '../../services/facebook.js';
 import { publishToWordPress } from '../../services/wordpress.js';
 import { icon } from '../../utils/icons.js';
@@ -112,7 +112,7 @@ export async function handlePublish(getCurrentContent) {
         try {
             const story = document.getElementById('content-story')?.textContent || '';
             const context = window.__createContext;
-            await saveContent({
+            const contentPayload = {
                 ...currentContent,
                 facebook,
                 blog,
@@ -126,7 +126,16 @@ export async function handlePublish(getCurrentContent) {
                     pillarId: context.pillar?.id,
                     angleId: context.angle?.id
                 })
-            });
+            };
+
+            if (window.__savedContentId) {
+                // Update existing record
+                await updateContent(window.__savedContentId, contentPayload);
+            } else {
+                // First save — create new record and track ID
+                const saved = await saveContent(contentPayload);
+                window.__savedContentId = saved.id;
+            }
             showToast(t('create.publishSuccess', { platforms: publishedTo.join(' + ') }), 'success');
         } catch (e) {
             console.error('Auto-save after publish error:', e);
@@ -152,7 +161,7 @@ export async function handleSave(getCurrentContent) {
         const story = document.getElementById('content-story')?.textContent || '';
         const context = window.__createContext;
 
-        await saveContent({
+        const contentPayload = {
             ...currentContent,
             facebook,
             blog,
@@ -163,7 +172,16 @@ export async function handleSave(getCurrentContent) {
                 pillarId: context.pillar?.id,
                 angleId: context.angle?.id
             })
-        });
+        };
+
+        if (window.__savedContentId) {
+            // Update existing record — prevent duplicates
+            await updateContent(window.__savedContentId, contentPayload);
+        } else {
+            // First save — create new record and track ID
+            const saved = await saveContent(contentPayload);
+            window.__savedContentId = saved.id;
+        }
 
         showToast(t('create.savedToLibrary'), 'success');
     } catch (error) {

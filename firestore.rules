@@ -119,7 +119,20 @@ service cloud.firestore {
       allow delete: if isWorkspaceAdmin(workspaceId);
     }
 
-    // 5. Activity Logs
+    // 5. Connections (Platform credentials — per-user, NOT workspace-scoped)
+    match /connections/{userId} {
+      // Users can only read/write their own platform connections
+      allow read, write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // 6. Conversions (Workspace-scoped conversion tracking)
+    match /conversions/{convId} {
+      allow read: if isWorkspaceViewer(resource.data.workspaceId);
+      allow create: if isAuthenticated() && isWorkspaceEditor(request.resource.data.workspaceId);
+      allow update, delete: if isWorkspaceEditor(resource.data.workspaceId);
+    }
+
+    // 7. Activity Logs
     match /activity_logs/{logId} {
       allow read: if isWorkspaceViewer(resource.data.workspaceId);
       // Fire-and-forget logging: any authenticated user with a valid workspaceId can create logs

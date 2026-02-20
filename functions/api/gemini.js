@@ -8,9 +8,17 @@
 export async function onRequest(context) {
     const { request, env } = context;
 
-    // --- CORS ---
+    // --- CORS (restrict to known origins) ---
+    const ALLOWED_ORIGINS = [
+        'https://genki-content-pilot.pages.dev',
+        'http://localhost:5173',
+        'http://localhost:8788', // wrangler pages dev
+    ];
+    const requestOrigin = request.headers.get('Origin') || '';
+    const corsOrigin = ALLOWED_ORIGINS.includes(requestOrigin) ? requestOrigin : ALLOWED_ORIGINS[0];
+
     const corsHeaders = {
-        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Origin': corsOrigin,
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
     };
@@ -26,7 +34,7 @@ export async function onRequest(context) {
         });
     }
 
-    // --- Rate Limiting (In-Memory per Isolate) ---
+    // --- Rate Limiting (In-Memory per Isolate — best-effort, not guaranteed) ---
     const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
     if (!checkRateLimit(clientIP)) {
         return new Response(JSON.stringify({ error: 'Rate limit exceeded (Max 20 req/min). Please try again later.' }), {

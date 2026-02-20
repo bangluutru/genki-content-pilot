@@ -1,13 +1,14 @@
 /**
  * Conversion Tracking — Firestore CRUD
  */
-import { uid, getFirestore } from './helpers.js';
+import { uid, currentWorkspaceId, getFirestore } from './helpers.js';
 import { store } from '../../utils/state.js';
 
 /** Save conversion data for a content piece */
 export async function saveConversion(conversionData) {
     const userId = uid();
-    if (!userId) throw new Error('Not authenticated');
+    const workspaceId = currentWorkspaceId();
+    if (!userId || !workspaceId) throw new Error('Not authenticated');
 
     try {
         const { db, collection, addDoc, serverTimestamp } = await getFirestore();
@@ -15,35 +16,34 @@ export async function saveConversion(conversionData) {
         await addDoc(ref, {
             ...conversionData,
             userId,
+            workspaceId,
             createdAt: serverTimestamp(),
         });
 
         // Update local cache
         const conversions = store.get('conversions') || [];
-        conversions.push({ ...conversionData, id: Date.now() });
-        store.set('conversions', conversions);
+        store.set('conversions', [...conversions, { ...conversionData, id: Date.now() }]);
 
         return conversionData;
     } catch (e) {
-        // Fallback to localStorage
+        // Fallback to local store
         const conversions = store.get('conversions') || [];
-        const newConversion = { ...conversionData, id: Date.now(), userId };
-        conversions.push(newConversion);
-        store.set('conversions', conversions);
+        const newConversion = { ...conversionData, id: Date.now(), userId, workspaceId };
+        store.set('conversions', [...conversions, newConversion]);
         return newConversion;
     }
 }
 
 /** Load conversion data */
 export async function loadConversions(dateRange = null) {
-    const userId = uid();
-    if (!userId) return [];
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) return [];
 
     try {
         const { db, collection, query, where, getDocs } = await getFirestore();
         const q = query(
             collection(db, 'conversions'),
-            where('userId', '==', userId)
+            where('workspaceId', '==', workspaceId)
         );
 
         const snapshot = await getDocs(q);
@@ -64,8 +64,8 @@ export async function loadConversions(dateRange = null) {
  * @returns {Array} List of { title, body, revenue, orders }
  */
 export async function getTopPerformingContent(limitCount = 3) {
-    const userId = uid();
-    if (!userId) return [];
+    const workspaceId = currentWorkspaceId();
+    if (!workspaceId) return [];
 
     try {
         const { db, collection, query, where, orderBy, limit, getDocs, doc, getDoc } = await getFirestore();
@@ -73,7 +73,7 @@ export async function getTopPerformingContent(limitCount = 3) {
         // 1. Get top conversions
         const q = query(
             collection(db, 'conversions'),
-            where('userId', '==', userId),
+            where('workspaceId', '==', workspaceId),
             orderBy('revenue', 'desc'),
             limit(limitCount)
         );

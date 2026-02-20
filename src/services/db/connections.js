@@ -47,7 +47,7 @@ export async function deleteConnection(platform) {
     const userId = uid();
     if (!userId) throw new Error('Not authenticated');
 
-    const connections = store.get('connections') || {};
+    const connections = { ...(store.get('connections') || {}) };
     delete connections[platform];
 
     const { db, doc, setDoc, serverTimestamp } = await getFirestore();

@@ -1,9 +1,12 @@
 /**
  * AI Image Generation Service — Using Gemini Imagen API
  * Generates images from text prompts based on content briefs
+ *
+ * Security: Routes through /api/gemini proxy in production (key stays server-side).
+ * Only falls back to direct API call in local dev when VITE_GEMINI_API_KEY is set.
  */
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+const DEV_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
 const MODEL = 'gemini-2.0-flash-exp';
 
 const STYLE_PRESETS = {
@@ -71,29 +74,50 @@ function getArchetypeVisuals(archetype) {
 
 /**
  * Generate image using Gemini's image generation
- * Uses Gemini 2.0 Flash with responseModalities for image output
+ * Production: calls /api/gemini proxy (key hidden server-side)
+ * Dev fallback: direct call only when VITE_GEMINI_API_KEY is set and running on localhost
  * @param {string} prompt - Image prompt
  * @returns {Object} { imageData: base64, mimeType }
  */
 export async function generateImage(prompt) {
-    if (!API_KEY) throw new Error('Gemini API key not configured');
+    const imagePrompt = `Generate an image: ${prompt}`;
+    const requestBody = {
+        contents: [{
+            parts: [{ text: imagePrompt }]
+        }],
+        generationConfig: {
+            responseModalities: ['TEXT', 'IMAGE'],
+        },
+    };
+
+    let response;
+    const useProxy = !DEV_API_KEY || window.location.hostname !== 'localhost';
 
     try {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`,
-            {
+        if (useProxy) {
+            // --- Production path: Cloudflare Functions proxy ---
+            response = await fetch('/api/gemini', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    contents: [{
-                        parts: [{ text: `Generate an image: ${prompt}` }]
-                    }],
-                    generationConfig: {
+                    prompt: imagePrompt,
+                    config: {
+                        model: MODEL,
                         responseModalities: ['TEXT', 'IMAGE'],
                     },
                 }),
-            }
-        );
+            });
+        } else {
+            // --- Dev fallback: direct call (only on localhost with VITE_GEMINI_API_KEY) ---
+            response = await fetch(
+                `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${DEV_API_KEY}`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(requestBody),
+                }
+            );
+        }
 
         if (!response.ok) {
             let errorMessage = 'Image generation failed';

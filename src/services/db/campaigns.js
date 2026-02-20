@@ -14,6 +14,8 @@ export async function saveCampaign(campaign) {
     const workspaceId = currentWorkspaceId();
     if (!workspaceId) throw new Error('Not authenticated');
 
+    const isNew = !campaign.id;
+
     // Sanitize — remove client-side timestamps (will use serverTimestamp)
     const data = {
         ...campaign,
@@ -22,7 +24,7 @@ export async function saveCampaign(campaign) {
     };
 
     // Auto-set status for new campaigns
-    if (!data.id) {
+    if (isNew) {
         data.status = data.status || 'draft';
     }
 
@@ -31,11 +33,11 @@ export async function saveCampaign(campaign) {
 
         // Use existing ID or create new ref
         let campaignRef;
-        if (data.id) {
-            campaignRef = doc(db, 'campaigns', data.id.toString());
-        } else {
+        if (isNew) {
             campaignRef = doc(collection(db, 'campaigns'));
             data.id = campaignRef.id;
+        } else {
+            campaignRef = doc(db, 'campaigns', data.id.toString());
         }
 
         // Use serverTimestamp for consistency
@@ -43,7 +45,7 @@ export async function saveCampaign(campaign) {
             ...data,
             updatedAt: serverTimestamp(),
         };
-        if (!campaign.id) {
+        if (isNew) {
             firestoreData.createdAt = serverTimestamp();
         }
 
@@ -51,7 +53,7 @@ export async function saveCampaign(campaign) {
 
         // Update local store (use JS Date for local)
         const localData = { ...data, updatedAt: new Date() };
-        if (!campaign.id) localData.createdAt = new Date();
+        if (isNew) localData.createdAt = new Date();
 
         const campaigns = store.get('campaigns') || [];
         const index = campaigns.findIndex(c => c.id === data.id);
@@ -63,7 +65,7 @@ export async function saveCampaign(campaign) {
         store.set('campaigns', campaigns);
 
         // Log activity (fire-and-forget)
-        if (!campaign.id) {
+        if (isNew) {
             logActivity('campaign.create', 'campaign', localData.id, { name: localData.name || '' });
         }
 
