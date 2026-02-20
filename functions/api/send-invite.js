@@ -1,8 +1,9 @@
 /**
- * Cloudflare Functions — Send Invite Email via Resend API
+ * Cloudflare Functions — Send Invite Email via Google Apps Script
  * Endpoint: POST /api/send-invite
  *
- * Env var required: RESEND_API_KEY (set in Cloudflare Pages > Settings > Environment Variables)
+ * Env var required: GAS_WEBAPP_URL (Google Apps Script Web App URL)
+ * Set in Cloudflare Pages > Settings > Environment Variables
  */
 export async function onRequest(context) {
     const { request, env } = context;
@@ -33,10 +34,10 @@ export async function onRequest(context) {
         });
     }
 
-    // --- Validate API Key ---
-    const apiKey = env.RESEND_API_KEY;
-    if (!apiKey) {
-        return new Response(JSON.stringify({ error: 'RESEND_API_KEY not configured' }), {
+    // --- Validate config ---
+    const gasUrl = env.GAS_WEBAPP_URL;
+    if (!gasUrl) {
+        return new Response(JSON.stringify({ error: 'GAS_WEBAPP_URL not configured' }), {
             status: 500,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
@@ -44,7 +45,7 @@ export async function onRequest(context) {
 
     try {
         const body = await request.json();
-        const { to, subject, html, from } = body;
+        const { to, subject, html } = body;
 
         if (!to || !subject || !html) {
             return new Response(JSON.stringify({ error: 'Missing required fields: to, subject, html' }), {
@@ -53,31 +54,25 @@ export async function onRequest(context) {
             });
         }
 
-        // --- Call Resend API ---
-        const resendResponse = await fetch('https://api.resend.com/emails', {
+        // --- Forward to Google Apps Script Web App ---
+        const gasResponse = await fetch(gasUrl, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                from: from || env.EMAIL_FROM || 'Genki Content Pilot <onboarding@resend.dev>',
-                to: [to],
-                subject,
-                html,
-            }),
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ to, subject, html }),
         });
 
-        const result = await resendResponse.json();
+        const result = await gasResponse.text();
+        let parsed;
+        try { parsed = JSON.parse(result); } catch { parsed = { raw: result }; }
 
-        if (!resendResponse.ok) {
-            return new Response(JSON.stringify({ error: result.message || 'Failed to send email', details: result }), {
-                status: resendResponse.status,
+        if (!gasResponse.ok && gasResponse.status !== 302) {
+            return new Response(JSON.stringify({ error: 'GAS error', details: parsed }), {
+                status: 502,
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             });
         }
 
-        return new Response(JSON.stringify({ success: true, id: result.id }), {
+        return new Response(JSON.stringify({ success: true, details: parsed }), {
             status: 200,
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
