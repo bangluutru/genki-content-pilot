@@ -19,16 +19,21 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/workspace_members/$(request.auth.uid + "_" + workspaceId)).data.role;
     }
 
+    // Check if the user is the owner of the workspace (Fallback for legacy users)
+    function isWorkspaceOwner(workspaceId) {
+      return isAuthenticated() && get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.ownerId == request.auth.uid;
+    }
+
     function isWorkspaceAdmin(workspaceId) {
-      return isAuthenticated() && isWorkspaceMember(workspaceId) && getWorkspaceRole(workspaceId) == 'admin';
+      return isAuthenticated() && (isWorkspaceOwner(workspaceId) || (isWorkspaceMember(workspaceId) && getWorkspaceRole(workspaceId) == 'admin'));
     }
 
     function isWorkspaceEditor(workspaceId) {
-      return isAuthenticated() && isWorkspaceMember(workspaceId) && getWorkspaceRole(workspaceId) in ['admin', 'editor'];
+      return isAuthenticated() && (isWorkspaceOwner(workspaceId) || (isWorkspaceMember(workspaceId) && getWorkspaceRole(workspaceId) in ['admin', 'editor']));
     }
 
     function isWorkspaceViewer(workspaceId) {
-      return isAuthenticated() && isWorkspaceMember(workspaceId);
+      return isAuthenticated() && (isWorkspaceOwner(workspaceId) || isWorkspaceMember(workspaceId));
     }
 
     // --- Rules by Collection ---
