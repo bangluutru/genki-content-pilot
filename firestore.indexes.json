@@ -1,4 +1,89 @@
 {
-    "indexes": [],
+    "indexes": [
+        {
+            "collectionGroup": "contents",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "workspaceId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "createdAt",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "campaigns",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "workspaceId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "createdAt",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "workspace_members",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "userId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "status",
+                    "order": "ASCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "activity_logs",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "workspaceId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "createdAt",
+                    "order": "DESCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "schedules",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "workspaceId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "scheduledDate",
+                    "order": "ASCENDING"
+                }
+            ]
+        },
+        {
+            "collectionGroup": "templates",
+            "queryScope": "COLLECTION",
+            "fields": [
+                {
+                    "fieldPath": "workspaceId",
+                    "order": "ASCENDING"
+                },
+                {
+                    "fieldPath": "createdAt",
+                    "order": "DESCENDING"
+                }
+            ]
+        }
+    ],
     "fieldOverrides": []
 }

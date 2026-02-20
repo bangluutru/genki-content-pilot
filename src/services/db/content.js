@@ -93,11 +93,13 @@ export async function loadContents(limitCount = 50) {
     } catch (err) {
         console.error('❌ Could not load contents:', err?.code || err?.message || err);
         if (err?.message?.includes('requires an index')) {
-            console.error('👉 Firestore cần composite index. Xem link trong error message ở trên để tạo.');
+            console.error('👉 Firestore cần composite index. Chạy: npx firebase-tools deploy --only firestore:indexes');
+            console.error('👉 Hoặc click link trong error message ở trên để tạo index thủ công.');
         } else if (err?.code === 'permission-denied' || err?.message?.includes('permission-denied')) {
-            console.error('👉 Firestore Security Rules chưa cho phép. Xem README: Firestore Security Rules');
+            console.error('👉 Firestore Security Rules chưa cho phép. Kiểm tra workspace_members.');
         }
-        return [];
+        // Re-throw to let the calling page show a meaningful error
+        throw err;
     }
 }
 
