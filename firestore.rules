@@ -19,21 +19,32 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/workspace_members/$(request.auth.uid + "_" + workspaceId)).data.role;
     }
 
-    // Check if the user is the owner of the workspace (Fallback for legacy users)
+    // Check if the user is the owner of the workspace
+    // Safe: checks exists() before get() to avoid null errors crashing the entire rule
     function isWorkspaceOwner(workspaceId) {
-      return isAuthenticated() && get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.ownerId == request.auth.uid;
+      return isAuthenticated()
+        && exists(/databases/$(database)/documents/workspaces/$(workspaceId))
+        && get(/databases/$(database)/documents/workspaces/$(workspaceId)).data.ownerId == request.auth.uid;
     }
 
+    // Admin = member with 'admin' role OR workspace owner
+    // Check member role first (cheaper, 1 read) before owner fallback (2 reads)
     function isWorkspaceAdmin(workspaceId) {
-      return isAuthenticated() && (isWorkspaceOwner(workspaceId) || (isWorkspaceMember(workspaceId) && getWorkspaceRole(workspaceId) == 'admin'));
+      return isAuthenticated() && (
+        (isWorkspaceMember(workspaceId) && getWorkspaceRole(workspaceId) == 'admin')
+        || isWorkspaceOwner(workspaceId)
+      );
     }
 
     function isWorkspaceEditor(workspaceId) {
-      return isAuthenticated() && (isWorkspaceOwner(workspaceId) || (isWorkspaceMember(workspaceId) && getWorkspaceRole(workspaceId) in ['admin', 'editor']));
+      return isAuthenticated() && (
+        (isWorkspaceMember(workspaceId) && getWorkspaceRole(workspaceId) in ['admin', 'editor'])
+        || isWorkspaceOwner(workspaceId)
+      );
     }
 
     function isWorkspaceViewer(workspaceId) {
-      return isAuthenticated() && (isWorkspaceOwner(workspaceId) || isWorkspaceMember(workspaceId));
+      return isAuthenticated() && (isWorkspaceMember(workspaceId) || isWorkspaceOwner(workspaceId));
     }
 
     // --- Rules by Collection ---
