@@ -77,7 +77,7 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
         clearInterval(stepTimer);
         incrementUsage();
 
-        const currentContent = { ...content, brief: product, contentType: brief.contentType };
+        const currentContent = { ...content, brief: brief.product, contentType: brief.contentType };
         setCurrentContent(currentContent);
 
         // Show preview
