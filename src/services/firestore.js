@@ -31,3 +31,6 @@ export { saveConversion, loadConversions, getTopPerformingContent } from './db/c
 
 // Campaigns
 export { saveCampaign, loadCampaigns, deleteCampaign, updateCampaignPillars, updateCampaignAngles } from './db/campaigns.js';
+
+// Users
+export { upsertUser, loadUserProfile } from './db/users.js';

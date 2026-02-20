@@ -5,6 +5,7 @@ import { hasFirebaseConfig, initFirebase } from '../config/firebase.js';
 import { store } from '../utils/state.js';
 import { router } from '../utils/router.js';
 import { showToast } from '../components/toast.js';
+import { upsertUser } from './db/users.js';
 
 /** Sign in with Google */
 export async function signInWithGoogle() {
@@ -22,12 +23,15 @@ export async function signInWithGoogle() {
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
 
-        store.set('user', {
+        const authData = {
             uid: user.uid,
             email: user.email,
             displayName: user.displayName,
             photoURL: user.photoURL,
-        });
+        };
+
+        // Persist user profile to Firestore (creates if new)
+        await upsertUser(authData);
 
         showToast(`Xin chào, ${user.displayName}!`, 'success');
         router.navigate('dashboard');
@@ -78,14 +82,16 @@ export async function initAuthListener() {
     const { onAuthStateChanged } = await import('firebase/auth');
 
     return new Promise((resolve) => {
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                store.set('user', {
+                const authData = {
                     uid: user.uid,
                     email: user.email,
                     displayName: user.displayName,
                     photoURL: user.photoURL,
-                });
+                };
+                // Upsert user profile (updates lastActiveAt)
+                await upsertUser(authData);
             } else {
                 store.set('user', null);
             }
