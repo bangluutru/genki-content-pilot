@@ -15,7 +15,7 @@ import { getStylePresets } from '../services/image-gen.js';
 import { copyToClipboard, storage } from '../utils/helpers.js';
 import { icon } from '../utils/icons.js';
 import { t } from '../utils/i18n.js';
-import { loadCampaigns } from '../services/firestore.js';
+import { loadCampaigns, loadPillars, loadAngles, loadBrand } from '../services/firestore.js';
 
 // Handler imports
 import { handleGenerate, handleVariation, handleImageGen } from './create/ai-handler.js';
@@ -35,6 +35,7 @@ export async function renderCreatePage(params = {}) {
 
   // Load context from params if generating from Angle
   window.__createContext = null;
+  window.__savedContentId = null; // Reset saved content tracking for new creation
   let contextBannerHTML = '';
   let prefillProduct = '';
 
@@ -42,11 +43,19 @@ export async function renderCreatePage(params = {}) {
     const campaigns = await loadCampaigns();
     const campaign = campaigns.find(c => c.id === params.campaignId);
     if (campaign) {
-      const angle = (campaign.angles || []).find(a => a.id === params.angleId);
-      const pillar = (campaign.pillars || []).find(p => p.id === angle?.pillarId);
+      // Load from subcollections (NOT embedded arrays — those are always empty after migration)
+      const pillars = await loadPillars(campaign.id, campaign);
+      const angles = await loadAngles(campaign.id, pillars, campaign);
+
+      const angle = angles.find(a => a.id === params.angleId);
+      const pillar = pillars.find(p => p.id === angle?.pillarId);
       if (angle && pillar) {
         window.__createContext = { campaign, pillar, angle };
-        prefillProduct = campaign.name; // Use campaign name as product context
+
+        // Use brand product name if available, fallback to campaign name
+        const brand = store.get('brand') || await loadBrand();
+        prefillProduct = brand?.productName || brand?.name || campaign.name;
+
         contextBannerHTML = `
           <div class="card" style="margin-bottom: var(--space-4); background: var(--bg-tertiary); border: 1px solid var(--accent); padding: var(--space-3);">
             <div class="flex items-center gap-2 mb-1">

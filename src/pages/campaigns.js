@@ -2,7 +2,7 @@
  * Campaigns Page — Manage long-term marketing campaigns
  */
 import { store } from '../utils/state.js';
-import { loadCampaigns, saveCampaign, deleteCampaign } from '../services/firestore.js';
+import { loadCampaigns, saveCampaign, deleteCampaign, loadPillars, loadAngles } from '../services/firestore.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { t } from '../utils/i18n.js';
@@ -12,6 +12,17 @@ import { timeAgo } from '../utils/helpers.js';
 export async function renderCampaignsPage() {
   const app = document.getElementById('app');
   const campaigns = await loadCampaigns();
+
+  // Load actual pillar/angle counts from subcollections (not embedded arrays)
+  for (const c of campaigns) {
+    try {
+      c._pillars = await loadPillars(c.id, c);
+      c._angles = await loadAngles(c.id, c._pillars, c);
+    } catch {
+      c._pillars = [];
+      c._angles = [];
+    }
+  }
 
   app.innerHTML = `
     ${renderSidebar()}
@@ -107,11 +118,11 @@ function renderCampaignList(campaigns) {
       <div class="mt-4 pt-4 border-t border-gray-100 dark:border-gray-800 flex gap-6">
         <div>
             <span class="block text-xs text-muted uppercase tracking-wider">${t('pillar.title')}</span>
-            <span class="text-lg font-semibold">${c.pillars?.length || 0}</span>
+            <span class="text-lg font-semibold">${c._pillars?.length || 0}</span>
         </div>
         <div>
             <span class="block text-xs text-muted uppercase tracking-wider">${t('angle.title')}</span>
-            <span class="text-lg font-semibold">${c.angles?.length || 0}</span>
+            <span class="text-lg font-semibold">${c._angles?.length || 0}</span>
         </div>
       </div>
     </div>
