@@ -8,6 +8,7 @@ import { hasFirebaseConfig } from '../utils/firebaseStatus.js';
 let app = null;
 let auth = null;
 let db = null;
+let storage = null;
 let _initialized = false;
 
 const firebaseConfig = {
@@ -35,10 +36,12 @@ export async function initFirebase() {
         const { initializeApp } = await import('firebase/app');
         const { getAuth } = await import('firebase/auth');
         const { getFirestore } = await import('firebase/firestore');
+        const { getStorage } = await import('firebase/storage');
 
         app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
+        storage = getStorage(app);
         _initialized = true;
         console.log('✅ Firebase initialized');
     } catch (error) {
@@ -46,7 +49,7 @@ export async function initFirebase() {
         _initialized = true;
     }
 
-    return { app, auth, db };
+    return { app, auth, db, storage };
 }
 
-export { app, auth, db };
+export { app, auth, db, storage };

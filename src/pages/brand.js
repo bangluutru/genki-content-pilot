@@ -201,7 +201,9 @@ export async function renderBrandPage() {
 
       // Import Firebase Storage functions
       const { storage } = await import('../config/firebase.js');
-      const { ref, uploadBytes, getDownloadURL } = await import('https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js');
+      if (!storage) throw new Error("Firebase Storage not initialized");
+
+      const { ref, uploadBytes, getDownloadURL } = await import('firebase/storage');
 
       const user = store.get('user');
       const fileName = `brand-logos/${user.uid}/${Date.now()}_${file.name}`;

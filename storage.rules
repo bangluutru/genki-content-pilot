@@ -1,0 +1,23 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Check if user is signed in
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    match /brand-logos/{userId}/{fileName} {
+      // Anyone can read logos for public display
+      allow read: if true;
+      
+      // Only the user themselves can upload/delete their logo
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Deny all other access by default
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
