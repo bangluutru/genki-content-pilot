@@ -71,31 +71,11 @@ async function initializePersonalWorkspace(userId) {
     const { db, doc, getDoc, setDoc } = await getFirestore();
     const workspaceId = userId; // Personal workspace ID matches UID
 
-    // 1. Ensure Workspace exists
-    const wsRef = doc(db, 'workspaces', workspaceId);
-    const wsSnap = await getDoc(wsRef);
-    let workspaceData;
-
-    if (wsSnap.exists()) {
-        workspaceData = { id: workspaceId, ...wsSnap.data() };
-    } else {
-        workspaceData = {
-            id: workspaceId,
-            name: `${store.get('user')?.displayName || 'My'} Team`,
-            tier: 'free',
-            ownerId: userId,
-            settings: {},
-            createdAt: new Date().toISOString()
-        };
-        await setDoc(wsRef, workspaceData);
-    }
-
-    // 2. Ensure Workspace Member exists (CRITICAL for firestore.rules RBAC)
+    // 1. CRITICAL: Create Workspace Member FIRST to satisfy firestore.rules RBAC check
+    // If not, we won't have read/write permissions for workspaces
     const memberId = `${userId}_${workspaceId}`;
     const memberRef = doc(db, 'workspace_members', memberId);
-    const memberSnap = await getDoc(memberRef);
-
-    if (!memberSnap.exists()) {
+    try {
         await setDoc(memberRef, {
             workspaceId,
             userId,
@@ -104,7 +84,33 @@ async function initializePersonalWorkspace(userId) {
             role: 'admin',
             status: 'active',
             joinedAt: new Date().toISOString()
-        });
+        }, { merge: true });
+    } catch (e) {
+        console.warn('Silent fallback for member init:', e);
+    }
+
+    // 2. Safely read and init Workspace
+    const wsRef = doc(db, 'workspaces', workspaceId);
+    let workspaceData;
+
+    try {
+        const wsSnap = await getDoc(wsRef);
+        if (wsSnap.exists()) {
+            workspaceData = { id: workspaceId, ...wsSnap.data() };
+        } else {
+            workspaceData = {
+                id: workspaceId,
+                name: `${store.get('user')?.displayName || 'My'} Team`,
+                tier: 'free',
+                ownerId: userId,
+                settings: {},
+                createdAt: new Date().toISOString()
+            };
+            await setDoc(wsRef, workspaceData);
+        }
+    } catch (err) {
+        console.warn('Failed to load/init workspace data:', err);
+        return null; // Stop execution to avoid partial state
     }
 
     store.set('workspace', workspaceData);

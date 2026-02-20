@@ -54,14 +54,21 @@ service cloud.firestore {
       // Note: memberId format is `{userId}_{workspaceId}`
       // User can read their own membership, or members can read others in the same workspace
       allow read: if isAuthenticated() && (
-        memberId.split("_")[0] == request.auth.uid || 
-        isWorkspaceMember(resource.data.workspaceId)
+        resource.data.userId == request.auth.uid || 
+        isWorkspaceMember(resource.data.workspaceId) ||
+        (resource.data.status == 'invited' && resource.data.invitedEmail == request.auth.token.email)
       );
       
       // Admins can manage members. Users can accept invitations (create)
-      allow create, update, delete: if isAuthenticated() && (
-        memberId.split("_")[0] == request.auth.uid || 
-        isWorkspaceAdmin(resource.data.workspaceId)
+      allow create: if isAuthenticated() && (
+        request.resource.data.userId == request.auth.uid || 
+        isWorkspaceAdmin(request.resource.data.workspaceId)
+      );
+
+      allow update, delete: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid || 
+        isWorkspaceAdmin(resource.data.workspaceId) ||
+        (resource.data.status == 'invited' && resource.data.invitedEmail == request.auth.token.email)
       );
     }
 
