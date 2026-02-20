@@ -112,7 +112,7 @@ THÔNG TIN THƯƠNG HIỆU:
 - Archetype (Hình mẫu): ${brand.archetype || 'Chưa thiết lập'}
 - Tone (Giọng điệu): ${brand.tone || 'Thân thiện, chuyên nghiệp'}
 - Voice Guidelines (Hướng dẫn giọng văn): ${brand.voice || 'Không có'}
-- Khách hàng mục tiêu (Avatars): ${brand.avatars || brand.targetAudience || 'N/A'}
+- Khách hàng mục tiêu (Avatars): ${brand.avatars || 'N/A'}
 - Hashtag mặc định: ${brand.defaultHashtags || ''}
 - Sản phẩm/dịch vụ: ${brand.products || 'N/A'}
 ${brand.disclaimer ? `- Disclaimer bắt buộc: ${brand.disclaimer}` : ''}
@@ -293,7 +293,7 @@ THÔNG TIN THƯƠNG HIỆU:
 - Ngành: ${brand.industry}
 - Archetype: ${brand.archetype || 'N/A'}
 - Voice: ${brand.voice || 'N/A'}
-- Khách hàng: ${brand.avatars || brand.targetAudience}
+- Khách hàng: ${brand.avatars}
 
 OUTPUT FORMAT:
 Trả về JSON array thuần túy (không markdown block), mỗi item là một object:
@@ -339,7 +339,7 @@ THÔNG TIN THƯƠNG HIỆU:
 - Tên: ${brand.name}
 - Ngành: ${brand.industry}
 - Archetype: ${brand.archetype || 'N/A'}
-- Khách hàng: ${brand.avatars || brand.targetAudience || 'N/A'}
+- Khách hàng: ${brand.avatars || 'N/A'}
 
 Content Pillar = chủ đề lớn mà thương hiệu sẽ xoay quanh trong chiến dịch.
 Mỗi pillar phải rõ ràng, không trùng lặp, và phục vụ mục tiêu chiến dịch.
@@ -387,7 +387,7 @@ THÔNG TIN THƯƠNG HIỆU:
 - Tên: ${brand.name}
 - Ngành: ${brand.industry}
 - Voice: ${brand.voice || 'N/A'}
-- Khách hàng: ${brand.avatars || brand.targetAudience || 'N/A'}
+- Khách hàng: ${brand.avatars || 'N/A'}
 
 Content Angle = cách triển khai cụ thể từ một pillar. Mỗi angle là một bài viết tiềm năng.
 Các angle phải đa dạng về tone, format, và góc nhìn.

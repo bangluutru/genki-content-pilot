@@ -12,21 +12,19 @@ export async function saveCampaign(campaign) {
     const userId = uid();
     if (!userId) throw new Error('Not authenticated');
 
-    // Sanitize
+    // Sanitize — remove client-side timestamps (will use serverTimestamp)
     const data = {
         ...campaign,
         userId,
-        updatedAt: new Date().toISOString()
     };
 
-    // Auto-generate ID if new
+    // Auto-set status for new campaigns
     if (!data.id) {
-        data.createdAt = new Date().toISOString();
         data.status = data.status || 'draft';
     }
 
     try {
-        const { db, doc, collection, setDoc } = await getFirestore();
+        const { db, doc, collection, setDoc, serverTimestamp } = await getFirestore();
 
         // Use existing ID or create new ref
         let campaignRef;
@@ -37,33 +35,46 @@ export async function saveCampaign(campaign) {
             data.id = campaignRef.id;
         }
 
-        await setDoc(campaignRef, data, { merge: true });
+        // Use serverTimestamp for consistency
+        const firestoreData = {
+            ...data,
+            updatedAt: serverTimestamp(),
+        };
+        if (!campaign.id) {
+            firestoreData.createdAt = serverTimestamp();
+        }
 
-        // Update local store
+        await setDoc(campaignRef, firestoreData, { merge: true });
+
+        // Update local store (use JS Date for local)
+        const localData = { ...data, updatedAt: new Date() };
+        if (!campaign.id) localData.createdAt = new Date();
+
         const campaigns = store.get('campaigns') || [];
         const index = campaigns.findIndex(c => c.id === data.id);
         if (index > -1) {
-            campaigns[index] = data;
+            campaigns[index] = localData;
         } else {
-            campaigns.push(data);
+            campaigns.push(localData);
         }
         store.set('campaigns', campaigns);
 
-        return data;
+        return localData;
     } catch (error) {
         console.warn('Firestore saveCampaign failed, using local:', error);
         // Local fallback
         let campaigns = store.get('campaigns') || [];
         if (!data.id) data.id = 'local_' + Date.now();
 
+        const localData = { ...data, updatedAt: new Date(), createdAt: data.createdAt || new Date() };
         const index = campaigns.findIndex(c => c.id === data.id);
         if (index > -1) {
-            campaigns[index] = data;
+            campaigns[index] = localData;
         } else {
-            campaigns.push(data);
+            campaigns.push(localData);
         }
         store.set('campaigns', campaigns);
-        return data;
+        return localData;
     }
 }
 
@@ -82,7 +93,15 @@ export async function loadCampaigns() {
         );
 
         const snapshot = await getDocs(q);
-        const campaigns = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const campaigns = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                ...data,
+                createdAt: data.createdAt?.toDate?.() || (data.createdAt ? new Date(data.createdAt) : new Date()),
+                updatedAt: data.updatedAt?.toDate?.() || (data.updatedAt ? new Date(data.updatedAt) : new Date()),
+            };
+        });
 
         store.set('campaigns', campaigns);
         return campaigns;
@@ -126,11 +145,12 @@ export async function updateCampaignPillars(campaignId, pillars) {
     const userId = uid();
     if (!userId) throw new Error('Not authenticated');
 
-    const updatedData = { pillars, updatedAt: new Date().toISOString() };
-
     try {
-        const { db, doc, setDoc } = await getFirestore();
-        await setDoc(doc(db, 'campaigns', campaignId), updatedData, { merge: true });
+        const { db, doc, setDoc, serverTimestamp } = await getFirestore();
+        await setDoc(doc(db, 'campaigns', campaignId), {
+            pillars,
+            updatedAt: serverTimestamp(),
+        }, { merge: true });
     } catch (error) {
         console.warn('Firestore updateCampaignPillars failed, updating local:', error);
     }
@@ -140,8 +160,8 @@ export async function updateCampaignPillars(campaignId, pillars) {
     const campaign = campaigns.find(c => c.id === campaignId);
     if (campaign) {
         campaign.pillars = pillars;
-        campaign.updatedAt = updatedData.updatedAt;
-        store.set('campaigns', campaigns);
+        campaign.updatedAt = new Date();
+        store.set('campaigns', [...campaigns]);
     }
 }
 
@@ -154,11 +174,12 @@ export async function updateCampaignAngles(campaignId, angles) {
     const userId = uid();
     if (!userId) throw new Error('Not authenticated');
 
-    const updatedData = { angles, updatedAt: new Date().toISOString() };
-
     try {
-        const { db, doc, setDoc } = await getFirestore();
-        await setDoc(doc(db, 'campaigns', campaignId), updatedData, { merge: true });
+        const { db, doc, setDoc, serverTimestamp } = await getFirestore();
+        await setDoc(doc(db, 'campaigns', campaignId), {
+            angles,
+            updatedAt: serverTimestamp(),
+        }, { merge: true });
     } catch (error) {
         console.warn('Firestore updateCampaignAngles failed, updating local:', error);
     }
@@ -168,7 +189,7 @@ export async function updateCampaignAngles(campaignId, angles) {
     const campaign = campaigns.find(c => c.id === campaignId);
     if (campaign) {
         campaign.angles = angles;
-        campaign.updatedAt = updatedData.updatedAt;
-        store.set('campaigns', campaigns);
+        campaign.updatedAt = new Date();
+        store.set('campaigns', [...campaigns]);
     }
 }

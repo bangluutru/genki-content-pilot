@@ -90,27 +90,55 @@ export async function loadContents(limitCount = 50) {
     }
 }
 
-/** Approve content */
+/** Approve content — persists to Firestore */
 export async function approveContent(contentId) {
+    const user = store.get('user');
+    const updates = {
+        status: 'approved',
+        approvedBy: user?.email || 'unknown',
+        approvedAt: new Date().toISOString(),
+    };
+
+    // Persist to Firestore
+    try {
+        const { db, doc, updateDoc } = await getFirestore();
+        await updateDoc(doc(db, 'contents', contentId), updates);
+    } catch (error) {
+        console.warn('Firestore approveContent failed, updating local only:', error);
+    }
+
+    // Update local state
     const contents = store.get('contents') || [];
     const content = contents.find(c => c.id === contentId);
     if (content) {
-        content.status = 'approved';
-        content.approvedBy = store.get('user')?.email;
-        content.approvedAt = new Date().toISOString();
-        store.set('contents', contents);
+        Object.assign(content, updates);
+        store.set('contents', [...contents]);
     }
 }
 
-/** Reject content */
+/** Reject content — persists to Firestore */
 export async function rejectContent(contentId, reason) {
+    const user = store.get('user');
+    const updates = {
+        status: 'rejected',
+        rejectionReason: reason,
+        rejectedBy: user?.email || 'unknown',
+        rejectedAt: new Date().toISOString(),
+    };
+
+    // Persist to Firestore
+    try {
+        const { db, doc, updateDoc } = await getFirestore();
+        await updateDoc(doc(db, 'contents', contentId), updates);
+    } catch (error) {
+        console.warn('Firestore rejectContent failed, updating local only:', error);
+    }
+
+    // Update local state
     const contents = store.get('contents') || [];
     const content = contents.find(c => c.id === contentId);
     if (content) {
-        content.status = 'rejected';
-        content.rejectionReason = reason;
-        content.rejectedBy = store.get('user')?.email;
-        content.rejectedAt = new Date().toISOString();
-        store.set('contents', contents);
+        Object.assign(content, updates);
+        store.set('contents', [...contents]);
     }
 }
