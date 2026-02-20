@@ -42,7 +42,7 @@ export async function inviteMember(workspaceId, email, role = 'editor') {
     const currentUserId = uid();
     if (!currentUserId) throw new Error('Not authenticated');
 
-    const { db, doc, setDoc, serverTimestamp, collection, query, where, getDocs } = await getFirestore();
+    const { db, doc, setDoc, serverTimestamp, collection, query, where, getDocs, addDoc } = await getFirestore();
 
     // Check if already a member by email
     const q = query(
@@ -71,6 +71,52 @@ export async function inviteMember(workspaceId, email, role = 'editor') {
     };
 
     await setDoc(doc(db, 'workspace_members', inviteId), data);
+
+    // --- Send invite email via Firebase Extension "Trigger Email from Firestore" ---
+    const user = store.get('user');
+    const inviterName = user?.displayName || user?.email || 'Quản trị viên';
+    const brand = store.get('brand');
+    const appName = brand?.name || 'Content Ops Copilot';
+    const appUrl = window.location.origin;
+    const roleLabel = role === 'admin' ? 'Quản trị viên' : role === 'editor' ? 'Biên tập viên' : 'Người xem';
+
+    try {
+        await addDoc(collection(db, 'mail'), {
+            to: email,
+            message: {
+                subject: `${inviterName} mời bạn tham gia ${appName}`,
+                html: `
+                    <div style="font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; max-width: 520px; margin: 0 auto; padding: 32px; background: #f8faf9; border-radius: 16px;">
+                        <div style="text-align: center; margin-bottom: 24px;">
+                            <h2 style="color: #006964; margin: 0; font-size: 22px;">📬 Lời mời tham gia</h2>
+                        </div>
+                        <div style="background: white; border-radius: 12px; padding: 24px; border: 1px solid #e2e8f0;">
+                            <p style="font-size: 15px; color: #333; line-height: 1.6; margin-top: 0;">
+                                Xin chào,
+                            </p>
+                            <p style="font-size: 15px; color: #333; line-height: 1.6;">
+                                <strong>${inviterName}</strong> đã mời bạn tham gia <strong>${appName}</strong> với vai trò <strong>${roleLabel}</strong>.
+                            </p>
+                            <div style="text-align: center; margin: 28px 0;">
+                                <a href="${appUrl}" style="display: inline-block; background: #006964; color: white; padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 600; font-size: 15px;">
+                                    Truy cập ${appName} →
+                                </a>
+                            </div>
+                            <p style="font-size: 13px; color: #888; line-height: 1.5; margin-bottom: 0;">
+                                Đăng nhập bằng email <strong>${email}</strong> để tự động tham gia workspace.
+                            </p>
+                        </div>
+                        <p style="text-align: center; font-size: 12px; color: #aaa; margin-top: 20px; margin-bottom: 0;">
+                            Email được gửi tự động từ ${appName}
+                        </p>
+                    </div>
+                `,
+            },
+        });
+    } catch (mailErr) {
+        // Don't fail the invite if email sending fails — the invite is already saved
+        console.warn('Could not queue invite email:', mailErr);
+    }
 
     // Log activity
     logActivity('member.invite', 'member', inviteId, { email, role });
