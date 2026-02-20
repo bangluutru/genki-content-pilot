@@ -96,11 +96,20 @@ export async function generateImage(prompt) {
         );
 
         if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'Image generation failed');
+            let errorMessage = 'Image generation failed';
+            try {
+                const errText = await response.text();
+                if (errText) {
+                    const errData = JSON.parse(errText);
+                    errorMessage = errData.error?.message || errorMessage;
+                }
+            } catch { /* ignore parse errors */ }
+            throw new Error(errorMessage);
         }
 
-        const data = await response.json();
+        const responseText = await response.text();
+        if (!responseText) throw new Error('Empty response from image API');
+        const data = JSON.parse(responseText);
         const parts = data.candidates?.[0]?.content?.parts || [];
 
         // Find image part

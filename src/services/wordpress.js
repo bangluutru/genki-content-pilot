@@ -95,10 +95,17 @@ export async function publishToWordPress({ title, content, status = 'publish', s
         );
 
         if (!response.ok) {
-            const err = await response.json();
             if (response.status === 401) throw new Error('Token đã hết hạn. Kiểm tra lại Application Password.');
             if (response.status === 403) throw new Error('Không có quyền đăng bài. Kiểm tra quyền user WordPress.');
-            throw new Error(err.message || 'Đăng bài thất bại');
+            let errorMessage = 'Đăng bài thất bại';
+            try {
+                const errText = await response.text();
+                if (errText) {
+                    const errData = JSON.parse(errText);
+                    errorMessage = errData.message || errorMessage;
+                }
+            } catch { /* ignore */ }
+            throw new Error(errorMessage);
         }
 
         const post = await response.json();

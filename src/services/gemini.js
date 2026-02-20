@@ -58,13 +58,33 @@ async function callGemini(prompt, config = {}) {
     }
 
     if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || 'API request failed');
+        // Safely try to parse error body
+        let errorMessage = `API request failed (HTTP ${response.status})`;
+        try {
+            const errText = await response.text();
+            if (errText) {
+                const errData = JSON.parse(errText);
+                errorMessage = errData.error?.message || errData.error || errorMessage;
+            }
+        } catch {
+            // Body was empty or not JSON — use the default error message
+        }
+        throw new Error(errorMessage);
     }
 
-    const data = await response.json();
+    // Safely parse successful response
+    const responseText = await response.text();
+    if (!responseText) throw new Error('Phản hồi từ AI trống. Vui lòng thử lại.');
+
+    let data;
+    try {
+        data = JSON.parse(responseText);
+    } catch {
+        throw new Error('Phản hồi AI không hợp lệ. Vui lòng thử lại.');
+    }
+
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error('No content generated');
+    if (!text) throw new Error('AI không tạo được nội dung. Vui lòng thử lại.');
     return text;
 }
 
@@ -318,7 +338,7 @@ Mỗi ý tưởng phải phù hợp với Archetype và Voice của thương hi�
             temperature: 1.0,
             responseMimeType: 'application/json',
         });
-        return JSON.parse(text);
+        return safeParseJSON(text);
     } catch (error) {
         console.error('Strategy AI error:', error);
         throw error;
@@ -365,7 +385,7 @@ Sắp xếp theo priority từ cao xuống thấp.`;
             temperature: 0.8,
             responseMimeType: 'application/json',
         });
-        return JSON.parse(text);
+        return safeParseJSON(text);
     } catch (error) {
         console.error('Pillar AI error:', error);
         throw error;
@@ -415,9 +435,47 @@ Mỗi angle phải có hook hấp dẫn và thông điệp rõ ràng.`;
             temperature: 0.9,
             responseMimeType: 'application/json',
         });
-        return JSON.parse(text);
+        return safeParseJSON(text);
     } catch (error) {
         console.error('Angle AI error:', error);
         throw error;
+    }
+}
+
+// ===== Utility: Safe JSON Parser =====
+
+/**
+ * Safely parse JSON from AI response text.
+ * Handles cases where AI wraps JSON in markdown code blocks.
+ */
+function safeParseJSON(text) {
+    if (!text) throw new Error('AI trả về nội dung trống.');
+
+    // Try direct parse first
+    try {
+        return JSON.parse(text);
+    } catch {
+        // AI sometimes wraps JSON in ```json ... ``` blocks
+        const jsonMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (jsonMatch) {
+            try {
+                return JSON.parse(jsonMatch[1].trim());
+            } catch {
+                // fall through
+            }
+        }
+
+        // Try to find the array/object boundary manually 
+        const firstBracket = text.indexOf('[');
+        const lastBracket = text.lastIndexOf(']');
+        if (firstBracket !== -1 && lastBracket > firstBracket) {
+            try {
+                return JSON.parse(text.substring(firstBracket, lastBracket + 1));
+            } catch {
+                // fall through
+            }
+        }
+
+        throw new Error('AI trả về dữ liệu không đúng định dạng JSON. Vui lòng thử lại.');
     }
 }

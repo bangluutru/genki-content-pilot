@@ -18,8 +18,15 @@ export async function testFacebookConnection(pageId, accessToken) {
         );
 
         if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'Connection failed');
+            let errorMessage = 'Connection failed';
+            try {
+                const errText = await response.text();
+                if (errText) {
+                    const errData = JSON.parse(errText);
+                    errorMessage = errData.error?.message || errorMessage;
+                }
+            } catch { /* ignore */ }
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
@@ -62,14 +69,19 @@ export async function publishToFacebook(message, pageId, accessToken) {
         );
 
         if (!response.ok) {
-            const err = await response.json();
-            const fbError = err.error?.message || 'Đăng bài thất bại';
-
-            // Friendly error messages
-            if (err.error?.code === 190) throw new Error('Token đã hết hạn. Vui lòng cập nhật Access Token trong Cài đặt.');
-            if (err.error?.code === 200) throw new Error('Không có quyền đăng bài. Kiểm tra lại quyền App.');
-            if (err.error?.code === 4) throw new Error('Đã vượt quá giới hạn API. Vui lòng thử lại sau.');
-
+            let fbError = 'Đăng bài thất bại';
+            try {
+                const errText = await response.text();
+                if (errText) {
+                    const errData = JSON.parse(errText);
+                    fbError = errData.error?.message || fbError;
+                    if (errData.error?.code === 190) throw new Error('Token đã hết hạn. Vui lòng cập nhật Access Token trong Cài đặt.');
+                    if (errData.error?.code === 200) throw new Error('Không có quyền đăng bài. Kiểm tra lại quyền App.');
+                    if (errData.error?.code === 4) throw new Error('Đã vượt quá giới hạn API. Vui lòng thử lại sau.');
+                }
+            } catch (innerErr) {
+                if (innerErr.message !== fbError) throw innerErr; // re-throw specific errors
+            }
             throw new Error(fbError);
         }
 
@@ -117,8 +129,15 @@ export async function publishToFacebookWithLink(message, link, pageId, accessTok
         );
 
         if (!response.ok) {
-            const err = await response.json();
-            throw new Error(err.error?.message || 'Đăng bài thất bại');
+            let errorMessage = 'Đăng bài thất bại';
+            try {
+                const errText = await response.text();
+                if (errText) {
+                    const errData = JSON.parse(errText);
+                    errorMessage = errData.error?.message || errorMessage;
+                }
+            } catch { /* ignore */ }
+            throw new Error(errorMessage);
         }
 
         const data = await response.json();
