@@ -95,7 +95,8 @@
                 "settings": "Cài đặt",
                 "strategy": "Chiến lược",
                 "koc": "Quản lý KOC",
-                "designer": "Designer Hub"
+                "designer": "Designer Hub",
+                "help": "Trợ giúp"
         },
         "channels": {
                 "facebook": "Facebook",

@@ -24,6 +24,7 @@ const NAV_ITEMS = [
   { route: 'brand', iconName: 'brand', labelKey: 'brand.title' },
   { route: 'team', iconName: 'team', labelKey: 'nav.team' },
   { route: 'settings', iconName: 'settings', labelKey: 'nav.connections' },
+  { route: 'help', iconName: 'info', labelKey: 'nav.help' },
 ];
 
 export function renderSidebar() {

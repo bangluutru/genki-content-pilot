@@ -6,6 +6,7 @@ import './styles/index.css';
 import { router } from './utils/router.js';
 import { store } from './utils/state.js';
 import { initAuthListener, authGuard } from './services/auth.js';
+import { initHelpWidget, updateHelpContext } from './components/help-widget.js';
 import { showOfflineBanner } from './utils/firebaseStatus.js';
 
 // Pages (lazy-loaded)
@@ -74,6 +75,10 @@ async function loadPage(name) {
     case 'designer': {
       const { renderDesignerPage } = await import('./pages/designer.js');
       return renderDesignerPage;
+    }
+    case 'help': {
+      const { renderHelpPage } = await import('./pages/help.js');
+      return renderHelpPage;
     }
     default:
       return null;
@@ -146,6 +151,10 @@ router
   .on('designer', async () => {
     const render = await loadPage('designer');
     await render?.();
+  })
+  .on('help', async () => {
+    const render = await loadPage('help');
+    await render?.();
   });
 
 // Initialize app
@@ -175,6 +184,13 @@ async function init() {
 
   // Always start router (even if Firebase fails)
   router.start();
+
+  // Initialize Smart Help Widget
+  initHelpWidget();
+  window.addEventListener('hashchange', () => {
+    const route = location.hash.replace('#/', '').split('?')[0] || 'home';
+    updateHelpContext(route);
+  });
 }
 
 // Start when DOM ready
