@@ -44,6 +44,7 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
         brief = {
             contentType: document.getElementById('brief-type')?.value,
             product,
+            avatars: document.getElementById('brief-avatars')?.value?.split(',').map(s => s.trim()).filter(Boolean),
             highlight: document.getElementById('brief-highlight')?.value?.trim(),
             promotion: document.getElementById('brief-promotion')?.value?.trim(),
             cta: document.getElementById('brief-cta')?.value,
@@ -73,20 +74,44 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
     }, 3000);
 
     try {
-        const content = await generateContent(brief);
+        let rawContentResult = null;
+        let finalContent = { facebook: '', blog: '', story: '' };
+
+        if (brief.avatars && brief.avatars.length > 0) {
+            // Multiple variants path
+            const promises = brief.avatars.map(async (avatar) => {
+                const b = { ...brief, targetAvatar: avatar };
+                return generateContent(b);
+            });
+            const results = await Promise.all(promises);
+
+            results.forEach((res, idx) => {
+                const avatar = brief.avatars[idx];
+                const header = `=== DÀNH CHO: ${avatar.toUpperCase()} ===\n`;
+                finalContent.facebook += (idx > 0 ? '\n\n' : '') + header + res.facebook;
+                finalContent.blog += (idx > 0 ? '\n\n' : '') + header + res.blog;
+                finalContent.story += (idx > 0 ? '\n\n' : '') + header + res.story;
+            });
+            rawContentResult = finalContent;
+        } else {
+            // Standard single generation path
+            rawContentResult = await generateContent(brief);
+            finalContent = rawContentResult;
+        }
+
         clearInterval(stepTimer);
         incrementUsage();
 
-        const currentContent = { ...content, brief: brief.product, contentType: brief.contentType };
+        const currentContent = { ...rawContentResult, facebook: finalContent.facebook, blog: finalContent.blog, story: finalContent.story, brief: brief.product, contentType: brief.contentType };
         setCurrentContent(currentContent);
 
         // Show preview
         document.getElementById('step-loading').classList.add('hidden');
         document.getElementById('step-preview').classList.remove('hidden');
 
-        document.getElementById('content-facebook').textContent = content.facebook;
-        document.getElementById('content-blog').textContent = content.blog;
-        document.getElementById('content-story').textContent = content.story;
+        document.getElementById('content-facebook').textContent = finalContent.facebook;
+        document.getElementById('content-blog').textContent = finalContent.blog;
+        document.getElementById('content-story').textContent = finalContent.story;
 
         // Clear draft
         storage.remove('draft_brief');

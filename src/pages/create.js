@@ -119,6 +119,14 @@ export async function renderCreatePage(params = {}) {
           </div>
 
           <div class="input-group">
+            <label for="brief-avatars">👥 Đối tượng Khách hàng (Target Avatars)</label>
+            <input type="text" id="brief-avatars" class="input" 
+                   placeholder="VD: Mẹ bỉm sửa nửa đêm, Dân văn phòng đau lưng (cách nhau bằng dấu phẩy)"
+                   value="${draft?.avatars || ''}">
+            <small class="text-muted" style="margin-top:4px; display:block;">Nhập nhiều đối tượng để AI tự động nhân bản nội dung (phân tách bởi dấu phẩy).</small>
+          </div>
+
+          <div class="input-group">
             <label for="brief-highlight">${icon('star', 16)} ${t('create.highlightLabel')}</label>
             <input type="text" id="brief-highlight" class="input" 
                    placeholder="${t('create.highlightPlaceholder')}"
@@ -364,6 +372,10 @@ export async function renderCreatePage(params = {}) {
         const prodEl = document.getElementById('brief-product');
         if (prodEl) prodEl.value = fields.product;
       }
+      if (fields.avatars) {
+        const avEl = document.getElementById('brief-avatars');
+        if (avEl) avEl.value = fields.avatars;
+      }
       if (fields.highlight) {
         const highEl = document.getElementById('brief-highlight');
         if (highEl) highEl.value = fields.highlight;
@@ -484,6 +496,7 @@ function startAutosave() {
     if (product) {
       storage.set('draft_brief', {
         product,
+        avatars: document.getElementById('brief-avatars')?.value || '',
         highlight: document.getElementById('brief-highlight')?.value || '',
         promotion: document.getElementById('brief-promotion')?.value || '',
         additionalNotes: document.getElementById('brief-notes')?.value || '',

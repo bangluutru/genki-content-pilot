@@ -7,6 +7,7 @@ import { showToast } from '../components/toast.js';
 import { loadContents, approveContent, rejectContent } from '../services/firestore.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
+import { checkCompliance, highlightViolations } from '../services/compliance.js';
 
 export async function renderApprovalsPage() {
   const app = document.getElementById('app');
@@ -80,21 +81,30 @@ function renderApprovalCard(content, isAdmin) {
     rejected: `<span class="badge badge-danger">${t('approval.rejected')}</span>`,
   }[content.status] || '';
 
+  const fullText = [content.facebook, content.blog, content.story].filter(Boolean).join('\n\n');
+  const compliance = checkCompliance(fullText);
+  const isSafe = compliance.score >= 90;
+  const highlightedText = highlightViolations(content.facebook || '', compliance.violations);
+
+  const complianceBadge = isSafe
+    ? `<span class="badge badge-success" style="margin-left:8px;" title="An toàn">🛡️ ${compliance.score}/100</span>`
+    : `<span class="badge badge-danger" style="margin-left:8px;" title="Vi phạm từ khóa cấm!">⚠️ ${compliance.score}/100</span>`;
+
   return `
     <div class="card" style="margin-bottom: var(--space-4);">
       <div class="flex justify-between items-start mb-4">
         <div>
           <h4 style="margin: 0 0 var(--space-2) 0;">${content.brief || t('approval.untitled')}</h4>
-          ${statusBadge}
+          ${statusBadge} ${complianceBadge}
         </div>
         <small class="text-muted">${new Date(content.createdAt).toLocaleDateString()}</small>
       </div>
       <div class="content-preview" style="max-height: 150px; overflow: auto; padding: var(--space-3); background: var(--bg-secondary); border-radius: var(--radius-md); margin-bottom: var(--space-3);">
-        <p style="white-space: pre-wrap;">${content.facebook || ''}</p>
+        <p style="white-space: pre-wrap;">${highlightedText}</p>
       </div>
       ${isAdmin && content.status === 'pending' ? `
         <div class="flex gap-2">
-          <button class="btn btn-success btn-sm btn-approve" data-id="${content.id}">${icon('check', 14)} ${t('actions.approve')}</button>
+          <button class="btn btn-success btn-sm btn-approve" data-id="${content.id}" ${!isSafe ? 'disabled title="Bài viết chứa từ khóa vi phạm, không thể duyệt"' : ''}>${icon('check', 14)} ${t('actions.approve')}</button>
           <button class="btn btn-danger btn-sm btn-reject" data-id="${content.id}">${icon('cross', 14)} ${t('actions.reject')}</button>
         </div>
       ` : ''}

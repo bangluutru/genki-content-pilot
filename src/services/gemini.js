@@ -158,7 +158,10 @@ ${intelligenceContext}
 QUY TẮC:
 1. Viết NATIVE tiếng Việt (không dịch từ tiếng Anh)
 2. Tone phải nhất quán với thương hiệu
-3. Nếu ngành TPCN: KHÔNG dùng từ "chữa bệnh", "điều trị". Luôn kèm disclaimer nếu có.
+3. [QUAN TRỌNG - TPCN COMPLIANCE] NẾU LÀ THỰC PHẨM CHỨC NĂNG:
+   - TUYỆT ĐỐI KHÔNG dùng các từ: "chữa khỏi", "đặc trị", "thuốc", "điều trị", "thần dược", "tốt nhất", "số 1", "cam kết 100%", "không tác dụng phụ", "bệnh nhân".
+   - Chỉ được phép dùng các từ: "hỗ trợ", "cải thiện", "người dùng".
+   - Phải kèm theo câu: "Sản phẩm này không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh." cuối bài viết.
 4. SEO: Dùng heading, keyword tự nhiên trong blog
 5. Facebook: Ngắn gọn, có emoji, CTA rõ ràng, hashtag
 6. Story: Siêu ngắn, hook mạnh, 1-2 dòng
@@ -190,6 +193,7 @@ function buildUserPrompt(brief) {
     }
 
     if (brief.product) prompt += `📦 Sản phẩm/Chủ đề: ${brief.product}\n`;
+    if (brief.targetAvatar) prompt += `🎯 TỆP KHÁCH HÀNG MỤC TIÊU (QUAN TRỌNG): Viết ĐÚNG VÀO IDIOM VÀ INSIGHT CỦA TỆP "${brief.targetAvatar}". Chạm đúng nỗi đau và ngôn từ của họ!\n`;
     if (brief.highlight) prompt += `⭐ Điểm nổi bật: ${brief.highlight}\n`;
     if (brief.promotion) prompt += `🎁 Khuyến mãi: ${brief.promotion}\n`;
     if (brief.cta) prompt += `👉 CTA mong muốn: ${brief.cta}\n`;

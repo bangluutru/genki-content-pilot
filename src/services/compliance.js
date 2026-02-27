@@ -36,6 +36,13 @@ export const BANNED_WORDS = [
     // Từ liên quan hệ miễn dịch (cần thận trọng)
     'miễn dịch 100%', 'không bao giờ ốm', 'không bị bệnh',
     'tăng miễn dịch tối đa', 'miễn dịch tuyệt đối',
+    
+    // Bổ sung các từ khóa TPCN 2024-2025 (Từ khóa cấm)
+    'tự nhiên 100%', 'không tác dụng phụ', 'thần tốc', 'vĩnh viễn',
+    'trị mụn', 'chữa viêm', 'diệt virus', 'giảm ngay', 'xóa sẹo',
+    'thuốc', 'bệnh nhân', 'bệnh nhi',
+    'bức tử', 'tuyệt vọng', 'chết chóc', 'đau đớn', 'tử nạn', 'tự tử',
+    'bác sĩ khuyên dùng', 'cơ sở y tế', 'phòng khám', 'bệnh viện', 'thư cảm ơn của người bệnh'
 ];
 
 // Từ cần CẢNH BÁO (không cấm nhưng cần context đúng)
