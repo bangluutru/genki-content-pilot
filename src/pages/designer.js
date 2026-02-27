@@ -33,17 +33,19 @@ export async function renderDesignerPage() {
 
   app.innerHTML = `
     ${renderSidebar()}
-    <main class="main-content page" style="height: 100vh; display: flex; flex-direction: column;">
-      <div class="mb-6">
+    <main class="main-content page" style="height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
+      <div class="mb-6" style="flex-shrink: 0;">
         <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('image', 28)} Designer Hub</h1>
         <p class="text-muted text-sm" style="margin-top: var(--space-1);">
-          Quản lý các task thiết kế hình ảnh cho bài viết & Sinh AI Prompt cho Midjourney/Photoshop.
+          Quản lý các task thiết kế hình ảnh cho bài viết &amp; Sinh AI Prompt cho Midjourney/Photoshop.
         </p>
       </div>
 
       <!-- Kanban Board -->
-      <div class="kanban-board" style="display: flex; gap: var(--space-4); overflow-x: auto; flex: 1; min-height: 0; padding-bottom: var(--space-4);">
-        ${COLUMNS.map(col => renderKanbanColumn(col, allContents)).join('')}
+      <div style="flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; padding-bottom: var(--space-4);">
+        <div class="kanban-board" style="display: flex; gap: var(--space-4); height: 100%; min-width: max-content;">
+          ${COLUMNS.map(col => renderKanbanColumn(col, allContents)).join('')}
+        </div>
       </div>
     </main>
   `;
@@ -60,8 +62,8 @@ function renderKanbanColumn(col, contents) {
   });
 
   return `
-    <div class="kanban-column" style="flex: 0 0 320px; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); display: flex; flex-direction: column;">
-      <div class="kanban-header" style="padding: var(--space-3); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+    <div class="kanban-column" style="flex: 0 0 280px; min-width: 280px; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); display: flex; flex-direction: column; height: 100%;">
+      <div class="kanban-header" style="padding: var(--space-3); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;">
         <h3 style="font-size: var(--font-sm); font-weight: 600; color: ${col.color};">${col.title}</h3>
         <span class="badge" style="background: var(--bg);">${colContents.length}</span>
       </div>
