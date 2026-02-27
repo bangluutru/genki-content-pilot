@@ -42,6 +42,7 @@
         "actions": {
                 "create": "Tạo",
                 "add": "Thêm",
+                "filter": "Lọc",
                 "edit": "Sửa",
                 "update": "Cập nhật",
                 "delete": "Xoá",
@@ -223,7 +224,13 @@
                 "ideasTitle": "Đề xuất từ AI Strategist",
                 "createCampaign": "Triển khai chiến dịch này",
                 "noIdeas": "Chưa có ý tưởng nào. Hãy nhập mục tiêu để bắt đầu!",
-                "viewDetails": "Xem chi tiết"
+                "viewDetails": "Xem chi tiết",
+                "quickTemplates": "Mục tiêu phổ biến",
+                "templateSales": "Tăng doanh số",
+                "templateAwareness": "Brand Awareness",
+                "templateLeadGen": "Thu thập Lead",
+                "templateLaunch": "Ra mắt sản phẩm mới",
+                "templateClearance": "Xả hàng tồn kho"
         },
         "connections": {
                 "title": "Kết nối",
@@ -393,7 +400,10 @@
                 "approvedAt": "Duyệt lúc",
                 "decision": "Quyết định",
                 "requestChangesNote": "Mô tả cần sửa gì.",
-                "onlyApproverCanApprove": "Chỉ người duyệt mới có quyền duyệt."
+                "onlyApproverCanApprove": "Chỉ người duyệt mới có quyền duyệt.",
+                "commentPlaceholder": "Ghi chú cho tác giả...",
+                "approveWithNote": "Duyệt & Ghi chú",
+                "rejectWithNote": "Từ chối & Ghi chú"
         },
         "calendar": {
                 "title": "Lịch nội dung",
@@ -498,7 +508,12 @@
                 "publishing": "Đang đăng...",
                 "processing": "Đang xử lý...",
                 "view": "Xem",
-                "publishSuccess": "Đã đăng lên {{platforms}}!"
+                "publishSuccess": "Đã đăng lên {{platforms}}!",
+                "versionHistory": "Lịch sử phiên bản",
+                "versionCreated": "Tạo mới",
+                "versionEdited": "Chỉnh sửa",
+                "versionApproved": "Duyệt",
+                "versionPublished": "Đăng bài"
         },
         "templates": {
                 "title": "Templates",
@@ -584,7 +599,15 @@
                 "emailAlreadyMember": "Email này đã là thành viên",
                 "inviteSent": "Đã mời {{email}} với quyền {{role}}!",
                 "workspaceNameRequired": "Vui lòng nhập tên workspace",
-                "workspaceUpdated": "Đã cập nhật workspace!"
+                "workspaceUpdated": "Đã cập nhật workspace!",
+                "taskOverview": "Tổng quan công việc",
+                "taskDrafts": "Nháp",
+                "taskPending": "Chờ duyệt",
+                "taskApproved": "Đã duyệt",
+                "taskPublished": "Đã đăng",
+                "taskDesign": "Thiết kế",
+                "noTasks": "Chưa có bài viết nào",
+                "totalContent": "Tổng nội dung"
         },
         "create": {
                 "title": "Tạo content mới",
@@ -674,7 +697,14 @@
                 "fillProductFirst": "Hãy điền sản phẩm/chủ đề trước hoặc nhập prompt",
                 "createVariationFirst": "Hãy tạo content trước rồi mới tạo variation",
                 "variationCreated": "Đã tạo variation: {{type}}",
-                "creatingVariation": "Đang tạo..."
+                "creatingVariation": "Đang tạo...",
+                "scheduleNow": "Lên lịch đăng ngay →",
+                "productUrl": "URL sản phẩm (tuỳ chọn)",
+                "autoFill": "Auto-fill từ URL",
+                "extracting": "Đang trích xuất...",
+                "imageHistory": "Lịch sử hình ảnh",
+                "noImages": "Chưa có hình ảnh nào",
+                "clearHistory": "Xoá lịch sử"
         },
         "settings": {
                 "title": "Kết nối Platform",

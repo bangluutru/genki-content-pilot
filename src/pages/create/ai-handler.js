@@ -232,18 +232,31 @@ export async function handleImageGen() {
 
     try {
         const result = await generateImage(prompt);
+        const imageSrc = `data:${result.mimeType};base64,${result.imageData}`;
+
+        // Save to image history (localStorage, max 10)
+        try {
+            const history = JSON.parse(localStorage.getItem('cp_image_history') || '[]');
+            history.unshift({ src: imageSrc, prompt, date: new Date().toISOString() });
+            if (history.length > 10) history.length = 10;
+            localStorage.setItem('cp_image_history', JSON.stringify(history));
+        } catch { /* localStorage quota exceeded, ignore */ }
+
         preview.innerHTML = `
-      <img src="data:${result.mimeType};base64,${result.imageData}" 
+      <img src="${imageSrc}" 
            alt="AI Generated Image" class="gen-image" id="generated-image">
       <div class="flex gap-2" style="margin-top: var(--space-3);">
         <button class="btn btn-primary btn-sm" id="btn-edit-image" style="flex: 1;">${icon('pencil', 14)} ${t('create.editImage')}</button>
-        <a href="data:${result.mimeType};base64,${result.imageData}" 
+        <a href="${imageSrc}" 
            download="contentpilot-image.png" class="btn btn-outline btn-sm" id="btn-download-image">
           ${icon('save', 14)} ${t('create.downloadImage')}
         </a>
         <button class="btn btn-ghost btn-sm" id="btn-regen-image">${icon('refresh', 14)} ${t('create.regenerateImage')}</button>
       </div>
     `;
+
+        // Render image history gallery
+        renderImageHistory();
 
         document.getElementById('btn-edit-image')?.addEventListener('click', () => {
             const img = document.getElementById('generated-image');
@@ -269,3 +282,62 @@ export async function handleImageGen() {
         btn.innerHTML = icon('image', 16) + ' ' + t('create.generateImage');
     }
 }
+
+/** Render image history gallery strip below the image preview */
+function renderImageHistory() {
+    // Remove existing gallery
+    document.getElementById('image-history-gallery')?.remove();
+
+    let history;
+    try { history = JSON.parse(localStorage.getItem('cp_image_history') || '[]'); } catch { return; }
+    if (history.length === 0) return;
+
+    const gallery = document.createElement('div');
+    gallery.id = 'image-history-gallery';
+    gallery.innerHTML = `
+      <div class="flex justify-between items-center" style="margin-top: var(--space-4); margin-bottom: var(--space-2);">
+        <span class="text-xs" style="font-weight: 600;">${icon('image', 14)} ${t('create.imageHistory')} (${history.length})</span>
+        <button class="btn btn-ghost btn-sm" id="btn-clear-img-history" style="font-size: 11px; color: var(--danger);">
+          ${icon('trash', 12)} ${t('create.clearHistory')}
+        </button>
+      </div>
+      <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: var(--space-2);">
+        ${history.map((item, i) => `
+          <div style="flex-shrink: 0; position: relative; cursor: pointer;" class="img-history-item" data-idx="${i}">
+            <img src="${item.src}" alt="Image ${i + 1}" 
+                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid var(--border); transition: border-color 0.2s;"
+                 onmouseover="this.style.borderColor='var(--color-primary)'" 
+                 onmouseout="this.style.borderColor='var(--border)'">
+            <div class="text-xs text-muted" style="text-align: center; margin-top: 2px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${item.prompt?.substring(0, 12) || '—'}
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    const container = document.getElementById('tab-image');
+    if (container) container.appendChild(gallery);
+
+    // Clear history button
+    document.getElementById('btn-clear-img-history')?.addEventListener('click', () => {
+        localStorage.removeItem('cp_image_history');
+        gallery.remove();
+        showToast(t('create.clearHistory'), 'info');
+    });
+
+    // Click to load image
+    gallery.querySelectorAll('.img-history-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const idx = parseInt(item.dataset.idx);
+            const entry = history[idx];
+            if (!entry) return;
+            const imgEl = document.getElementById('generated-image');
+            if (imgEl) {
+                imgEl.src = entry.src;
+                document.getElementById('btn-download-image')?.setAttribute('href', entry.src);
+            }
+        });
+    });
+}
+

@@ -42,6 +42,7 @@
         "actions": {
                 "create": "Create",
                 "add": "Add",
+                "filter": "Filter",
                 "edit": "Edit",
                 "update": "Update",
                 "delete": "Delete",
@@ -230,7 +231,13 @@
                 "ideasTitle": "AI Strategist Proposals",
                 "createCampaign": "Launch This Campaign",
                 "noIdeas": "No ideas yet. Enter a goal to start!",
-                "viewDetails": "View details"
+                "viewDetails": "View details",
+                "quickTemplates": "Popular goals",
+                "templateSales": "Increase Sales",
+                "templateAwareness": "Brand Awareness",
+                "templateLeadGen": "Lead Generation",
+                "templateLaunch": "New Product Launch",
+                "templateClearance": "Clearance Sale"
         },
         "connections": {
                 "title": "Connections",
@@ -400,7 +407,10 @@
                 "approvedAt": "Approved at",
                 "decision": "Decision",
                 "requestChangesNote": "Describe what needs to change.",
-                "onlyApproverCanApprove": "Only an approver can approve content."
+                "onlyApproverCanApprove": "Only an approver can approve content.",
+                "commentPlaceholder": "Note for the author...",
+                "approveWithNote": "Approve & Comment",
+                "rejectWithNote": "Reject & Comment"
         },
         "publish": {
                 "title": "Publish log",
@@ -480,7 +490,12 @@
                 "publishing": "Publishing...",
                 "processing": "Processing...",
                 "view": "View",
-                "publishSuccess": "Published to {{platforms}}!"
+                "publishSuccess": "Published to {{platforms}}!",
+                "versionHistory": "Version history",
+                "versionCreated": "Created",
+                "versionEdited": "Edited",
+                "versionApproved": "Approved",
+                "versionPublished": "Published"
         },
         "templates": {
                 "title": "Templates",
@@ -566,7 +581,15 @@
                 "emailAlreadyMember": "This email is already a member",
                 "inviteSent": "Invited {{email}} as {{role}}!",
                 "workspaceNameRequired": "Please enter workspace name",
-                "workspaceUpdated": "Workspace updated!"
+                "workspaceUpdated": "Workspace updated!",
+                "taskOverview": "Task Overview",
+                "taskDrafts": "Drafts",
+                "taskPending": "Pending",
+                "taskApproved": "Approved",
+                "taskPublished": "Published",
+                "taskDesign": "Design",
+                "noTasks": "No content yet",
+                "totalContent": "Total content"
         },
         "create": {
                 "title": "Create new content",
@@ -656,7 +679,14 @@
                 "fillProductFirst": "Fill in product/topic first or enter prompt",
                 "createVariationFirst": "Create content first before creating variation",
                 "variationCreated": "Variation created: {{type}}",
-                "creatingVariation": "Creating..."
+                "creatingVariation": "Creating...",
+                "scheduleNow": "Schedule now →",
+                "productUrl": "Product URL (optional)",
+                "autoFill": "Auto-fill from URL",
+                "extracting": "Extracting...",
+                "imageHistory": "Image history",
+                "noImages": "No images yet",
+                "clearHistory": "Clear history"
         },
         "settings": {
                 "title": "Platform Connections",

@@ -1,8 +1,8 @@
 /**
- * Team Page — Workspace management, members, roles, activity log
+ * Team Page — Workspace management, members, roles, activity log, task overview
  */
 import { store } from '../utils/state.js';
-import { loadWorkspace, saveWorkspace, loadTeamActivity, currentWorkspaceId } from '../services/firestore.js';
+import { loadWorkspace, saveWorkspace, loadTeamActivity, currentWorkspaceId, loadContents } from '../services/firestore.js';
 import { loadWorkspaceMembers, addWorkspaceMember, inviteMember, updateMemberRole, removeMember } from '../services/firestore.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
@@ -40,6 +40,12 @@ export async function renderTeamPage() {
           </div>
           <button class="btn btn-ghost btn-sm" id="btn-edit-workspace">${icon('edit', 16)} ${t('actions.edit')}</button>
         </div>
+      </div>
+
+      <!-- Task Overview (Manager Visibility) -->
+      <h3 style="margin-bottom: var(--space-4);">${icon('chart', 20)} ${t('team.taskOverview')}</h3>
+      <div id="task-overview" style="margin-bottom: var(--space-6);">
+        <div class="skeleton" style="height: 120px;"></div>
       </div>
 
       <!-- Members Grid -->
@@ -154,6 +160,16 @@ async function loadWorkspaceData() {
     const members = await loadWorkspaceMembers(workspaceId);
     renderMembers(members);
 
+    // Load task overview for manager visibility
+    try {
+      let allContents = store.get('contents') || [];
+      if (allContents.length === 0) {
+        allContents = await loadContents() || [];
+        store.set('contents', allContents);
+      }
+      renderTaskOverview(allContents, members);
+    } catch { renderTaskOverview([], []); }
+
     // Load activity
     try {
       const activity = await loadTeamActivity();
@@ -164,9 +180,151 @@ async function loadWorkspaceData() {
   } catch {
     document.getElementById('workspace-name').textContent = 'Workspace';
     document.getElementById('workspace-desc').textContent = t('team.notSetup');
+    renderTaskOverview([], []);
     renderMembers([]);
     renderActivity([]);
   }
+}
+
+/** Render task overview — shows content count by status for each team member */
+function renderTaskOverview(contents, members) {
+  const container = document.getElementById('task-overview');
+  if (!container) return;
+
+  // Count by status
+  const statusCounts = {
+    draft: contents.filter(c => !c.status || c.status === 'draft').length,
+    pending: contents.filter(c => c.status === 'pending').length,
+    approved: contents.filter(c => c.status === 'approved').length,
+    published: contents.filter(c => c.status === 'published').length,
+    design: contents.filter(c => c.visualStatus && c.visualStatus !== 'done').length,
+  };
+  const total = contents.length;
+
+  if (total === 0) {
+    container.innerHTML = `
+      <div class="card-flat text-center" style="padding: var(--space-6); background: var(--surface); border-radius: var(--radius-lg);">
+        <span style="color: var(--text-muted);">${icon('chart', 40)}</span>
+        <p class="text-sm text-muted" style="margin-top: var(--space-2);">${t('team.noTasks')}</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Status config
+  const statuses = [
+    { key: 'draft', label: t('team.taskDrafts'), color: 'var(--text-muted)', bg: 'rgba(148,163,184,0.15)' },
+    { key: 'pending', label: t('team.taskPending'), color: 'var(--color-warning)', bg: 'rgba(251,191,36,0.15)' },
+    { key: 'approved', label: t('team.taskApproved'), color: 'var(--color-info)', bg: 'rgba(59,130,246,0.15)' },
+    { key: 'published', label: t('team.taskPublished'), color: 'var(--color-success)', bg: 'rgba(34,197,94,0.15)' },
+    { key: 'design', label: t('team.taskDesign'), color: 'var(--color-primary)', bg: 'rgba(139,92,246,0.15)' },
+  ];
+
+  // Summary cards (top row)
+  const summaryHtml = `
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: var(--space-3); margin-bottom: var(--space-4);">
+      <div class="card" style="padding: var(--space-3); text-align: center; border-top: 3px solid var(--color-primary);">
+        <div style="font-size: var(--font-2xl); font-weight: 700;">${total}</div>
+        <div class="text-xs text-muted">${t('team.totalContent')}</div>
+      </div>
+      ${statuses.map(s => `
+        <div class="card" style="padding: var(--space-3); text-align: center; border-top: 3px solid ${s.color};">
+          <div style="font-size: var(--font-2xl); font-weight: 700;">${statusCounts[s.key]}</div>
+          <div class="text-xs text-muted">${s.label}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+
+  // Progress bar showing distribution
+  const barSegments = statuses
+    .filter(s => statusCounts[s.key] > 0)
+    .map(s => {
+      const pct = Math.max(((statusCounts[s.key] / total) * 100), 2);
+      return `<div title="${s.label}: ${statusCounts[s.key]}" style="width: ${pct}%; background: ${s.color}; height: 8px; border-radius: 4px; transition: width 0.3s;"></div>`;
+    }).join('');
+
+  const progressHtml = `
+    <div class="card" style="padding: var(--space-4);">
+      <div class="flex justify-between items-center mb-2">
+        <span class="text-sm" style="font-weight: 600;">Pipeline</span>
+        <span class="text-xs text-muted">${total} ${t('dashboard.posts')}</span>
+      </div>
+      <div style="display: flex; gap: 2px; border-radius: 4px; overflow: hidden; background: var(--bg-tertiary);">${barSegments}</div>
+      <div class="flex gap-4 mt-3" style="flex-wrap: wrap;">
+        ${statuses.filter(s => statusCounts[s.key] > 0).map(s => `
+          <span class="text-xs flex items-center gap-1">
+            <span style="width: 8px; height: 8px; border-radius: 50%; background: ${s.color}; display: inline-block;"></span>
+            ${s.label} (${statusCounts[s.key]})
+          </span>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  // Per-member breakdown (if there are members)
+  let memberHtml = '';
+  if (members.length > 0) {
+    const currentUser = store.get('user');
+    const memberRows = members.map(m => {
+      const memberContents = contents.filter(c =>
+        c.userId === m.userId || c.assignee === m.userId || c.assignee === m.email
+      );
+      const mc = {
+        draft: memberContents.filter(c => !c.status || c.status === 'draft').length,
+        pending: memberContents.filter(c => c.status === 'pending').length,
+        approved: memberContents.filter(c => c.status === 'approved').length,
+        published: memberContents.filter(c => c.status === 'published').length,
+      };
+      const memberTotal = memberContents.length;
+      const isMe = m.userId === currentUser?.uid;
+
+      return `
+        <tr>
+          <td style="padding: var(--space-2) var(--space-3); white-space: nowrap;">
+            <div class="flex items-center gap-2">
+              <img src="${m.photoURL || ''}" alt="" style="width: 24px; height: 24px; border-radius: 50%; background: var(--bg-tertiary);" onerror="this.style.display='none'">
+              <span style="font-weight: 500;">${m.displayName || m.email || 'User'}</span>
+              ${isMe ? '<span class="text-xs text-muted">(You)</span>' : ''}
+            </div>
+          </td>
+          <td style="padding: var(--space-2) var(--space-3); text-align: center;">${memberTotal}</td>
+          <td style="padding: var(--space-2) var(--space-3); text-align: center;">
+            ${mc.draft > 0 ? `<span class="badge" style="background: rgba(148,163,184,0.15); color: var(--text-muted); font-size: 11px;">${mc.draft}</span>` : '<span class="text-muted text-xs">-</span>'}
+          </td>
+          <td style="padding: var(--space-2) var(--space-3); text-align: center;">
+            ${mc.pending > 0 ? `<span class="badge badge-warning" style="font-size: 11px;">${mc.pending}</span>` : '<span class="text-muted text-xs">-</span>'}
+          </td>
+          <td style="padding: var(--space-2) var(--space-3); text-align: center;">
+            ${mc.approved > 0 ? `<span class="badge badge-info" style="font-size: 11px;">${mc.approved}</span>` : '<span class="text-muted text-xs">-</span>'}
+          </td>
+          <td style="padding: var(--space-2) var(--space-3); text-align: center;">
+            ${mc.published > 0 ? `<span class="badge badge-success" style="font-size: 11px;">${mc.published}</span>` : '<span class="text-muted text-xs">-</span>'}
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    memberHtml = `
+      <div class="card" style="margin-top: var(--space-4); overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; font-size: var(--font-sm);">
+          <thead>
+            <tr style="border-bottom: 1px solid var(--border);">
+              <th style="padding: var(--space-2) var(--space-3); text-align: left; font-weight: 600;">${t('team.members')}</th>
+              <th style="padding: var(--space-2) var(--space-3); text-align: center; font-weight: 600;">${t('team.totalContent')}</th>
+              <th style="padding: var(--space-2) var(--space-3); text-align: center; font-weight: 600;">${t('team.taskDrafts')}</th>
+              <th style="padding: var(--space-2) var(--space-3); text-align: center; font-weight: 600;">${t('team.taskPending')}</th>
+              <th style="padding: var(--space-2) var(--space-3); text-align: center; font-weight: 600;">${t('team.taskApproved')}</th>
+              <th style="padding: var(--space-2) var(--space-3); text-align: center; font-weight: 600;">${t('team.taskPublished')}</th>
+            </tr>
+          </thead>
+          <tbody>${memberRows}</tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  container.innerHTML = summaryHtml + progressHtml + memberHtml;
 }
 
 function renderMembers(members) {

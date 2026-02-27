@@ -103,9 +103,17 @@ function renderApprovalCard(content, isAdmin) {
         <p style="white-space: pre-wrap;">${highlightedText}</p>
       </div>
       ${isAdmin && content.status === 'pending' ? `
-        <div class="flex gap-2">
+        <div class="flex gap-2 mb-3">
           <button class="btn btn-success btn-sm btn-approve" data-id="${content.id}" ${!isSafe ? 'disabled title="Bài viết chứa từ khóa vi phạm, không thể duyệt"' : ''}>${icon('check', 14)} ${t('actions.approve')}</button>
           <button class="btn btn-danger btn-sm btn-reject" data-id="${content.id}">${icon('cross', 14)} ${t('actions.reject')}</button>
+          <button class="btn btn-ghost btn-sm btn-toggle-comment" data-id="${content.id}" style="margin-left: auto;">${icon('edit', 14)} ${t('approval.addComment')}</button>
+        </div>
+        <div class="approval-comment-box hidden" id="comment-box-${content.id}" style="overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; max-height: 0; opacity: 0;">
+          <textarea class="form-input" id="comment-${content.id}" rows="2" placeholder="${t('approval.commentPlaceholder')}" style="margin-bottom: var(--space-2); font-size: var(--font-sm);"></textarea>
+          <div class="flex gap-2">
+            <button class="btn btn-success btn-sm btn-approve-note" data-id="${content.id}" ${!isSafe ? 'disabled' : ''}>${icon('check', 14)} ${t('approval.approveWithNote')}</button>
+            <button class="btn btn-danger btn-sm btn-reject-note" data-id="${content.id}">${icon('cross', 14)} ${t('approval.rejectWithNote')}</button>
+          </div>
         </div>
       ` : ''}
       ${content.rejectionReason ? `
@@ -131,7 +139,30 @@ function attachApprovalEvents() {
     });
   });
 
-  // Approve buttons
+  // Toggle comment box
+  document.querySelectorAll('.btn-toggle-comment').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const box = document.getElementById(`comment-box-${id}`);
+      if (!box) return;
+
+      const isHidden = box.classList.contains('hidden');
+      if (isHidden) {
+        box.classList.remove('hidden');
+        requestAnimationFrame(() => {
+          box.style.maxHeight = '200px';
+          box.style.opacity = '1';
+        });
+        box.querySelector('textarea')?.focus();
+      } else {
+        box.style.maxHeight = '0';
+        box.style.opacity = '0';
+        setTimeout(() => box.classList.add('hidden'), 300);
+      }
+    });
+  });
+
+  // Quick approve (no comment needed)
   document.querySelectorAll('.btn-approve').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.dataset.id;
@@ -145,13 +176,47 @@ function attachApprovalEvents() {
     });
   });
 
-  // Reject buttons
+  // Quick reject (opens comment box instead of prompt)
   document.querySelectorAll('.btn-reject').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.id;
+      const box = document.getElementById(`comment-box-${id}`);
+      if (!box) return;
+
+      box.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        box.style.maxHeight = '200px';
+        box.style.opacity = '1';
+      });
+      box.querySelector('textarea')?.focus();
+    });
+  });
+
+  // Approve with note
+  document.querySelectorAll('.btn-approve-note').forEach(btn => {
     btn.addEventListener('click', async () => {
       const id = btn.dataset.id;
-      const reason = prompt(t('approval.rejectionReasonPrompt'));
-      if (!reason) return;
+      const comment = document.getElementById(`comment-${id}`)?.value?.trim();
+      try {
+        await approveContent(id, comment);
+        showToast(t('toasts.approved') + (comment ? ` — ${comment}` : ''), 'success');
+        await renderApprovalsPage();
+      } catch (err) {
+        showToast(t('common.error') + ': ' + err.message, 'error');
+      }
+    });
+  });
 
+  // Reject with note
+  document.querySelectorAll('.btn-reject-note').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const reason = document.getElementById(`comment-${id}`)?.value?.trim();
+      if (!reason) {
+        showToast(t('approval.rejectionReasonPrompt'), 'warning');
+        document.getElementById(`comment-${id}`)?.focus();
+        return;
+      }
       try {
         await rejectContent(id, reason);
         showToast(t('approval.rejectedToast'), 'info');

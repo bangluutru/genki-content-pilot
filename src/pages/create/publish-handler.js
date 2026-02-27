@@ -184,8 +184,49 @@ export async function handleSave(getCurrentContent) {
         }
 
         showToast(t('create.savedToLibrary'), 'success');
+
+        // Show calendar shortcut banner
+        showScheduleBanner(window.__savedContentId);
     } catch (error) {
         console.error('Save error:', error);
         showToast(t('create.saveError'), 'error');
     }
+}
+
+/** Show a floating "Schedule now" banner after saving content */
+function showScheduleBanner(contentId) {
+    // Remove any existing banner
+    document.getElementById('schedule-banner')?.remove();
+
+    const banner = document.createElement('div');
+    banner.id = 'schedule-banner';
+    banner.innerHTML = `
+    <div style="position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); z-index: 1000;
+                background: linear-gradient(135deg, var(--color-primary), var(--color-info));
+                color: #fff; padding: 12px 24px; border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 12px;
+                animation: slideUp 0.3s ease; cursor: pointer; max-width: 90%;">
+      <span>${icon('calendar', 18)}</span>
+      <span style="font-weight: 600; font-size: 14px;">${t('create.scheduleNow') || 'Lên lịch đăng ngay →'}</span>
+      <button id="schedule-banner-close" style="background: none; border: none; color: #fff; opacity: 0.8; cursor: pointer; padding: 0 4px; font-size: 18px;">✕</button>
+    </div>
+    <style>
+      @keyframes slideUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    </style>
+  `;
+
+    document.body.appendChild(banner);
+
+    // Click banner -> go to calendar
+    banner.querySelector('div').addEventListener('click', (e) => {
+        if (e.target.id === 'schedule-banner-close') {
+            banner.remove();
+            return;
+        }
+        banner.remove();
+        window.location.hash = contentId ? `#/calendar?contentId=${contentId}` : '#/calendar';
+    });
+
+    // Auto-dismiss after 10s
+    setTimeout(() => { banner?.remove(); }, 10000);
 }

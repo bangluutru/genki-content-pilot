@@ -46,6 +46,28 @@ export async function renderStrategyPage() {
             ${t('strategy.generateIdeas')}
           </button>
         </div>
+        
+        <!-- Quick Strategy Templates -->
+        <div style="margin-top: var(--space-3);">
+          <span class="text-xs text-muted" style="display: block; margin-bottom: var(--space-2);">${t('strategy.quickTemplates')}:</span>
+          <div class="flex gap-2" style="flex-wrap: wrap;">
+            <button class="btn btn-ghost btn-sm strategy-preset" data-goal="${t('strategy.templateSales')}" style="border: 1px solid var(--border); border-radius: 20px; font-size: 12px; padding: 4px 14px; transition: all 0.2s;">
+              📈 ${t('strategy.templateSales')}
+            </button>
+            <button class="btn btn-ghost btn-sm strategy-preset" data-goal="${t('strategy.templateAwareness')}" style="border: 1px solid var(--border); border-radius: 20px; font-size: 12px; padding: 4px 14px; transition: all 0.2s;">
+              🎯 ${t('strategy.templateAwareness')}
+            </button>
+            <button class="btn btn-ghost btn-sm strategy-preset" data-goal="${t('strategy.templateLeadGen')}" style="border: 1px solid var(--border); border-radius: 20px; font-size: 12px; padding: 4px 14px; transition: all 0.2s;">
+              🧲 ${t('strategy.templateLeadGen')}
+            </button>
+            <button class="btn btn-ghost btn-sm strategy-preset" data-goal="${t('strategy.templateLaunch')}" style="border: 1px solid var(--border); border-radius: 20px; font-size: 12px; padding: 4px 14px; transition: all 0.2s;">
+              🚀 ${t('strategy.templateLaunch')}
+            </button>
+            <button class="btn btn-ghost btn-sm strategy-preset" data-goal="${t('strategy.templateClearance')}" style="border: 1px solid var(--border); border-radius: 20px; font-size: 12px; padding: 4px 14px; transition: all 0.2s;">
+              🏷️ ${t('strategy.templateClearance')}
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Results Section -->
@@ -101,6 +123,25 @@ function attachStrategyEvents(brand) {
     } finally {
       btnGenerate.disabled = false;
     }
+  });
+
+  // Quick templates — click to auto-fill goal input
+  document.querySelectorAll('.strategy-preset').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const goal = chip.dataset.goal;
+      inputGoal.value = goal;
+      inputGoal.focus();
+
+      // Highlight active chip
+      document.querySelectorAll('.strategy-preset').forEach(c => {
+        c.style.background = '';
+        c.style.borderColor = 'var(--border)';
+        c.style.color = '';
+      });
+      chip.style.background = 'var(--color-primary)';
+      chip.style.borderColor = 'var(--color-primary)';
+      chip.style.color = '#fff';
+    });
   });
 }
 

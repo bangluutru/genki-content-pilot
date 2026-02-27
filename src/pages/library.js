@@ -91,7 +91,28 @@ function renderContentList(contents) {
   empty?.classList.add('hidden');
   list.classList.remove('hidden');
 
-  list.innerHTML = contents.map(c => `
+  list.innerHTML = contents.map(c => {
+    // Build version history timeline events
+    const events = [];
+    if (c.createdAt) events.push({ action: t('library.versionCreated'), time: c.createdAt, color: 'var(--text-muted)', icon: '📝' });
+    if (c.updatedAt && c.updatedAt !== c.createdAt) events.push({ action: t('library.versionEdited'), time: c.updatedAt, color: 'var(--color-info)', icon: '✏️' });
+    if (c.approvedAt || c.status === 'approved') events.push({ action: t('library.versionApproved'), time: c.approvedAt || c.updatedAt, color: 'var(--color-warning)', icon: '✅' });
+    if (c.publishedAt || c.status === 'published') events.push({ action: t('library.versionPublished'), time: c.publishedAt || c.updatedAt, color: 'var(--color-success)', icon: '🚀' });
+
+    const timelineHtml = events.length > 0 ? `
+      <div class="version-history hidden" id="history-${c.id}" style="margin-top: var(--space-3); padding: var(--space-3); background: var(--bg-tertiary); border-radius: var(--radius-md); transition: max-height 0.3s ease;">
+        <div style="font-size: 12px; font-weight: 600; margin-bottom: var(--space-2); color: var(--text-secondary);">${t('library.versionHistory')}</div>
+        ${events.map((ev, i) => `
+          <div class="flex items-center gap-2" style="padding: 4px 0; ${i < events.length - 1 ? 'border-left: 2px solid var(--border); margin-left: 8px; padding-left: 14px;' : 'margin-left: 8px; padding-left: 14px;'}">
+            <span style="position: relative; left: -22px; width: 12px; height: 12px; border-radius: 50%; background: ${ev.color}; flex-shrink: 0; display: inline-block;"></span>
+            <span style="margin-left: -22px; font-size: 11px;">${ev.icon} ${ev.action}</span>
+            <span class="text-xs text-muted" style="margin-left: auto;">${ev.time ? timeAgo(ev.time) : ''}</span>
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    return `
     <div class="card library-card" style="padding: var(--space-4); margin-bottom: var(--space-3);" data-id="${c.id}">
       <div class="flex justify-between items-center" style="margin-bottom: var(--space-2);">
         <div class="flex items-center gap-2">
@@ -115,12 +136,16 @@ function renderContentList(contents) {
         <button class="btn btn-ghost btn-sm copy-fb-btn" data-id="${c.id}">${icon('clipboard', 14)} ${t('library.copyFB')}</button>
         <button class="btn btn-ghost btn-sm copy-blog-btn" data-id="${c.id}">${icon('clipboard', 14)} ${t('library.copyBlog')}</button>
         <button class="btn btn-accent btn-sm publish-btn" data-id="${c.id}">${icon('publish', 14)} ${t('actions.publish')}</button>
+        ${events.length > 0 ? `<button class="btn btn-ghost btn-sm btn-history" data-id="${c.id}" style="font-size: 11px;">${icon('templates', 14)} ${t('library.versionHistory')}</button>` : ''}
         <button class="btn btn-ghost btn-sm btn-delete" data-id="${c.id}" style="margin-left: auto; color: var(--danger);">${icon('trash', 14)} ${t('actions.delete')}</button>
       </div>
 
+      ${timelineHtml}
+
       <div class="publish-result hidden" id="publish-result-${c.id}" style="margin-top: var(--space-3);"></div>
     </div>
-  `).join('');
+  `;
+  }).join('');
 }
 
 function attachLibraryEvents(allContents) {
@@ -167,6 +192,14 @@ function attachLibraryEvents(allContents) {
 
     if (btn.classList.contains('publish-btn') && content) {
       await handleQuickPublish(content, btn);
+    }
+
+    // Version history toggle
+    if (btn.classList.contains('btn-history')) {
+      const historyEl = document.getElementById(`history-${id}`);
+      if (historyEl) {
+        historyEl.classList.toggle('hidden');
+      }
     }
   });
 }

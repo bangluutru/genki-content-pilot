@@ -147,6 +147,49 @@ export async function renderBrandPage() {
                       placeholder="${t('brand.customerAvatarsPlaceholder')}">${brand.avatars || ''}</textarea>
           </div>
 
+          <!-- Design System Tokens (Improvement #10) -->
+          <h4 style="margin-top: var(--space-4);">${icon('brand', 18)} Design System Tokens</h4>
+
+          <div class="input-group">
+            <label for="brand-color-primary">Màu chủ đạo (Primary Color)</label>
+            <div class="flex items-center gap-3">
+              <input type="color" id="brand-color-primary" value="${brand.colorPrimary || '#8B5CF6'}" style="width: 48px; height: 40px; border: none; border-radius: 8px; cursor: pointer;">
+              <input type="text" id="brand-color-primary-hex" class="input" value="${brand.colorPrimary || '#8B5CF6'}" style="width: 120px; font-family: monospace;" placeholder="#8B5CF6">
+              <span class="text-xs text-muted">Sử dụng cho nút, badge, accent</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="brand-color-secondary">Màu phụ (Secondary Color)</label>
+            <div class="flex items-center gap-3">
+              <input type="color" id="brand-color-secondary" value="${brand.colorSecondary || '#06B6D4'}" style="width: 48px; height: 40px; border: none; border-radius: 8px; cursor: pointer;">
+              <input type="text" id="brand-color-secondary-hex" class="input" value="${brand.colorSecondary || '#06B6D4'}" style="width: 120px; font-family: monospace;" placeholder="#06B6D4">
+              <span class="text-xs text-muted">Sử dụng cho highlight, link</span>
+            </div>
+          </div>
+
+          <div class="input-group">
+            <label for="brand-font">Font chữ thương hiệu</label>
+            <select id="brand-font" class="select">
+              <option value="" ${!brand.fontFamily ? 'selected' : ''}>-- Mặc định (System) --</option>
+              <option value="Inter" ${brand.fontFamily === 'Inter' ? 'selected' : ''}>Inter</option>
+              <option value="Roboto" ${brand.fontFamily === 'Roboto' ? 'selected' : ''}>Roboto</option>
+              <option value="Montserrat" ${brand.fontFamily === 'Montserrat' ? 'selected' : ''}>Montserrat</option>
+              <option value="Playfair Display" ${brand.fontFamily === 'Playfair Display' ? 'selected' : ''}>Playfair Display</option>
+              <option value="Be Vietnam Pro" ${brand.fontFamily === 'Be Vietnam Pro' ? 'selected' : ''}>Be Vietnam Pro</option>
+            </select>
+          </div>
+
+          <!-- Color Preview -->
+          <div id="brand-design-preview" style="padding: var(--space-3); background: var(--bg-tertiary); border-radius: var(--radius-md);">
+            <div class="text-xs text-muted" style="margin-bottom: var(--space-2);">Preview:</div>
+            <div class="flex gap-3 items-center">
+              <div style="width: 40px; height: 40px; border-radius: 8px; background: ${brand.colorPrimary || '#8B5CF6'};" id="preview-primary"></div>
+              <div style="width: 40px; height: 40px; border-radius: 8px; background: ${brand.colorSecondary || '#06B6D4'};" id="preview-secondary"></div>
+              <span id="preview-font" style="font-family: ${brand.fontFamily || 'inherit'}; font-weight: 600;">Aa Bb Cc — Thương hiệu XYZ</span>
+            </div>
+          </div>
+
           <!-- Legal -->
           <h4 style="margin-top: var(--space-4);">${icon('shield', 18)} ${t('brand.legalSection')}</h4>
 
@@ -289,6 +332,25 @@ export async function renderBrandPage() {
     }
   });
 
+  // Design System Tokens — live sync color picker ↔ hex input
+  const colorSync = (pickerId, hexId, previewId) => {
+    const picker = document.getElementById(pickerId);
+    const hex = document.getElementById(hexId);
+    const preview = document.getElementById(previewId);
+    picker?.addEventListener('input', () => { hex.value = picker.value; if (preview) preview.style.background = picker.value; });
+    hex?.addEventListener('input', () => {
+      if (/^#[0-9A-Fa-f]{6}$/.test(hex.value)) { picker.value = hex.value; if (preview) preview.style.background = hex.value; }
+    });
+  };
+  colorSync('brand-color-primary', 'brand-color-primary-hex', 'preview-primary');
+  colorSync('brand-color-secondary', 'brand-color-secondary-hex', 'preview-secondary');
+
+  // Font preview sync
+  document.getElementById('brand-font')?.addEventListener('change', (e) => {
+    const previewFont = document.getElementById('preview-font');
+    if (previewFont) previewFont.style.fontFamily = e.target.value || 'inherit';
+  });
+
   // Save form
   document.getElementById('brand-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -312,6 +374,9 @@ export async function renderBrandPage() {
         voice: document.getElementById('brand-voice')?.value?.trim(),
         avatars: document.getElementById('brand-avatars')?.value?.trim(),
         disclaimer: document.getElementById('brand-disclaimer')?.value?.trim(),
+        colorPrimary: document.getElementById('brand-color-primary')?.value,
+        colorSecondary: document.getElementById('brand-color-secondary')?.value,
+        fontFamily: document.getElementById('brand-font')?.value,
       });
 
       showToast(t('toasts.brandSaved'), 'success');

@@ -118,6 +118,18 @@ export async function renderCreatePage(params = {}) {
           </div>
 
           <div class="input-group">
+            <label for="brief-url">${icon('link', 16)} ${t('create.productUrl')}</label>
+            <div class="flex gap-2">
+              <input type="url" id="brief-url" class="input" 
+                     placeholder="https://example.com/san-pham..."
+                     style="flex: 1;">
+              <button class="btn btn-outline btn-sm" id="btn-auto-fill" type="button" style="white-space: nowrap;">
+                ${icon('sparkle', 14)} ${t('create.autoFill')}
+              </button>
+            </div>
+          </div>
+
+          <div class="input-group">
             <label for="brief-product">${icon('gift', 16)} ${t('create.productLabel')} *</label>
             <input type="text" id="brief-product" class="input" 
                    placeholder="${t('create.productPlaceholder')}"
@@ -172,6 +184,18 @@ export async function renderCreatePage(params = {}) {
             <label for="brief-notes">${icon('edit', 16)} ${t('create.notesLabel')}</label>
             <textarea id="brief-notes" class="textarea" rows="3"
                       placeholder="${t('create.notesPlaceholder')}">${draft?.additionalNotes || ''}</textarea>
+          </div>
+
+          <!-- Batch Mode Toggle (Improvement #7) -->
+          <div class="input-group" style="padding: var(--space-3); background: var(--bg-tertiary); border-radius: var(--radius-md);">
+            <label class="flex items-center gap-2" style="cursor: pointer; font-weight: 600;">
+              <input type="checkbox" id="batch-mode" class="toggle-input" style="width: 16px; height: 16px;">
+              <span>${icon('clipboard', 16)} Batch Mode — Tạo hàng loạt</span>
+            </label>
+            <div id="batch-area" class="hidden" style="margin-top: var(--space-3);">
+              <textarea id="batch-products" class="textarea" rows="4" placeholder="Nhập mỗi sản phẩm/chủ đề trên 1 dòng:&#10;Serum Vitamin C&#10;Kem chống nắng SPF50&#10;Collagen dạng nước"></textarea>
+              <small class="text-muted" style="margin-top: 4px; display: block;">Mỗi dòng = 1 bài viết riêng. Tối đa 5 sản phẩm/lần.</small>
+            </div>
           </div>
 
           <button class="btn btn-primary btn-lg btn-full" id="btn-generate" ${usage.remaining <= 0 ? 'disabled' : ''}>
@@ -426,6 +450,54 @@ function attachCreateEvents() {
   // Generate button — delegates to ai-handler
   document.getElementById('btn-generate')?.addEventListener('click', () => {
     handleGenerate(setCurrentContent, runComplianceCheck);
+  });
+
+  // Batch mode toggle
+  document.getElementById('batch-mode')?.addEventListener('change', (e) => {
+    const batchArea = document.getElementById('batch-area');
+    if (batchArea) {
+      batchArea.classList.toggle('hidden', !e.target.checked);
+      if (e.target.checked) {
+        document.getElementById('batch-products')?.focus();
+      }
+    }
+  });
+
+  // AI URL Auto-fill
+  document.getElementById('btn-auto-fill')?.addEventListener('click', async () => {
+    const urlInput = document.getElementById('brief-url');
+    const url = urlInput?.value?.trim();
+    if (!url) {
+      showToast(t('validation.required'), 'warning');
+      urlInput?.focus();
+      return;
+    }
+
+    const btn = document.getElementById('btn-auto-fill');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="loading-spinner-sm"></span> ${t('create.extracting')}`;
+
+    try {
+      // Extract product info from URL (demo: parse URL for basic info)
+      // In production, this would call: const info = await extractProductInfo(url);
+      const urlObj = new URL(url);
+      const pathParts = urlObj.pathname.split('/').filter(Boolean);
+      const productName = pathParts[pathParts.length - 1]?.replace(/[-_]/g, ' ')?.replace(/\.(html|php|asp)$/i, '') || urlObj.hostname;
+
+      // Auto-fill fields
+      const productEl = document.getElementById('brief-product');
+      if (productEl && !productEl.value) {
+        productEl.value = decodeURIComponent(productName);
+      }
+
+      showToast(`Auto-fill: ${decodeURIComponent(productName)}`, 'success');
+    } catch (e) {
+      showToast('URL không hợp lệ', 'warning');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
   });
 
   // Tab switching

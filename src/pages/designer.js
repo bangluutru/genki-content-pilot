@@ -67,7 +67,11 @@ function renderKanbanColumn(col, contents) {
         <h3 style="font-size: var(--font-sm); font-weight: 600; color: ${col.color};">${col.title}</h3>
         <span class="badge" style="background: var(--bg);">${colContents.length}</span>
       </div>
-      <div class="kanban-cards" data-column="${col.id}" style="padding: var(--space-3); flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-3);">
+      <div class="kanban-cards" data-column="${col.id}" 
+           ondragover="event.preventDefault(); this.style.background='rgba(139,92,246,0.08)';" 
+           ondragleave="this.style.background='';" 
+           ondrop="this.style.background='';" 
+           style="padding: var(--space-3); flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-3); transition: background 0.2s;">
         ${colContents.map(c => renderKanbanCard(c, col.id)).join('')}
       </div>
     </div>
@@ -86,7 +90,7 @@ function renderKanbanCard(content, currentColumnId) {
   const nextCol = colIndex < COLUMNS.length - 1 ? COLUMNS[colIndex + 1].id : null;
 
   return `
-    <div class="card kanban-card" data-id="${content.id}" style="padding: var(--space-3); border-left: 3px solid ${COLUMNS[colIndex].color}; cursor: default;">
+    <div class="card kanban-card" data-id="${content.id}" draggable="true" style="padding: var(--space-3); border-left: 3px solid ${COLUMNS[colIndex].color}; cursor: grab; transition: opacity 0.2s, transform 0.2s;">
       <div class="flex justify-between items-start mb-2">
         <h4 style="font-size: var(--font-sm); font-weight: 600; margin: 0; line-height: 1.4;">
           ${content.product || content.brief || 'Không có tiêu đề'}
@@ -197,6 +201,41 @@ function attachDesignerEvents() {
       navigator.clipboard.writeText(promptText).then(() => {
         showToast('Đã copy Prompt', 'success');
       });
+    });
+  });
+
+  // Drag & Drop handlers
+  document.querySelectorAll('.kanban-card').forEach(card => {
+    card.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', card.dataset.id);
+      e.dataTransfer.effectAllowed = 'move';
+      card.style.opacity = '0.5';
+      card.style.transform = 'scale(0.95)';
+    });
+
+    card.addEventListener('dragend', () => {
+      card.style.opacity = '1';
+      card.style.transform = '';
+    });
+  });
+
+  document.querySelectorAll('.kanban-cards').forEach(zone => {
+    zone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      const cardId = e.dataTransfer.getData('text/plain');
+      const targetColumn = zone.dataset.column;
+      if (!cardId || !targetColumn) return;
+
+      try {
+        await updateContent(cardId, { visualStatus: targetColumn });
+      } catch (fbErr) {
+        console.warn('Firebase error, updating local store only:', fbErr);
+        const contents = store.get('contents') || [];
+        store.set('contents', contents.map(c =>
+          c.id === cardId ? { ...c, visualStatus: targetColumn } : c
+        ));
+      }
+      renderDesignerPage();
     });
   });
 }
