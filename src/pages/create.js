@@ -16,11 +16,14 @@ import { copyToClipboard, storage } from '../utils/helpers.js';
 import { icon } from '../utils/icons.js';
 import { t } from '../utils/i18n.js';
 import { loadCampaigns, loadPillars, loadAngles, loadBrand } from '../services/firestore.js';
+import { loadKocs } from '../services/db/kocs.js';
 
+import { handleImageGen } from './create/ai-handler.js';
 // Handler imports
-import { handleGenerate, handleVariation, handleImageGen } from './create/ai-handler.js';
+import { handleGenerate, handleVariation } from './create/ai-handler.js';
 import { handlePublish, handleSave, initPublishPanel } from './create/publish-handler.js';
 import { runComplianceCheck } from './create/compliance-handler.js';
+import { runPredictionCheck } from './create/predictive-handler.js';
 
 let currentContent = null;
 let autosaveTimer = null;
@@ -38,6 +41,9 @@ export async function renderCreatePage(params = {}) {
   window.__savedContentId = null; // Reset saved content tracking for new creation
   let contextBannerHTML = '';
   let prefillProduct = '';
+
+  const kocs = await loadKocs();
+  window.__loadedKocs = kocs; // Save for ai-handler to access styles
 
   if (params.campaignId && params.angleId) {
     const campaigns = await loadCampaigns();
@@ -132,6 +138,16 @@ export async function renderCreatePage(params = {}) {
                    placeholder="${t('create.highlightPlaceholder')}"
                    value="${draft?.highlight || ''}">
           </div>
+
+          <div class="input-group">
+            <label for="brief-koc">👤 Auto-Brief: Chọn KOC / Affiliate</label>
+            <select id="brief-koc" class="select">
+              <option value="">-- Không sử dụng phong cách KOC --</option>
+              ${kocs.map(koc => `<option value="${koc.id}">${koc.name} ${koc.rating ? `(${koc.rating}⭐)` : ''}</option>`).join('')}
+            </select>
+            <small class="text-muted" style="margin-top:4px; display:block;">AI sẽ tự động áp dụng văn phong, sở thích và tiêu chí của KOC này vào nội dung.</small>
+          </div>
+
 
           <div class="input-group">
             <label for="brief-promotion">${icon('gift', 16)} ${t('create.promotionLabel')}</label>
@@ -418,8 +434,31 @@ function attachCreateEvents() {
       document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-content').forEach(tc => tc.classList.add('hidden'));
       tab.classList.add('active');
-      document.getElementById(`tab-${tab.dataset.tab}`)?.classList.remove('hidden');
+      const target = tab.dataset.tab;
+      document.getElementById(`tab-${target}`)?.classList.remove('hidden');
+
+      // Update score for the active tab content
+      if (['facebook', 'blog', 'story'].includes(target)) {
+        const html = document.getElementById(`content-${target}`)?.innerHTML;
+        if (html) runPredictionCheck(html);
+      }
     });
+  });
+
+  // Content edit dynamic scoring
+  let scoreTimeout = null;
+  ['facebook', 'blog', 'story'].forEach(target => {
+    const el = document.getElementById(`content-${target}`);
+    if (el) {
+      el.addEventListener('input', () => {
+        clearTimeout(scoreTimeout);
+        scoreTimeout = setTimeout(() => {
+          if (document.querySelector(`.tab[data-tab="${target}"]`)?.classList.contains('active')) {
+            runPredictionCheck(el.innerHTML);
+          }
+        }, 1000);
+      });
+    }
   });
 
   // Copy buttons

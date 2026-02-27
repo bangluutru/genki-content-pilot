@@ -67,6 +67,14 @@ async function loadPage(name) {
       const { renderCampaignDetailPage } = await import('./pages/campaign-detail.js');
       return renderCampaignDetailPage;
     }
+    case 'koc': {
+      const { renderKocPage } = await import('./pages/koc.js');
+      return renderKocPage;
+    }
+    case 'designer': {
+      const { renderDesignerPage } = await import('./pages/designer.js');
+      return renderDesignerPage;
+    }
     default:
       return null;
   }
@@ -130,6 +138,14 @@ router
   .on('campaign-detail', async (params) => {
     const render = await loadPage('campaign-detail');
     await render?.(params);
+  })
+  .on('koc', async () => {
+    const render = await loadPage('koc');
+    await render?.();
+  })
+  .on('designer', async () => {
+    const render = await loadPage('designer');
+    await render?.();
   });
 
 // Initialize app

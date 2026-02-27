@@ -9,6 +9,7 @@ import { generateImage, buildImagePrompt } from '../../services/image-gen.js';
 import { storage } from '../../utils/helpers.js';
 import { icon } from '../../utils/icons.js';
 import { t } from '../../utils/i18n.js';
+import { runPredictionCheck } from './predictive-handler.js';
 
 /**
  * Handle content generation from brief form OR directly from Angle context
@@ -53,6 +54,16 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
             pillar: window.__createContext?.pillar?.name,
             angle: window.__createContext?.angle,
         };
+
+        const selectedKocId = document.getElementById('brief-koc')?.value;
+        if (selectedKocId && window.__loadedKocs) {
+            const selectedKoc = window.__loadedKocs.find(k => k.id === selectedKocId);
+            if (selectedKoc && selectedKoc.style) {
+                // Prepend KOC style to additional notes
+                const kocInstruction = `[QUAN TRỌNG: PHONG CÁCH KOC/AFFILIATE ĐƯỢC CHỌN - ${selectedKoc.name}]: ${selectedKoc.style}`;
+                brief.additionalNotes = brief.additionalNotes ? `${kocInstruction}\n${brief.additionalNotes}` : kocInstruction;
+            }
+        }
     }
 
     // Show loading
@@ -116,8 +127,11 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
         // Clear draft
         storage.remove('draft_brief');
 
-        // Run compliance check on Facebook content
-        if (onContentReady) onContentReady(content.facebook);
+        // Run predictive check
+        runPredictionCheck(finalContent.facebook);
+
+        // Run compliance check on Facebook content (bugfix: passed finalContent.facebook)
+        if (onContentReady) onContentReady(finalContent.facebook);
 
         showToast(t('create.contentReadyToast'), 'success');
     } catch (error) {

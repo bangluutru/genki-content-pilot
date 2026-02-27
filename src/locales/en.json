@@ -93,7 +93,9 @@
                 "team": "Team",
                 "connections": "Connections",
                 "settings": "Settings",
-                "strategy": "Strategy"
+                "strategy": "Strategy",
+                "koc": "KOC & Affiliate",
+                "designer": "Designer Hub"
         },
         "channels": {
                 "facebook": "Facebook",
@@ -770,5 +772,21 @@
                 "hours": "{{count}} hr",
                 "days": "{{count}} day",
                 "ago": "{{time}} ago"
+        },
+        "kocPage": {
+                "title": "KOC & Affiliate Management",
+                "subtitle": "Manage KOC profiles and automatically adapt brief styles for each person",
+                "addKoc": "Add KOC",
+                "name": "KOC Name",
+                "link": "Channel Link (TikTok, FB, ...)",
+                "rating": "Internal Rating (1-5 stars)",
+                "style": "Style & Criteria",
+                "stylePlaceholder": "e.g., Talks fast, uses GenZ slang, doesn't like strict scripts...",
+                "noKocs": "No KOCs found",
+                "save": "Save KOC",
+                "cancel": "Cancel",
+                "deleteConfirm": "Delete this KOC?",
+                "saved": "KOC saved!",
+                "deleted": "KOC deleted."
         }
 }

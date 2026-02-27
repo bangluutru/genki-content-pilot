@@ -93,7 +93,9 @@
                 "team": "Nhóm",
                 "connections": "Kết nối",
                 "settings": "Cài đặt",
-                "strategy": "Chiến lược"
+                "strategy": "Chiến lược",
+                "koc": "Quản lý KOC",
+                "designer": "Designer Hub"
         },
         "channels": {
                 "facebook": "Facebook",
@@ -763,5 +765,21 @@
                 "hours": "{{count}} giờ",
                 "days": "{{count}} ngày",
                 "ago": "{{time}} trước"
+        },
+        "kocPage": {
+                "title": "Quản trị KOC & Affiliate",
+                "subtitle": "Quản lý profile KOC và tự động điều chỉnh style brief cho từng người",
+                "addKoc": "Thêm KOC",
+                "name": "Tên KOC",
+                "link": "Link kênh (TikTok, FB, ...)",
+                "rating": "Đánh giá nội bộ (1-5 sao)",
+                "style": "Phong cách & Tiêu chí",
+                "stylePlaceholder": "VD: Thích nói nhanh, cần dùng từ ngữ trẻ trung, genZ, không thích bị ép kịch bản...",
+                "noKocs": "Chưa có KOC nào",
+                "save": "Lưu KOC",
+                "cancel": "Huỷ",
+                "deleteConfirm": "Xoá KOC này?",
+                "saved": "Đã lưu KOC!",
+                "deleted": "Đã xoá KOC."
         }
 }

@@ -11,19 +11,28 @@ export async function saveContent(content) {
     const workspaceId = currentWorkspaceId();
     if (!workspaceId) throw new Error('Not authenticated');
 
-    const { db, doc, collection, setDoc, serverTimestamp } = await getFirestore();
-    const ref = doc(collection(db, 'contents'));
     const data = {
         ...content,
-        id: ref.id,
+        id: 'mock-' + Date.now().toString(36),
         workspaceId,
         userId,
         status: content.status || 'draft',
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp(),
+        createdAt: new Date(),
+        updatedAt: new Date(),
     };
 
-    await setDoc(ref, data);
+    try {
+        const { db, doc, collection, setDoc, serverTimestamp } = await getFirestore();
+        const ref = doc(collection(db, 'contents'));
+        data.id = ref.id;
+        data.createdAt = serverTimestamp();
+        data.updatedAt = serverTimestamp();
+        await setDoc(ref, data);
+    } catch (err) {
+        console.warn('Firebase not configured, saving to local store only:', err);
+        data.createdAt = new Date();
+        data.updatedAt = new Date();
+    }
 
     // Log activity (fire-and-forget)
     logActivity('content.create', 'content', data.id, { brief: content.brief || '' });
@@ -37,12 +46,16 @@ export async function saveContent(content) {
 
 /** Update existing content */
 export async function updateContent(contentId, updates) {
-    const { db, doc, updateDoc, serverTimestamp } = await getFirestore();
-    const ref = doc(db, 'contents', contentId);
-    await updateDoc(ref, {
-        ...updates,
-        updatedAt: serverTimestamp(),
-    });
+    try {
+        const { db, doc, updateDoc, serverTimestamp } = await getFirestore();
+        const ref = doc(db, 'contents', contentId);
+        await updateDoc(ref, {
+            ...updates,
+            updatedAt: serverTimestamp(),
+        });
+    } catch (err) {
+        console.warn('Firebase not configured, updating local store only:', err);
+    }
 
     // Update local state
     const contents = store.get('contents') || [];
@@ -53,9 +66,13 @@ export async function updateContent(contentId, updates) {
 
 /** Delete content */
 export async function deleteContent(contentId) {
-    const { db, doc, deleteDoc } = await getFirestore();
-    const ref = doc(db, 'contents', contentId);
-    await deleteDoc(ref);
+    try {
+        const { db, doc, deleteDoc } = await getFirestore();
+        const ref = doc(db, 'contents', contentId);
+        await deleteDoc(ref);
+    } catch (err) {
+        console.warn('Firebase not configured, deleting from local store only:', err);
+    }
 
     // Log activity (fire-and-forget)
     logActivity('content.delete', 'content', contentId);

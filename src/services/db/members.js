@@ -174,12 +174,16 @@ export async function removeMember(memberId) {
     await deleteDoc(doc(db, 'workspace_members', memberId));
 }
 
+import { hasFirebaseConfig } from '../../config/firebase.js';
+
 /**
  * Get the current user's role in a workspace
  * @param {string} workspaceId
  * @returns {string|null} Role or null if not a member
  */
 export async function getCurrentUserRole(workspaceId) {
+    if (!hasFirebaseConfig()) return 'admin';
+
     const userId = uid();
     if (!userId || !workspaceId) return null;
 

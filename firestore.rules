@@ -130,6 +130,12 @@ service cloud.firestore {
       allow delete: if isWorkspaceAdmin(workspaceId);
     }
 
+    match /kocProfiles/{kocId} {
+      allow read: if isWorkspaceViewer(resource.data.workspaceId);
+      allow create: if isWorkspaceEditor(request.resource.data.workspaceId);
+      allow update, delete: if isWorkspaceEditor(resource.data.workspaceId);
+    }
+
     // 5. Connections (Platform credentials — per-user, NOT workspace-scoped)
     match /connections/{userId} {
       // Users can only read/write their own platform connections

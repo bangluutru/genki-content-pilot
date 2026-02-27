@@ -46,3 +46,6 @@ export { addWorkspaceMember, inviteMember, loadWorkspaceMembers, updateMemberRol
 
 // Pillars & Angles (Subcollections)
 export { loadPillars, savePillar, savePillarsBulk, deletePillar, loadAngles, saveAngle, saveAnglesBulk, deleteAngle } from './db/pillars.js';
+
+// KOC & Affiliates
+export { saveKoc, loadKocs, deleteKoc } from './db/kocs.js';

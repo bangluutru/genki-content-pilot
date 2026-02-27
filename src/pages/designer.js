@@ -1,0 +1,200 @@
+/**
+ * Designer Hub — Visual Command Center (Kanban Board)
+ * Manages "In Production" visual tasks and generates AI Prompt Hints.
+ */
+import { store } from '../utils/state.js';
+import { renderSidebar, attachSidebarEvents } from '../components/header.js';
+import { showToast } from '../components/toast.js';
+import { loadContents, updateContent } from '../services/firestore.js';
+import { generateImagePrompt } from '../services/gemini.js';
+import { t } from '../utils/i18n.js';
+import { icon } from '../utils/icons.js';
+import { timeAgo } from '../utils/helpers.js';
+
+const COLUMNS = [
+  { id: 'backlog', title: 'Chờ thiết kế (Backlog)', color: 'var(--text-muted)' },
+  { id: 'in_progress', title: 'Đang làm (In Progress)', color: 'var(--color-info)' },
+  { id: 'review', title: 'Chờ duyệt hình', color: 'var(--color-warning)' },
+  { id: 'done', title: 'Hoàn tất', color: 'var(--color-success)' }
+];
+
+export async function renderDesignerPage() {
+  const app = document.getElementById('app');
+  let allContents = store.get('contents') || [];
+
+  if (allContents.length === 0) {
+    try {
+      allContents = await loadContents() || [];
+      store.set('contents', allContents);
+    } catch (err) {
+      console.warn('Could not load contents from Firebase (offline mode):', err);
+    }
+  }
+
+  app.innerHTML = `
+    ${renderSidebar()}
+    <main class="main-content page" style="height: 100vh; display: flex; flex-direction: column;">
+      <div class="mb-6">
+        <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('image', 28)} Designer Hub</h1>
+        <p class="text-muted text-sm" style="margin-top: var(--space-1);">
+          Quản lý các task thiết kế hình ảnh cho bài viết & Sinh AI Prompt cho Midjourney/Photoshop.
+        </p>
+      </div>
+
+      <!-- Kanban Board -->
+      <div class="kanban-board" style="display: flex; gap: var(--space-4); overflow-x: auto; flex: 1; min-height: 0; padding-bottom: var(--space-4);">
+        ${COLUMNS.map(col => renderKanbanColumn(col, allContents)).join('')}
+      </div>
+    </main>
+  `;
+
+  attachSidebarEvents();
+  attachDesignerEvents();
+}
+
+function renderKanbanColumn(col, contents) {
+  // Any content without visualStatus goes to backlog
+  const colContents = contents.filter(c => {
+    const status = c.visualStatus || 'backlog';
+    return status === col.id;
+  });
+
+  return `
+    <div class="kanban-column" style="flex: 0 0 320px; background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border); display: flex; flex-direction: column;">
+      <div class="kanban-header" style="padding: var(--space-3); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="font-size: var(--font-sm); font-weight: 600; color: ${col.color};">${col.title}</h3>
+        <span class="badge" style="background: var(--bg);">${colContents.length}</span>
+      </div>
+      <div class="kanban-cards" data-column="${col.id}" style="padding: var(--space-3); flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-3);">
+        ${colContents.map(c => renderKanbanCard(c, col.id)).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderKanbanCard(content, currentColumnId) {
+  const platforms = content.publishedTo || [];
+  const platformsHtml = platforms.length > 0
+    ? `<div class="flex gap-1 mt-2">${platforms.map(p => `<span class="badge badge-muted" style="font-size: 10px;">${p}</span>`).join('')}</div>`
+    : '';
+
+  // Determine which column is next/prev for movement arrows
+  const colIndex = COLUMNS.findIndex(c => c.id === currentColumnId);
+  const prevCol = colIndex > 0 ? COLUMNS[colIndex - 1].id : null;
+  const nextCol = colIndex < COLUMNS.length - 1 ? COLUMNS[colIndex + 1].id : null;
+
+  return `
+    <div class="card kanban-card" data-id="${content.id}" style="padding: var(--space-3); border-left: 3px solid ${COLUMNS[colIndex].color}; cursor: default;">
+      <div class="flex justify-between items-start mb-2">
+        <h4 style="font-size: var(--font-sm); font-weight: 600; margin: 0; line-height: 1.4;">
+          ${content.product || content.brief || 'Không có tiêu đề'}
+        </h4>
+        <div class="flex gap-1">
+          ${prevCol ? `<button class="btn btn-ghost btn-icon btn-move-card" data-id="${content.id}" data-target="${prevCol}" title="Di chuyển lùi" style="width: 24px; height: 24px; padding: 0;">${icon('arrow-left', 14)}</button>` : ''}
+          ${nextCol ? `<button class="btn btn-ghost btn-icon btn-move-card" data-id="${content.id}" data-target="${nextCol}" title="Di chuyển tới" style="width: 24px; height: 24px; padding: 0;">${icon('arrow-right', 14)}</button>` : ''}
+        </div>
+      </div>
+      
+      <p class="text-xs text-muted" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+        ${content.highlight || 'Chưa rõ điểm nổi bật...'}
+      </p>
+      
+      ${platformsHtml}
+
+      ${content.visualPrompt ? `
+        <div style="margin-top: var(--space-3); padding: var(--space-2); background: rgba(139, 92, 246, 0.1); border: 1px dashed rgba(139, 92, 246, 0.3); border-radius: var(--radius-sm);">
+          <div class="flex justify-between items-center mb-1">
+            <span style="font-size: 10px; color: var(--color-primary); font-weight: 600; text-transform: uppercase;">AI Prompt Hint</span>
+            <button class="btn btn-ghost btn-icon btn-copy-prompt" data-prompt="${encodeURIComponent(content.visualPrompt)}" title="Copy Prompt" style="width: 20px; height: 20px; padding: 0;">${icon('copy', 12)}</button>
+          </div>
+          <p style="font-size: 11px; color: var(--text-secondary); font-family: monospace; line-height: 1.3; overflow-wrap: break-word;">${content.visualPrompt}</p>
+        </div>
+      ` : `
+        <button class="btn btn-outline btn-sm btn-full btn-generate-prompt" data-id="${content.id}" style="margin-top: var(--space-3); font-size: 11px;">
+          ${icon('sparkle', 12)} Tạo Prompt (AI)
+        </button>
+      `}
+      
+      <div class="mt-3 text-right">
+        <span class="text-xs text-muted">${timeAgo(content.updatedAt || content.createdAt)}</span>
+      </div>
+    </div>
+  `;
+}
+
+function attachDesignerEvents() {
+  // Handle moving cards
+  document.querySelectorAll('.btn-move-card').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = e.currentTarget.dataset.id;
+      const targetColumn = e.currentTarget.dataset.target;
+
+      try {
+        await updateContent(id, { visualStatus: targetColumn });
+      } catch (fbErr) {
+        console.warn('Firebase error, updating local store only:', fbErr);
+        // Fallback to local store for offline testing
+        const contents = store.get('contents') || [];
+        store.set('contents', contents.map(c =>
+          c.id === id ? { ...c, visualStatus: targetColumn } : c
+        ));
+      }
+      renderDesignerPage(); // Re-render whole board
+    });
+  });
+
+  // Handle Generate AI Prompt
+  document.querySelectorAll('.btn-generate-prompt').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const id = e.currentTarget.dataset.id;
+
+      const contents = store.get('contents') || [];
+      const content = contents.find(c => c.id === id);
+      if (!content) return;
+
+      btn.disabled = true;
+      btn.innerHTML = `<span class="loading-spinner-sm"></span> Generating...`;
+
+      try {
+        const briefOpts = {
+          product: content.product || content.brief,
+          highlight: content.highlight,
+          targetAvatar: content.targetAvatar,
+          promotion: content.promotion
+        };
+        const promptResult = await generateImagePrompt(briefOpts);
+
+        try {
+          await updateContent(id, { visualPrompt: promptResult, visualStatus: 'in_progress' });
+        } catch (fbErr) {
+          console.warn('Firebase error, updating local store only:', fbErr);
+          // Fallback to local store
+          const currentContents = store.get('contents') || [];
+          store.set('contents', currentContents.map(c =>
+            c.id === id ? { ...c, visualPrompt: promptResult, visualStatus: 'in_progress' } : c
+          ));
+        }
+
+        showToast('Đã tạo AI Prompt thành công', 'success');
+        renderDesignerPage();
+      } catch (err) {
+        showToast('Lỗi AI: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = `${icon('sparkle', 12)} Tạo Prompt (AI)`;
+      }
+    });
+  });
+
+  // Handle Copy Prompt
+  document.querySelectorAll('.btn-copy-prompt').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const promptText = decodeURIComponent(e.currentTarget.dataset.prompt);
+      navigator.clipboard.writeText(promptText).then(() => {
+        showToast('Đã copy Prompt', 'success');
+      });
+    });
+  });
+}
