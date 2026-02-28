@@ -7,7 +7,7 @@
 export const GUIDES = [
     {
         id: 'dashboard',
-        title: '🏠 Trung tâm Chỉ huy (Dashboard)',
+        title: 'Trung tâm Chỉ huy',
         route: 'dashboard',
         icon: 'home',
         shortSummary: 'Đọc chỉ số quan trọng và điều phối toàn bộ hoạt động marketing trong 60 giây mỗi sáng.',
@@ -46,7 +46,7 @@ Nếu có bài nào hiển thị trong "pending approval", đây là nhiệm v�
     },
     {
         id: 'create',
-        title: '✍️ Xưởng Nháp AI — Tạo Content Siêu Tốc',
+        title: 'Xưởng Nháp AI — Tạo Content Siêu Tốc',
         route: 'create',
         icon: 'sparkle',
         shortSummary: 'Tạo content với AI, auto-fill từ URL, batch mode, lên lịch đăng, và gallery hình ảnh AI.',
@@ -154,7 +154,7 @@ Chọn KOC trong dropdown "Giả giọng KOC". AI sẽ bắt chước cấu trú
     },
     {
         id: 'context-library',
-        title: '📚 Thư Viện Ngữ Cảnh (Context Library)',
+        title: 'Thư Viện Ngữ Cảnh',
         route: 'brand',
         icon: 'database',
         shortSummary: 'Quản lý danh sách sản phẩm, tệp khách hàng và trợ lý AI. Tái sử dụng bằng một cú click.',
@@ -274,7 +274,7 @@ Ví dụ entry:
     },
     {
         id: 'approvals',
-        title: '✅ Duyệt Bài & Compliance AI',
+        title: 'Duyệt Bài & Tuân thủ AI',
         route: 'approvals',
         icon: 'check',
         shortSummary: 'Hệ thống kiểm duyệt 2 lớp với bình luận inline. AI quét pháp lý + con người quyết định.',
@@ -344,7 +344,7 @@ Thay vì hộp thoại prompt cũ, giờ bạn ghi chú **ngay trong giao diện
     },
     {
         id: 'koc',
-        title: '🎤 Quản lý KOC & Affiliate',
+        title: 'Quản lý KOC & Cộng tác viên',
         route: 'koc',
         icon: 'team',
         shortSummary: 'Xây dựng đội ngũ KOC AI-powered: lưu hồ sơ, huấn luyện giọng điệu, tạo content đúng phong cách.',
@@ -408,7 +408,7 @@ Chọn KOC trong dropdown **"Giả giọng KOC"** ở Xưởng Nháp. AI bắt c
     },
     {
         id: 'designer',
-        title: '🎨 Designer Hub — Kanban Hình ảnh',
+        title: 'Nhà thiết kế — Kanban Hình ảnh',
         route: 'designer',
         icon: 'image',
         shortSummary: 'Kanban board với Drag & Drop. Kéo thẻ giữa các cột, AI prompt Midjourney, theo dõi tiến độ.',
@@ -484,7 +484,7 @@ Khi bấm "Tạo Prompt AI", hệ thống trả về:
     },
     {
         id: 'campaigns',
-        title: '📊 Chiến dịch (Campaign Strategy)',
+        title: 'Chiến dịch Marketing',
         route: 'campaigns',
         icon: 'campaigns',
         shortSummary: 'Xây cây nội dung 3 cấp: Chiến dịch → Trụ cột → Tuyến bài. Không bao giờ hết ý tưởng.',
@@ -539,7 +539,7 @@ Click **"Viết ngay"** → Hệ thống tự điền Campaign context + Angle v
     },
     {
         id: 'strategy',
-        title: '🧠 Chiến lược Marketing AI',
+        title: 'Chiến lược Marketing AI',
         route: 'strategy',
         icon: 'strategy',
         shortSummary: 'AI xây dựng chiến lược nội dung dài hạn, với 5 template nhanh cho các mục tiêu phổ biến.',
@@ -598,7 +598,7 @@ Mục tiêu: Định vị premium 2 triệu/hộp, bán qua FB & Zalo.\`
     },
     {
         id: 'library',
-        title: '📚 Thư viện Nội dung',
+        title: 'Thư viện Nội dung',
         route: 'library',
         icon: 'library',
         shortSummary: 'Kho nội dung với lịch sử phiên bản, repurpose content, và xuất đa nền tảng.',
@@ -658,7 +658,7 @@ Một bài Facebook hay → **5 định dạng khác:**
     },
     {
         id: 'conversions',
-        title: '📈 Theo dõi Chuyển đổi',
+        title: 'Theo dõi Chuyển đổi',
         route: 'conversions',
         icon: 'conversions',
         shortSummary: 'Gắn UTM, theo dõi nguồn đơn, tính ROI thực tế cho từng campaign và KOC.',
@@ -709,7 +709,7 @@ Mỗi đơn dùng code → biết đến từ KOC nào → tính doanh thu thự
     },
     {
         id: 'brand',
-        title: '🏷️ Hồ sơ Thương hiệu & Design Tokens',
+        title: 'Hồ sơ Thương hiệu & Màu sắc',
         route: 'brand',
         icon: 'brand',
         shortSummary: 'Thiết lập tone of voice, logo, archetype, màu sắc và font chữ thương hiệu cho AI.',
@@ -790,7 +790,7 @@ Section mới giúp bạn lưu **bộ nhận diện thị giác** của thương
     },
     {
         id: 'team',
-        title: '👥 Quản lý Team & Task Visibility',
+        title: 'Quản lý Nhóm & Phân quyền',
         route: 'team',
         icon: 'team',
         shortSummary: 'Tổng quan công việc team, pipeline nội dung, và phân bổ task theo thành viên.',
@@ -860,7 +860,7 @@ Dòng thời gian hiển thị mọi hoạt động gần đây:
     },
     {
         id: 'calendar',
-        title: '📅 Lịch đăng Nội dung',
+        title: 'Lịch đăng Nội dung',
         route: 'calendar',
         icon: 'calendar',
         shortSummary: 'Lập kế hoạch đăng bài theo ngày/tuần/tháng. Tối ưu thời gian đăng cho từng nền tảng.',
@@ -915,7 +915,7 @@ Dùng content pillars (từ module Chiến dịch) để cân bằng:
     },
     {
         id: 'approvals-advanced',
-        title: '⚡ Hệ thống Phê duyệt Đa cấp',
+        title: 'Hệ thống Phê duyệt Đa cấp',
         route: 'approvals',
         icon: 'approvals',
         shortSummary: 'Quy trình review 3 cấp với bình luận inline để đảm bảo chất lượng trước khi xuất bản.',
