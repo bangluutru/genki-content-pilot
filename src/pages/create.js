@@ -462,7 +462,7 @@ function attachCreateEvents() {
     }
   });
 
-  // AI URL Auto-fill
+  // AI URL Auto-fill (Enhanced — fetches title + meta description when possible)
   document.getElementById('btn-auto-fill')?.addEventListener('click', async () => {
     const urlInput = document.getElementById('brief-url');
     const url = urlInput?.value?.trim();
@@ -478,19 +478,58 @@ function attachCreateEvents() {
     btn.innerHTML = `<span class="loading-spinner-sm"></span> ${t('create.extracting')}`;
 
     try {
-      // Extract product info from URL (demo: parse URL for basic info)
-      // In production, this would call: const info = await extractProductInfo(url);
       const urlObj = new URL(url);
-      const pathParts = urlObj.pathname.split('/').filter(Boolean);
-      const productName = pathParts[pathParts.length - 1]?.replace(/[-_]/g, ' ')?.replace(/\.(html|php|asp)$/i, '') || urlObj.hostname;
+      let productName = '';
+      let description = '';
 
-      // Auto-fill fields
-      const productEl = document.getElementById('brief-product');
-      if (productEl && !productEl.value) {
-        productEl.value = decodeURIComponent(productName);
+      // Try fetching real page metadata via CORS proxy
+      try {
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+        const resp = await Promise.race([
+          fetch(proxyUrl),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 5000))
+        ]);
+        if (resp.ok) {
+          const html = await resp.text();
+          // Extract <title>
+          const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+          if (titleMatch) productName = titleMatch[1].trim().split('|')[0].split('–')[0].split('-')[0].trim();
+          // Extract meta description
+          const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i)
+            || html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']description["']/i);
+          if (descMatch) description = descMatch[1].trim();
+          // Extract OG description as fallback
+          if (!description) {
+            const ogDesc = html.match(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i);
+            if (ogDesc) description = ogDesc[1].trim();
+          }
+        }
+      } catch {
+        // CORS proxy failed — fallback to URL slug parsing
       }
 
-      showToast(`Auto-fill: ${decodeURIComponent(productName)}`, 'success');
+      // Fallback: parse product name from URL path
+      if (!productName) {
+        const pathParts = urlObj.pathname.split('/').filter(Boolean);
+        productName = pathParts[pathParts.length - 1]?.replace(/[-_]/g, ' ')?.replace(/\.(html|php|asp)$/i, '') || urlObj.hostname;
+        productName = decodeURIComponent(productName);
+      }
+
+      // Auto-fill fields with highlight animation
+      const productEl = document.getElementById('brief-product');
+      if (productEl && !productEl.value) {
+        productEl.value = productName;
+        highlightField(productEl);
+      }
+
+      const highlightEl = document.getElementById('brief-highlight');
+      if (highlightEl && !highlightEl.value && description) {
+        highlightEl.value = description.slice(0, 200);
+        highlightField(highlightEl);
+      }
+
+      const filledCount = (productEl && productEl.value ? 1 : 0) + (highlightEl && highlightEl.value ? 1 : 0);
+      showToast(`✅ Auto-fill: ${filledCount} trường từ "${urlObj.hostname}"`, 'success');
     } catch (e) {
       showToast('URL không hợp lệ', 'warning');
     } finally {
@@ -498,6 +537,18 @@ function attachCreateEvents() {
       btn.innerHTML = originalText;
     }
   });
+
+  // Highlight animation for auto-filled fields
+  function highlightField(el) {
+    el.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
+    el.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.3)';
+    el.style.borderColor = '#8b5cf6';
+    setTimeout(() => {
+      el.style.boxShadow = '';
+      el.style.borderColor = '';
+    }, 2000);
+  }
+
 
   // Tab switching
   document.querySelectorAll('.tab').forEach(tab => {

@@ -29,8 +29,10 @@ export async function renderCalendarPage() {
           <button class="btn btn-ghost" id="btn-prev-month">← ${t('calendar.prev')}</button>
           <span class="btn btn-ghost" id="month-label" style="min-width: 150px; text-align: center; font-weight: 700;"></span>
           <button class="btn btn-ghost" id="btn-next-month">${t('calendar.next')} →</button>
+          <button class="btn btn-secondary btn-sm" id="btn-today" style="margin-left: var(--space-2);">📍 ${t('calendar.today') || 'Hôm nay'}</button>
         </div>
       </div>
+      <div id="calendar-stats" class="flex gap-4 mb-4" style="font-size: var(--font-xs); color: var(--text-muted);"></div>
 
       <div class="calendar-grid-wrap">
         <div class="calendar-weekdays">
@@ -116,6 +118,23 @@ export async function renderCalendarPage() {
     });
   });
 
+  // Today button
+  document.getElementById('btn-today')?.addEventListener('click', () => {
+    const now = new Date();
+    currentYear = now.getFullYear();
+    currentMonth = now.getMonth();
+    renderMonth();
+    // Scroll to today cell after render
+    setTimeout(() => {
+      const todayCell = document.querySelector('.calendar-cell.today');
+      if (todayCell) {
+        todayCell.style.boxShadow = '0 0 0 3px rgba(139, 92, 246, 0.4)';
+        todayCell.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => { todayCell.style.boxShadow = ''; }, 2000);
+      }
+    }, 100);
+  });
+
   renderMonth();
 }
 
@@ -169,6 +188,19 @@ async function renderMonth() {
   }
 
   grid.innerHTML = cells;
+
+  // Update mini stats bar
+  const statsEl = document.getElementById('calendar-stats');
+  if (statsEl) {
+    const total = schedules.length;
+    const published = schedules.filter(s => s.status === 'published').length;
+    const pending = total - published;
+    statsEl.innerHTML = `
+      <span>📅 <strong>${total}</strong> bài lên lịch tháng này</span>
+      <span>✅ <strong>${published}</strong> đã đăng</span>
+      <span>⏳ <strong>${pending}</strong> chờ đăng</span>
+    `;
+  }
 
   // Click on cells to open modal
   grid.querySelectorAll('.calendar-cell:not(.empty)').forEach(cell => {

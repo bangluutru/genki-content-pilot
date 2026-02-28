@@ -42,11 +42,17 @@ export async function renderDesignerPage() {
       </div>
 
       <!-- Kanban Board -->
-      <div style="flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; padding-bottom: var(--space-4);">
+      <div id="kanban-scroll-wrap" style="flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; padding-bottom: var(--space-4); position: relative;">
         <div class="kanban-board" style="display: flex; gap: var(--space-4); height: 100%; min-width: max-content;">
           ${COLUMNS.map(col => renderKanbanColumn(col, allContents)).join('')}
         </div>
+        <div id="kanban-scroll-hint" style="position: absolute; right: 0; top: 0; bottom: 0; width: 48px; background: linear-gradient(to right, transparent, var(--bg-primary)); display: flex; align-items: center; justify-content: center; pointer-events: none; transition: opacity 0.3s;">
+          <span style="font-size: 20px; opacity: 0.6; animation: pulseRight 1.5s ease-in-out infinite;">→</span>
+        </div>
       </div>
+      <style>
+        @keyframes pulseRight { 0%,100% { transform: translateX(0); opacity: 0.4; } 50% { transform: translateX(4px); opacity: 0.8; } }
+      </style>
     </main>
   `;
 
@@ -72,7 +78,12 @@ function renderKanbanColumn(col, contents) {
            ondragleave="this.style.background='';" 
            ondrop="this.style.background='';" 
            style="padding: var(--space-3); flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: var(--space-3); transition: background 0.2s;">
-        ${colContents.map(c => renderKanbanCard(c, col.id)).join('')}
+        ${colContents.length > 0 ? colContents.map(c => renderKanbanCard(c, col.id)).join('') : `
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; opacity: 0.4; text-align: center; padding: var(--space-4);">
+            <span style="font-size: 32px; margin-bottom: var(--space-2);">${col.id === 'backlog' ? '📋' : col.id === 'in_progress' ? '🎨' : col.id === 'review' ? '👀' : '✅'}</span>
+            <span style="font-size: var(--font-xs); color: var(--text-muted);">${col.id === 'backlog' ? 'Kéo bài viết vào đây' : col.id === 'in_progress' ? 'Đang thiết kế...' : col.id === 'review' ? 'Chờ manager duyệt' : 'Hoàn tất!'}</span>
+          </div>
+        `}
       </div>
     </div>
   `;
@@ -129,6 +140,18 @@ function renderKanbanCard(content, currentColumnId) {
 }
 
 function attachDesignerEvents() {
+  // Auto-hide scroll hint when scrolled to end
+  const scrollWrap = document.getElementById('kanban-scroll-wrap');
+  const scrollHint = document.getElementById('kanban-scroll-hint');
+  if (scrollWrap && scrollHint) {
+    const checkScroll = () => {
+      const atEnd = scrollWrap.scrollLeft + scrollWrap.clientWidth >= scrollWrap.scrollWidth - 10;
+      scrollHint.style.opacity = atEnd ? '0' : '1';
+    };
+    scrollWrap.addEventListener('scroll', checkScroll);
+    checkScroll(); // initial check
+  }
+
   // Handle moving cards
   document.querySelectorAll('.btn-move-card').forEach(btn => {
     btn.addEventListener('click', async (e) => {
