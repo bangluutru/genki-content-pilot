@@ -135,15 +135,11 @@ export function attachSidebarEvents() {
   const localeBtn = document.getElementById('btn-locale-toggle');
   if (localeBtn) {
     localeBtn.addEventListener('click', async () => {
+      localeBtn.disabled = true;
       const current = getLocale();
       const next = current === 'vi' ? 'en' : 'vi';
       await setLocale(next, user);
-
-      // Force re-render by resolving current route again
-      // This ensures all UI text updates with new translations
-      setTimeout(() => {
-        router.resolve();
-      }, 100);
+      router.resolve();
     });
   }
 
@@ -151,10 +147,9 @@ export function attachSidebarEvents() {
   const themeBtn = document.getElementById('btn-theme-toggle');
   if (themeBtn) {
     themeBtn.addEventListener('click', async () => {
+      themeBtn.disabled = true;
       await toggleTheme(user);
-
-      // Update button icon
-      themeBtn.textContent = getThemeIcon();
+      router.resolve();
     });
   }
 }

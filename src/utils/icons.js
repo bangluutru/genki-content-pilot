@@ -150,7 +150,14 @@ const ICONS = {
     film: `<rect class="duo-f" x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><rect class="duo-s" x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line class="duo-s" x1="7" y1="2" x2="7" y2="22"/><line class="duo-s" x1="17" y1="2" x2="17" y2="22"/><line class="duo-s" x1="2" y1="12" x2="22" y2="12"/><line class="duo-s" x1="2" y1="7" x2="7" y2="7"/><line class="duo-s" x1="2" y1="17" x2="7" y2="17"/><line class="duo-s" x1="17" y1="7" x2="22" y2="7"/><line class="duo-s" x1="17" y1="17" x2="22" y2="17"/>`,
 
     pencil: `<path class="duo-f" d="M12 20h9"/><path class="duo-s" d="M12 20h9"/><path class="duo-f" d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/><path class="duo-s" d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>`,
+
+    home: `<path class="duo-f" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path class="duo-s" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline class="duo-s" points="9 22 9 12 15 12 15 22"/>`,
+
+    database: `<ellipse class="duo-f" cx="12" cy="5" rx="9" ry="3"/><ellipse class="duo-s" cx="12" cy="5" rx="9" ry="3"/><path class="duo-s" d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path class="duo-s" d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>`,
+
+    info: `<circle class="duo-f" cx="12" cy="12" r="10"/><circle class="duo-s" cx="12" cy="12" r="10"/><line class="duo-s" x1="12" y1="16" x2="12" y2="12"/><line class="duo-s" x1="12" y1="8" x2="12.01" y2="8"/>`,
 };
+
 
 /**
  * Get a duotone SVG icon as an HTML string.
