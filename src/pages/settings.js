@@ -130,6 +130,32 @@ export async function renderSettingsPage() {
           </ol>
         </div>
       </div>
+
+      <!-- Reports Settings -->
+      <div class="card connection-card" style="margin-bottom: var(--space-6);">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-4">
+            <span style="display: inline-flex;">${icon('mail', 32)}</span>
+            <div>
+              <h3 style="margin: 0;">${t('settings.reportsTitle')}</h3>
+              <p class="text-sm text-muted">${t('settings.ceoEmailHelp')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="connection-form flex flex-col gap-4" id="report-form">
+          <div class="input-group">
+            <label for="ceo-email">${t('settings.ceoEmail')}</label>
+            <input type="email" id="ceo-email" class="input" 
+                   placeholder="ceo@brand.com"
+                   value="${connections.ceoEmail || ''}">
+          </div>
+
+          <div class="flex gap-2">
+            <button class="btn btn-primary btn-sm" id="btn-save-reports">${icon('save', 16)} ${t('settings.saveConnection')}</button>
+          </div>
+        </div>
+      </div>
     </main>
   `;
 
@@ -305,6 +331,23 @@ function attachSettingsEvents() {
       showToast(t('settings.disconnected'), 'info');
     } catch (error) {
       showToast(t('settings.disconnectError') + ': ' + error.message, 'error');
+    }
+  });
+
+  // Reports - Save
+  document.getElementById('btn-save-reports')?.addEventListener('click', async () => {
+    const ceoEmail = document.getElementById('ceo-email')?.value?.trim();
+    if (!ceoEmail) {
+      showToast(t('settings.fillAllFields'), 'warning');
+      return;
+    }
+    try {
+      const connections = store.get('connections') || {};
+      connections.ceoEmail = ceoEmail;
+      await saveConnections(connections);
+      showToast(t('settings.connectionSaved'), 'success');
+    } catch (error) {
+      showToast(t('settings.saveConnectionError') + ': ' + error.message, 'error');
     }
   });
 }
