@@ -20,26 +20,33 @@ GUIDES.forEach(g => {
 
 // Static HTML for the Pro Tips tab — computed once
 const PRO_TIPS_HTML = parseMarkdown(`
-## ⚡ 10 Pro Tips từ Chuyên gia
+## ⚡ 10 Pro Tips — Tận dụng ContentPilot tối đa
 
-1. **Tách Avatar càng nhỏ càng tốt:** "Mẹ bỉm 25-30 tuổi lo da chảy xệ sau sinh" tốt hơn "Phụ nữ" rất nhiều.
-2. **Hook = 80% thành công:** Dành 50% thời gian cho câu đầu tiên. Người đọc quyết định đọc tiếp trong 1 giây.
-3. **Con số > Lời hay:** "Giảm 3.2kg trong 8 tuần" thuyết phục hơn "giảm cân hiệu quả rõ rệt".
-4. **Proof trước CTA:** Luôn đặt bằng chứng (review, số liệu, certification) ngay trước lời kêu gọi hành động.
-5. **Repurpose 1 bài → 5 nền tảng:** Facebook long-form → TikTok script → 5 Stories → Email → Zalo OA. Tiết kiệm 80% thời gian.
-6. **KOC Nano outperform KOL Macro:** KOC 5K follower đúng tệp có thể bán > KOL 1M follower sai tệp.
-7. **Compliance score ≥ 90 trước khi đăng TPCN:** Một bài vi phạm = cả tài khoản bị khóa.
-8. **Batch content theo tuần:** Tạo 20-30 bài một lúc vào thứ Hai, đủ đăng cả tuần. Hiệu quả hơn viết lẻ từng ngày.
-9. **Đọc comment để tìm content ideas:** Comment của khách hàng = nỗi đau thật = ý tưởng bài hay nhất.
-10. **Track UTM cho mỗi bài:** Không track = không biết bài nào bán được = không tối ưu được gì.
+1. **Batch Mode vào thứ Hai:** Bật "Batch Mode" trong Xưởng Nháp, nhập 5 sản phẩm → tạo 5 bài một lúc. Đủ content đăng cả tuần trong 15 phút.
+2. **Auto-fill tiết kiệm 80% thời gian nhập liệu:** Có URL sản phẩm? Dán vào ô URL → bấm "Auto-fill" → brief tự điền. Chỉ cần bổ sung highlight và CTA.
+3. **Lên lịch đăng ngay sau Save:** Đừng bỏ lỡ banner "Lên lịch đăng ngay →" xuất hiện 10 giây sau khi save. Click ngay để không quên.
+4. **Kéo thả Kanban cho Designer:** Kéo thẻ từ "Chờ thiết kế" sang "Đang làm" thay vì click nút. Nhanh hơn, trực quan hơn.
+5. **Check Task Visibility mỗi sáng:** Trang Team → "Tổng quan công việc" cho thấy ai đang làm gì, bài nào tắc nghẽn.
+6. **Thiết lập Design Tokens trước khi tạo bài:** Brand Profile → Design System Tokens → chọn Primary color, Secondary color, Font. AI sẽ áp dụng cho mọi nội dung.
+7. **Quick Template cho Strategy:** Không biết bắt đầu từ đâu? Click template "Tăng doanh số" hoặc "Brand Awareness" → brief tự điền → chỉnh sửa thêm → sinh chiến lược.
+8. **Version History để tracking cycle time:** Thư viện → mỗi bài có timeline 📝→✏️→✅→🚀. Tính thời gian từ tạo → publish. Mục tiêu: < 2 ngày.
+9. **Image History để tái sử dụng:** Tab Hình ảnh → gallery lưu 10 hình AI gần nhất. Click thumbnail để xem lại, không cần generate lại.
+10. **Inline Comments thay vì gọi điện:** Duyệt bài → "Thêm bình luận" → ghi feedback trực tiếp. Executive đọc được comment mà không cần họp.
 
 ## 🔥 Content Hooks Phổ biến nhất 2024
 
-- *"POV: Bạn là..."* — đưa người đọc vào đúng tình huống
+- *"POV: Bạn là..."* — đưa người đọc vào tình huống
 - *"Ai đã từng... giơ tay lên!"* — tạo cộng đồng chung nỗi đau
 - *"Sự thật ít ai biết về..."* — kích thích tò mò
-- *"Tôi ước gì biết điều này sớm hơn..."* — tạo cảm giác tiếc nuối
-- *"3 dấu hiệu bạn đang [vấn đề]..."* — self-diagnosis, ai cũng muốn biết
+- *"Tôi ước gì biết điều này sớm hơn..."* — cảm giác tiếc nuối
+- *"3 dấu hiệu bạn đang [vấn đề]..."* — self-diagnosis
+
+## 📋 Checklist Hàng ngày cho Manager
+
+1. ☐ Check Dashboard (60 giây)
+2. ☐ Duyệt bài pending (Team → "Chờ duyệt")
+3. ☐ Xem pipeline Designer Hub
+4. ☐ Review content calendar tuần này
 `);
 
 // ─────────────────────────────────────────────
