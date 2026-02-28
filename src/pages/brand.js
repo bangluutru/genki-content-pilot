@@ -44,11 +44,11 @@ export async function renderBrandPage() {
             <label for="brand-logo">${t('brand.logo')}</label>
             <div style="display: flex; flex-direction: column; gap: var(--space-3);">
               ${brand.logoUrl ? `
-                <div style="position: relative; width: 120px; height: 120px; border-radius: var(--radius-md); overflow: hidden; border: 2px solid var(--border);">
-                  <img id="logo-preview" src="${brand.logoUrl}" alt="Brand Logo" style="width: 100%; height: 100%; object-fit: cover;">
+                <div style="position: relative; max-width: 200px; border-radius: var(--radius-md); overflow: hidden; border: 2px solid var(--border); padding: var(--space-2); background: var(--surface-hover);">
+                  <img id="logo-preview" src="${brand.logoUrl}" alt="Brand Logo" style="max-width: 100%; max-height: 120px; object-fit: contain; display: block;">
                 </div>
               ` : `
-                <div id="logo-preview-placeholder" style="width: 120px; height: 120px; border-radius: var(--radius-md); background: var(--surface-hover); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                <div id="logo-preview-placeholder" style="width: 200px; height: 100px; border-radius: var(--radius-md); background: var(--surface-hover); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
                   ${icon('brand', 48)}
                 </div>
               `}
@@ -257,8 +257,8 @@ export async function renderBrandPage() {
       const placeholder = document.getElementById('logo-preview-placeholder');
       if (placeholder) {
         placeholder.outerHTML = `
-          <div style="position: relative; width: 120px; height: 120px; border-radius: var(--radius-md); overflow: hidden; border: 2px solid var(--border);">
-            <img id="logo-preview" src="${uploadedLogoUrl}" alt="Brand Logo" style="width: 100%; height: 100%; object-fit: cover;">
+          <div style="position: relative; max-width: 200px; border-radius: var(--radius-md); overflow: hidden; border: 2px solid var(--border); padding: var(--space-2); background: var(--surface-hover);">
+            <img id="logo-preview" src="${uploadedLogoUrl}" alt="Brand Logo" style="max-width: 100%; max-height: 120px; object-fit: contain; display: block;">
           </div>
         `;
       } else {
@@ -283,7 +283,7 @@ export async function renderBrandPage() {
           const logoPreviewEl = document.querySelector('#logo-preview');
           if (logoPreviewEl && logoPreviewEl.parentElement) {
             logoPreviewEl.parentElement.outerHTML = `
-              <div id="logo-preview-placeholder" style="width: 120px; height: 120px; border-radius: var(--radius-md); background: var(--surface-hover); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+              <div id="logo-preview-placeholder" style="width: 200px; height: 100px; border-radius: var(--radius-md); background: var(--surface-hover); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
                 ${icon('brand', 32)}
               </div>
             `;
@@ -307,7 +307,7 @@ export async function renderBrandPage() {
     const logoPreviewEl = document.querySelector('#logo-preview');
     if (logoPreviewEl && logoPreviewEl.parentElement) {
       logoPreviewEl.parentElement.outerHTML = `
-        <div id="logo-preview-placeholder" style="width: 120px; height: 120px; border-radius: var(--radius-md); background: var(--surface-hover); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
+        <div id="logo-preview-placeholder" style="width: 200px; height: 100px; border-radius: var(--radius-md); background: var(--surface-hover); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; font-size: 3rem;">
           ${icon('brand', 32)}
         </div>
       `;

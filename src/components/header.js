@@ -53,7 +53,7 @@ export function renderSidebar() {
       <div class="logo-section" style="margin-bottom: var(--space-8);">
         <div class="flex items-center gap-4" style="padding: var(--space-2) var(--space-4);">
           ${brandLogo
-      ? `<img src="${brandLogo}" alt="${brandName}" style="width: 32px; height: 32px; border-radius: 6px; object-fit: contain;" />`
+      ? `<img src="${brandLogo}" alt="${brandName}" style="max-height: 36px; max-width: 140px; object-fit: contain; border-radius: 6px; flex-shrink: 0;" />`
       : `<span class="nav-icon">${icon('plane', 28)}</span>`
     }
           <span class="logo-text" style="font-size: var(--font-xl); font-weight: 700;">${brandName}</span>
