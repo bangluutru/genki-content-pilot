@@ -1,0 +1,21 @@
+{
+    "name": "ContentPilot — AI Content Automation",
+    "short_name": "ContentPilot",
+    "description": "AI tạo và đăng content cho Facebook & Website trong 5 phút",
+    "icons": [
+        {
+            "src": "/android-chrome-192x192.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/android-chrome-512x512.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ],
+    "theme_color": "#6c7ae0",
+    "background_color": "#0f1112",
+    "display": "standalone",
+    "start_url": "/"
+}
