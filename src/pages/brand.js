@@ -7,6 +7,7 @@ import { showToast } from '../components/toast.js';
 import { saveBrand, loadBrand } from '../services/firestore.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
+import { escapeHtml } from '../utils/helpers.js';
 
 export async function renderBrandPage() {
   const app = document.getElementById('app');
@@ -452,14 +453,6 @@ function renderContextList(items, type) {
   return html;
 }
 
-function escapeHtml(unsafe) {
-  return (unsafe || '').toString()
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
 
 function attachContextLibraryEvents(brand) {
   const attachDeleteEvents = (containerId) => {

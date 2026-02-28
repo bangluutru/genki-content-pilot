@@ -10,6 +10,7 @@ import { loadBrand } from '../services/firestore.js';
 import { t } from '../utils/i18n.js';
 import { router } from '../utils/router.js';
 import { icon } from '../utils/icons.js';
+import { escapeHtml } from '../utils/helpers.js';
 
 export async function renderStrategyPage() {
   const app = document.getElementById('app');

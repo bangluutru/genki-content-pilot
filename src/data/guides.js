@@ -153,6 +153,126 @@ Chọn KOC trong dropdown "Giả giọng KOC". AI sẽ bắt chước cấu trú
 `
     },
     {
+        id: 'context-library',
+        title: '📚 Thư Viện Ngữ Cảnh (Context Library)',
+        route: 'brand',
+        icon: 'database',
+        shortSummary: 'Quản lý danh sách sản phẩm, tệp khách hàng và trợ lý AI. Tái sử dụng bằng một cú click.',
+        content: `
+## Thư Viện Ngữ Cảnh là gì?
+
+Đây là "ngân hàng dữ liệu" của team bạn. Thay vì gõ lại thông tin sản phẩm và mô tả khách hàng mỗi lần tạo bài, bạn **lưu sẵn một lần, dùng mãi mãi**.
+
+Context Library gồm ba bộ thẻ:
+
+| Thẻ | Dùng để lưu | Ví dụ |
+|---|---|---|
+| **Sản phẩm** | Tên + điểm nổi bật (USP) | Sakura Collagen 10000mg – hấp thụ 95% |
+| **Tệp khách hàng** | Tên tệp + mô tả chân dung | Mẹ bỉm 28-35 – lo da chảy xệ sau sinh |
+| **Trợ lý Marketing** | Prompt tùy chỉnh cho AI | Viết theo giọng nghiêm túc, khoa học |
+
+---
+
+## Hướng dẫn Setup (5 phút 1 lần)
+
+### Bước 1 — Vào Cài Đặt Thương Hiệu (Brand Profile)
+Vào **#/brand** trong menu bên trái.
+
+### Bước 2 — Thêm Sản Phẩm
+1. Trong mục **"Danh sách Sản phẩm / Dịch vụ"** → click nút **"+ Thêm sản phẩm"**
+2. Nhập **Tên sản phẩm** (VD: *Sakura Collagen Peptide 10000mg*)
+3. Nhập **Điểm nổi bật (USP)** vào ô bên dưới: "Dạng nước uống, hấp thụ 95% trong 30 phút, từ collagen cá Nhật Bản. Không đường, không calo."
+4. Lặp lại cho từng sản phẩm. Bấm **Lưu Thay Đổi**.
+
+### Bước 3 — Thêm Tệp Khách Hàng (Avatar)
+1. Trong mục **"Danh sách Tệp khách hàng"** → click **"+ Thêm tệp khách hàng"**
+2. **Tên tệp:** *Mẹ bỉm sữa 28-35*
+3. **Mô tả:** "Da chảy xệ sau sinh, ít ngủ. Bận rộn, hay lướt Facebook 10-11 giờ đêm. Mua theo review bạn bè + KOL."
+4. Bấm **Lưu Thay Đổi**.
+
+### Bước 4 — Thêm Trợ lý Marketing (System Prompt)
+1. Trong mục **"Danh sách Trợ lý Marketing"** → click **"+ Thêm prompt"**
+2. **Tên:** *Chuyên gia Y khoa*
+3. **Nội dung prompt:** "Bạn là chuyên gia dinh dưỡng với 15 năm nghiên cứu collagen. Viết nội dung bằng ngôn ngữ khoa học, dẫn chứng số liệu cụ thể, tone nghiêm túc nhưng thân thiện. TUYỆT ĐỐI không dùng từ chữa bệnh, thuốc, đặc trị."
+
+### Bước 5 — Sử dụng khi Tạo bài
+
+Vào **#/create** (Xưởng Nháp). Các dropdown mới:
+- **Sản phẩm:** Chọn sản phẩm từ thư viện
+- **Đối tượng Khách hàng:** Chọn tệp đã lưu
+- **Trợ lý Marketing:** Chọn prompt AI tùy chỉnh
+
+> [!TIP]
+> Vẫn có thể chọn **"+ Nhập thủ công"** nếu cần thông tin không có trong thư viện.
+
+---
+
+## 3 Case Study Thực Tế
+
+### Case Study 1 — Brand Collagen Nhật (Sakura Health)
+
+**Bối cảnh:** Brand 4 sản phẩm, 3 tệp khách hàng, cần 20 bài/tuần.
+
+**Setup Context Library:**
+
+Sản phẩm đã lưu:
+- Sakura Collagen 10000mg — "Collagen cá Nhật, dạng nước, hấp thụ 95%, cherry extract"
+- Sakura Beauty Complex — "Collagen + Vitamin C + Biotin, gói bột hòa tan"
+- Sakura Junior — "Collagen dành cho trẻ em 5-15 tuổi, vị cam"
+
+Tệp khách hàng:
+- Mẹ bỉm 28-35 — "Lo da chảy xệ sau sinh, hay lướt FB đêm khuya, mua theo review bạn bè"
+- Chị văn phòng 30-42 — "Da xỉn do stress + điều hòa, muốn glow không cần filter"
+- Mẹ chăm sóc con — "Tìm dinh dưỡng an toàn tự nhiên cho con, đọc kỹ thành phần"
+
+Trợ lý Marketing:
+- Mẹ kể chuyện — "Viết như bà mẹ thực sự đang chia sẻ với bạn bè. Ngôn ngữ gần gũi, emoji mẹ đặc trưng."
+- Khoa học & Trust — "Viết theo hướng khoa học, trích dẫn nghiên cứu, tạo trust khi dẫn số liệu."
+
+**Kết quả:** Mỗi sáng, Content Executive chỉ mất **3 phút** chọn brief → AI tạo 3 bài tùy chỉnh cho 3 nhóm thay vì 30 phút gõ tay.
+
+---
+
+### Case Study 2 — Mỹ phẩm Thuần Chay (1 người làm marketing)
+
+**Bối cảnh:** Solo marketer, 2 dòng sản phẩm, post 7 ngày/tuần.
+
+**Sản phẩm đã lưu:**
+- Serum C15 — "Vitamin C chuẩn hóa 15%, làm mờ nám trong 3 tuần. Thuần chay, không paraben."
+- Kem dưỡng đêm — "Retinol 0.3% + Niacinamide, phục hồi da ban đêm, không gây kích ứng"
+
+**Tệp khách hàng:**
+- Gen Z yêu skincare 18-25 — "Hay theo trend TikTok, thích transparent branding, hỏi kỹ thành phần"
+- Chị 35-45 chống lão hóa — "Sẵn sàng chi nhiều cho hiệu quả thực sự, muốn trẻ hơn 5 tuổi"
+
+**Trợ lý tự tạo:**
+- Cô bạn thân rủ skincare — "Viết như nhắn tin cho bạn thân về skincare mới phát hiện. Slang Gen Z, authentic, không quảng cáo lộ liễu."
+
+**Workflow thực tế:**
+- Thứ 2-3: Chọn **Serum C15** + **Gen Z skincare** + **Cô bạn thân** → 3 post weekday
+- Thứ 5-6: Chọn **Kem ban đêm** + **Chị 35-45** → AI dùng voice brand mặc định, formal hơn
+
+Tổng thao tác: **< 5 phút/ngày** thay vì 45 phút trước.
+
+---
+
+### Case Study 3 — Phân phối 12 SKU (Đội 3 người)
+
+**Vấn đề cũ:** Content hay gõ nhầm tên sản phẩm hoặc sai thông số liều lượng → phải sửa bài đã đăng.
+
+**Giải pháp:** Mỗi sản phẩm nhập **đầy đủ 1 lần** vào Context Library:
+
+Ví dụ entry:
+- **Tên:** Omega-3 Premium 1000mg
+- **USP:** "Tinh dầu cá hồi Na Uy, 1000mg EPA+DHA/viên. Hộp 60v đủ 2 tháng. Giá 450k. Ưu đãi tháng 3: mua 2 tặng 1. Enteric coating không tanh."
+
+**Kết quả:** 3 thành viên team đều chọn từ cùng một nguồn thông tin → **Zero lỗi sai thông số** kể từ khi áp dụng.
+
+> [!IMPORTANT]
+> Cập nhật USP mỗi khi có chương trình khuyến mãi mới để AI luôn dùng thông tin chính xác nhất!
+`
+    },
+    {
         id: 'approvals',
         title: '✅ Duyệt Bài & Compliance AI',
         route: 'approvals',

@@ -12,7 +12,7 @@ import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { checkDailyLimit, VARIATION_TYPES } from '../services/gemini.js';
 import { getStylePresets } from '../services/image-gen.js';
-import { copyToClipboard, storage } from '../utils/helpers.js';
+import { copyToClipboard, storage, escapeHtml } from '../utils/helpers.js';
 import { icon } from '../utils/icons.js';
 import { t } from '../utils/i18n.js';
 import { loadCampaigns, loadPillars, loadAngles, loadBrand } from '../services/firestore.js';
