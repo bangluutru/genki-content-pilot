@@ -37,7 +37,10 @@
                 "or": "hoặc",
                 "today": "Hôm nay",
                 "comingSoon": "Sắp có",
-                "error": "Lỗi"
+                "error": "Lỗi",
+                "cancel": "Huỷ",
+                "confirm": "Xác nhận",
+                "warning": "Cảnh báo"
         },
         "actions": {
                 "create": "Tạo",
@@ -188,7 +191,37 @@
                 "promptNamePlaceholder": "VD: TPCN B2B Chuyên Gia",
                 "promptContent": "Chỉ dẫn cho AI (Prompt Content)",
                 "promptContentPlaceholder": "VD: Hãy đóng vai một bác sĩ chuyên gia. Viết với giọng điệu khách quan, dùng nhiều thuật ngữ y khoa...",
-                "emptyList": "Chưa có danh sách. Bấm thêm mới."
+                "emptyList": "Chưa có danh sách. Bấm thêm mới.",
+                "nameRequired": "Vui lòng nhập tên thương hiệu",
+                "saveError": "Lỗi khi lưu thương hiệu. Vui lòng thử lại.",
+                "saveBrand": "💾 Lưu Thay Đổi",
+                "logo": "Logo Thương Hiệu",
+                "uploadLogo": "Tải lên Logo",
+                "changeLogo": "Thay đổi Logo",
+                "removeLogo": "Xoá Logo",
+                "logoHint": "PNG, JPG, SVG hoặc WebP. Tối đa 2MB.",
+                "logoTooLarge": "File quá lớn. Vui lòng chọn ảnh nhỏ hơn 2MB.",
+                "logoInvalidType": "Định dạng không hợp lệ. Chỉ chấp nhận PNG, JPG, SVG, WebP.",
+                "uploadingLogo": "Đang tải logo lên...",
+                "logoUploaded": "Tải logo thành công!",
+                "logoUploadError": "Lỗi khi tải logo. Vui lòng thử lại.",
+                "designTokens": "🎨 Màu sắc & Font chữ Thương Hiệu",
+                "primaryColor": "Màu chủ đạo (Primary)",
+                "primaryColorHint": "Màu chính của thương hiệu",
+                "secondaryColor": "Màu phụ (Secondary)",
+                "secondaryColorHint": "Màu bổ trợ cho thiết kế",
+                "brandFont": "Font chữ",
+                "fontDefault": "Mặc định hệ thống",
+                "previewLabel": "Xem trước bảng màu:",
+                "previewSample": "Chữ mẫu thương hiệu",
+                "legalSection": "Vùng Pháp Lý & Disclaimer",
+                "disclaimer": "Disclaimer bắt buộc",
+                "disclaimerPlaceholder": "VD: Sản phẩm này không phải là thuốc, không có tác dụng thay thế thuốc chữa bệnh.",
+                "tpcnDefaultDisclaimer": "Sản phẩm này không phải là thuốc và không có tác dụng thay thế thuốc chữa bệnh.",
+                "tpcnWarningTitle": "⚠️ Lưu ý TPCN:",
+                "tpcnWarningDesc": "Ngành TPCN cần tuân thủ nghiêm ngặt quy định quảng cáo. ContentPilot đã tích hợp bộ lọc AI tự động.",
+                "welcomeTitle": "Chào mừng đến ContentPilot!",
+                "welcomeDesc": "Hãy cài đặt thông tin thương hiệu của bạn để AI có thể viết nội dung đúng tone và phong cách."
         },
         "strategy": {
                 "title": "Chiến lược",
@@ -270,7 +303,8 @@
                         "generatePillars": "Tạo pillar",
                         "generateAngles": "Tạo angle",
                         "hint": "Viết ngắn gọn. Có thể chỉnh sau."
-                }
+                },
+                "goalPlaceholder": "VD: Tăng 20% doanh số tháng 3, Ra mắt sản phẩm mới..."
         },
         "campaignDetail": {
                 "pillarsEmpty": "Tạo các trụ cột nội dung (pillar) cho chiến dịch. AI sẽ gợi ý dựa trên brief.",
@@ -286,7 +320,9 @@
                 "createPost": "✨ Tạo bài viết",
                 "campaignPosts": "Bài viết thuộc chiến dịch",
                 "untitledPost": "Bài viết",
-                "loadPostsError": "Lỗi tải bài viết"
+                "loadPostsError": "Lỗi tải bài viết",
+                "postsEmpty": "Chưa có bài viết nào trong góc triển khai này.",
+                "postsEmptyDesc": "Hãy tạo content từ trang Xưởng Nháp để bài viết xuất hiện ở đây."
         },
         "conversion": {
                 "title": "Theo dõi chuyển đổi",
@@ -411,7 +447,8 @@
                 "scheduleAdded": "Đã thêm lịch đăng bài!",
                 "statsScheduled": "bài lên lịch tháng này",
                 "statsPublished": "đã đăng",
-                "statsPending": "chờ đăng"
+                "statsPending": "chờ đăng",
+                "today": "Hôm nay"
         },
         "publish": {
                 "title": "Nhật ký đăng",
@@ -476,7 +513,8 @@
                 "noPosts": "Chưa có bài viết nào",
                 "createFirstPost": "Tạo bài đầu tiên",
                 "post": "Bài viết",
-                "brandSetupTip": "Hãy setup Brand Profile để AI viết chuẩn tone hơn!"
+                "brandSetupTip": "Hãy setup Brand Profile để AI viết chuẩn tone hơn!",
+                "you": "bạn"
         },
         "designer": {
                 "title": "Designer Hub",
@@ -617,7 +655,9 @@
                 "taskPublished": "Đã đăng",
                 "taskDesign": "Thiết kế",
                 "noTasks": "Chưa có bài viết nào",
-                "totalContent": "Tổng nội dung"
+                "totalContent": "Tổng nội dung",
+                "removeMember": "Xoá thành viên",
+                "memberRemoved": "Đã xoá thành viên khỏi nhóm."
         },
         "create": {
                 "title": "Tạo content mới",
@@ -717,7 +757,8 @@
                 "extracting": "Đang trích xuất...",
                 "imageHistory": "Lịch sử hình ảnh",
                 "noImages": "Chưa có hình ảnh nào",
-                "clearHistory": "Xoá lịch sử"
+                "clearHistory": "Xoá lịch sử",
+                "aiLearning": "AI đang học từ dữ liệu hiệu suất của bạn..."
         },
         "settings": {
                 "title": "Kết nối Platform",

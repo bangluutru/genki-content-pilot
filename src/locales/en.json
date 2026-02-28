@@ -37,7 +37,10 @@
                 "or": "or",
                 "today": "Today",
                 "comingSoon": "Coming soon",
-                "error": "Error"
+                "error": "Error",
+                "cancel": "Cancel",
+                "confirm": "Confirm",
+                "warning": "Warning"
         },
         "actions": {
                 "create": "Create",
@@ -331,7 +334,8 @@
                         "generatePillars": "Generate pillars",
                         "generateAngles": "Generate angles",
                         "hint": "Keep it short. You can refine later."
-                }
+                },
+                "goalPlaceholder": "Ex: Increase March sales by 20%, Launch new product..."
         },
         "campaignDetail": {
                 "pillarsEmpty": "Create content pillars for your campaign. AI will suggest based on your brief.",
@@ -347,7 +351,9 @@
                 "createPost": "✨ Create Post",
                 "campaignPosts": "Campaign Posts",
                 "untitledPost": "Post",
-                "loadPostsError": "Error loading posts"
+                "loadPostsError": "Error loading posts",
+                "postsEmpty": "No posts yet for this angle.",
+                "postsEmptyDesc": "Create content from the Draft Workshop to see posts here."
         },
         "conversion": {
                 "title": "Conversion Tracking",
@@ -509,7 +515,8 @@
                 "noPosts": "No posts yet",
                 "createFirstPost": "Create first post",
                 "post": "Post",
-                "brandSetupTip": "Set up Brand Profile for better AI-generated content!"
+                "brandSetupTip": "Set up Brand Profile for better AI-generated content!",
+                "you": "you"
         },
         "designer": {
                 "title": "Designer Hub",
@@ -650,7 +657,9 @@
                 "taskPublished": "Published",
                 "taskDesign": "Design",
                 "noTasks": "No content yet",
-                "totalContent": "Total content"
+                "totalContent": "Total content",
+                "removeMember": "Remove member",
+                "memberRemoved": "Member has been removed from the team."
         },
         "create": {
                 "title": "Create new content",
@@ -750,7 +759,8 @@
                 "extracting": "Extracting...",
                 "imageHistory": "Image history",
                 "noImages": "No images yet",
-                "clearHistory": "Clear history"
+                "clearHistory": "Clear history",
+                "aiLearning": "AI is learning from your performance data..."
         },
         "settings": {
                 "title": "Platform Connections",
@@ -837,7 +847,8 @@
                 "scheduleAdded": "Schedule added!",
                 "statsScheduled": "scheduled this month",
                 "statsPublished": "published",
-                "statsPending": "pending"
+                "statsPending": "pending",
+                "today": "Today"
         },
         "empty": {
                 "noCampaigns": {
