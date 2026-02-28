@@ -21,6 +21,9 @@ export async function renderStrategyPage() {
     return;
   }
 
+  const products = Array.isArray(brand.products) ? brand.products : [];
+  const avatars = Array.isArray(brand.avatars) ? brand.avatars : [];
+
   app.innerHTML = `
     ${renderSidebar()}
     <main class="main-content page">
@@ -35,16 +38,49 @@ export async function renderStrategyPage() {
 
       <!-- Business Goal Input -->
       <div class="card" style="margin-bottom: var(--space-6);">
-        <label style="font-weight: 600; display: block; margin-bottom: var(--space-2);">
-          ${icon('target', 18)} ${t('strategy.businessGoal')}
-        </label>
-        <div class="flex gap-4">
-          <input type="text" id="business-goal" class="input" 
-                 placeholder="${t('strategy.goalPlaceholder')}" 
-                 style="flex: 1; padding: var(--space-3);" >
-          <button class="btn btn-primary" id="btn-generate-ideas" style="min-width: 200px;">
-            ${t('strategy.generateIdeas')}
-          </button>
+        <div class="flex flex-col gap-4">
+          <!-- Products Dropdown -->
+          <div class="input-group">
+            <label for="strategy-product-select">${icon('gift', 16)} ${t('brand.productsList')} *</label>
+            <select id="strategy-product-select" class="select" required>
+              <option value="">-- Chọn Sản phẩm / Dịch vụ --</option>
+              ${products.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join('')}
+              <option value="custom" ${products.length === 0 ? 'selected' : ''}>+ Nhập thủ công (Custom)</option>
+            </select>
+          </div>
+          <div class="input-group ${products.length === 0 ? '' : 'hidden'}" id="strategy-product-custom-group">
+            <label for="strategy-product">${t('create.productLabel')}</label>
+            <input type="text" id="strategy-product" class="input" placeholder="${t('create.productPlaceholder')}">
+          </div>
+
+          <!-- Avatars Dropdown -->
+          <div class="input-group">
+            <label for="strategy-avatars-select">👥 ${t('brand.avatarsList')}</label>
+            <select id="strategy-avatars-select" class="select">
+              <option value="">-- Mặc định theo sản phẩm / thương hiệu --</option>
+              ${avatars.map(a => `<option value="${a.id}">${escapeHtml(a.name)}</option>`).join('')}
+              <option value="custom" ${avatars.length === 0 ? 'selected' : ''}>+ Nhập thủ công (Custom)</option>
+            </select>
+          </div>
+          <div class="input-group ${avatars.length === 0 ? '' : 'hidden'}" id="strategy-avatars-custom-group">
+            <label for="strategy-avatars">Đối tượng Khách hàng (Tùy chỉnh)</label>
+            <input type="text" id="strategy-avatars" class="input" placeholder="VD: Mẹ bỉm sửa nửa đêm, Dân văn phòng đau lưng (cách nhau bằng dấu phẩy)">
+          </div>
+
+          <!-- Goal Input -->
+          <div>
+            <label style="font-weight: 600; display: block; margin-bottom: var(--space-2);">
+              ${icon('target', 18)} ${t('strategy.businessGoal')} *
+            </label>
+            <div class="flex gap-4">
+              <input type="text" id="business-goal" class="input" 
+                     placeholder="${t('strategy.goalPlaceholder')}" 
+                     style="flex: 1; padding: var(--space-3);" required>
+              <button class="btn btn-primary" id="btn-generate-ideas" style="min-width: 200px;">
+                ${t('strategy.generateIdeas')}
+              </button>
+            </div>
+          </div>
         </div>
         
         <!-- Quick Strategy Templates -->
@@ -92,6 +128,23 @@ export async function renderStrategyPage() {
 }
 
 function attachStrategyEvents(brand) {
+  // Context Library Select toggles
+  document.getElementById('strategy-product-select')?.addEventListener('change', (e) => {
+    const customGroup = document.getElementById('strategy-product-custom-group');
+    if (customGroup) customGroup.classList.toggle('hidden', e.target.value !== 'custom');
+    if (e.target.value === 'custom') document.getElementById('strategy-product')?.focus();
+  });
+
+  document.getElementById('strategy-avatars-select')?.addEventListener('change', (e) => {
+    const customGroup = document.getElementById('strategy-avatars-custom-group');
+    if (customGroup) customGroup.classList.toggle('hidden', e.target.value !== 'custom');
+    if (e.target.value === 'custom') document.getElementById('strategy-avatars')?.focus();
+  });
+
+  // Trigger initial state
+  document.getElementById('strategy-product-select')?.dispatchEvent(new Event('change'));
+  document.getElementById('strategy-avatars-select')?.dispatchEvent(new Event('change'));
+
   const btnGenerate = document.getElementById('btn-generate-ideas');
   const inputGoal = document.getElementById('business-goal');
   const resultsDiv = document.getElementById('strategy-results');
@@ -102,8 +155,44 @@ function attachStrategyEvents(brand) {
     const goal = inputGoal.value.trim();
     if (!goal) {
       showToast(t('validation.required'), 'warning');
+      inputGoal.focus();
       return;
     }
+
+    // Handle Context Extraciton
+    const productSelect = document.getElementById('strategy-product-select')?.value;
+    let productStr = '';
+    if (productSelect === 'custom') {
+      productStr = document.getElementById('strategy-product')?.value?.trim();
+    } else if (productSelect) {
+      const pObj = (brand.products || []).find(p => p.id === productSelect);
+      if (pObj) productStr = `${pObj.name} - ${pObj.highlight}`;
+    } else {
+      productStr = document.getElementById('strategy-product')?.value?.trim();
+    }
+
+    if (!productStr) {
+      showToast(t('create.productRequired'), 'warning');
+      document.getElementById('strategy-product-select')?.focus();
+      return;
+    }
+
+    const avatarSelect = document.getElementById('strategy-avatars-select')?.value;
+    let avatarsStr = '';
+    if (avatarSelect === 'custom') {
+      avatarsStr = document.getElementById('strategy-avatars')?.value?.trim();
+    } else if (avatarSelect) {
+      const aObj = (brand.avatars || []).find(a => a.id === avatarSelect);
+      if (aObj) avatarsStr = `${aObj.name} (${aObj.description})`;
+    } else {
+      avatarsStr = document.getElementById('strategy-avatars')?.value?.trim();
+    }
+
+    const strategyContext = {
+      goal: goal,
+      product: productStr,
+      avatars: avatarsStr
+    };
 
     // UI state: Loading
     btnGenerate.disabled = true;
@@ -111,7 +200,7 @@ function attachStrategyEvents(brand) {
     loadingDiv.classList.remove('hidden');
 
     try {
-      const ideas = await generateStrategy(brand, goal);
+      const ideas = await generateStrategy(brand, strategyContext);
       renderIdeas(ideas);
 
       loadingDiv.classList.add('hidden');

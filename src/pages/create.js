@@ -79,6 +79,12 @@ export async function renderCreatePage(params = {}) {
     }
   }
 
+  // Get brand data specifically for Context Library
+  const brandContext = store.get('brand') || await loadBrand() || {};
+  const products = Array.isArray(brandContext.products) ? brandContext.products : [];
+  const avatars = Array.isArray(brandContext.avatars) ? brandContext.avatars : [];
+  const prompts = Array.isArray(brandContext.prompts) ? brandContext.prompts : [];
+
   // Restore draft from localStorage
   const draft = storage.get('draft_brief', null);
   const initialProduct = window.__createContext ? prefillProduct : (draft?.product || '');
@@ -130,18 +136,44 @@ export async function renderCreatePage(params = {}) {
           </div>
 
           <div class="input-group">
-            <label for="brief-product">${icon('gift', 16)} ${t('create.productLabel')} *</label>
+            <label for="brief-product-select">${icon('gift', 16)} ${t('brand.productsList')} *</label>
+            <select id="brief-product-select" class="select" required>
+              <option value="">-- Chọn Sản phẩm / Dịch vụ --</option>
+              ${products.map(p => `<option value="${p.id}" ${initialProduct === p.name || draft?.productId === p.id ? 'selected' : ''}>${escapeHtml(p.name)}</option>`).join('')}
+              <option value="custom" ${initialProduct !== '' && !products.some(p => p.name === initialProduct) ? 'selected' : ''}>+ Nhập thủ công (Custom)</option>
+            </select>
+          </div>
+
+          <div class="input-group ${initialProduct !== '' && !products.some(p => p.name === initialProduct) ? '' : 'hidden'}" id="brief-product-custom-group">
+            <label for="brief-product">${t('create.productLabel')}</label>
             <input type="text" id="brief-product" class="input" 
                    placeholder="${t('create.productPlaceholder')}"
-                   value="${initialProduct}" required>
+                   value="${initialProduct}">
           </div>
 
           <div class="input-group">
-            <label for="brief-avatars">👥 Đối tượng Khách hàng (Target Avatars)</label>
+            <label for="brief-avatars-select">👥 ${t('brand.avatarsList')}</label>
+            <select id="brief-avatars-select" class="select">
+              <option value="">-- Mặc định theo chiến dịch / sản phẩm --</option>
+              ${avatars.map(a => `<option value="${a.id}" ${draft?.avatarId === a.id ? 'selected' : ''}>${escapeHtml(a.name)}</option>`).join('')}
+              <option value="custom" ${draft?.avatars ? 'selected' : ''}>+ Nhập thủ công (Custom)</option>
+            </select>
+          </div>
+          
+          <div class="input-group ${draft?.avatars ? '' : 'hidden'}" id="brief-avatars-custom-group">
+            <label for="brief-avatars">Đối tượng Khách hàng (Tùy chỉnh)</label>
             <input type="text" id="brief-avatars" class="input" 
                    placeholder="VD: Mẹ bỉm sửa nửa đêm, Dân văn phòng đau lưng (cách nhau bằng dấu phẩy)"
                    value="${draft?.avatars || ''}">
             <small class="text-muted" style="margin-top:4px; display:block;">Nhập nhiều đối tượng để AI tự động nhân bản nội dung (phân tách bởi dấu phẩy).</small>
+          </div>
+          
+          <div class="input-group">
+            <label for="brief-prompt-select">${icon('mic', 16)} ${t('brand.promptsList')}</label>
+            <select id="brief-prompt-select" class="select">
+              <option value="">-- Trợ lý Marketing mặc định --</option>
+              ${prompts.map(p => `<option value="${p.id}" ${draft?.promptId === p.id ? 'selected' : ''}>${escapeHtml(p.name)}</option>`).join('')}
+            </select>
           </div>
 
           <div class="input-group">
@@ -446,6 +478,22 @@ export async function renderCreatePage(params = {}) {
 }
 
 function attachCreateEvents() {
+  // Context Library Select toggles
+  document.getElementById('brief-product-select')?.addEventListener('change', (e) => {
+    const customGroup = document.getElementById('brief-product-custom-group');
+    if (customGroup) customGroup.classList.toggle('hidden', e.target.value !== 'custom');
+    if (e.target.value === 'custom') document.getElementById('brief-product')?.focus();
+  });
+
+  document.getElementById('brief-avatars-select')?.addEventListener('change', (e) => {
+    const customGroup = document.getElementById('brief-avatars-custom-group');
+    if (customGroup) customGroup.classList.toggle('hidden', e.target.value !== 'custom');
+    if (e.target.value === 'custom') document.getElementById('brief-avatars')?.focus();
+  });
+
+  // Trigger initial state
+  document.getElementById('brief-product-select')?.dispatchEvent(new Event('change'));
+  document.getElementById('brief-avatars-select')?.dispatchEvent(new Event('change'));
   // Generate button — delegates to ai-handler
   document.getElementById('btn-generate')?.addEventListener('click', () => {
     handleGenerate(setCurrentContent, runComplianceCheck);

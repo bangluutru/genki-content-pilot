@@ -138,7 +138,7 @@ export async function generateContent(brief) {
         console.warn('Failed to load intelligence context', e);
     }
 
-    const systemPrompt = buildSystemPrompt(brand, performanceContext);
+    const systemPrompt = buildSystemPrompt(brand, performanceContext, brief.customPrompt);
     const userPrompt = buildUserPrompt(brief);
 
     try {
@@ -155,7 +155,7 @@ export async function generateContent(brief) {
 }
 
 /** Build system prompt with brand context and intelligence */
-function buildSystemPrompt(brand, performanceContext = []) {
+function buildSystemPrompt(brand, performanceContext = [], customPrompt = null) {
     const brandContext = brand ? `
 THÔNG TIN THƯƠNG HIỆU:
         - Tên: ${brand.name || 'N/A'}
@@ -165,7 +165,7 @@ THÔNG TIN THƯƠNG HIỆU:
         - Voice Guidelines(Hướng dẫn giọng văn): ${brand.voice || 'Không có'}
         - Khách hàng mục tiêu(Avatars): ${brand.avatars || 'N/A'}
         - Hashtag mặc định: ${brand.defaultHashtags || ''}
-        - Sản phẩm / dịch vụ: ${brand.products || 'N/A'}
+        - Sản phẩm / dịch vụ: (Sẽ được cung cấp trong Brief)
 ${brand.disclaimer ? `- Disclaimer bắt buộc: ${brand.disclaimer}` : ''}
         ` : 'Chưa có thông tin brand. Viết với tone chuyên nghiệp, thân thiện.';
 
@@ -182,7 +182,9 @@ ${i + 1}. [Hiệu quả: ${c.orders} đơn, ${((c.revenue || 0) / 1000).toFixed(
         `;
     }
 
-    return `Bạn là một Content Marketing Expert chuyên viết nội dung tiếng Việt cho doanh nghiệp.
+    const personaPrompt = customPrompt ? customPrompt : 'Bạn là một Content Marketing Expert chuyên viết nội dung tiếng Việt cho doanh nghiệp.';
+
+    return `${personaPrompt}
 
             ${brandContext}
 ${intelligenceContext}
@@ -335,21 +337,31 @@ NỘI DUNG GỐC:
 // ===== Strategy & Campaign AI =====
 
 /**
- * Generate Strategy Ideas based on Brand Identity & Business Goal
- * @param {Object} brand - Brand Identity
- * @param {string} goal - Current Business Goal
- * @returns {Array} List of Campaign Ideas
+ * Generate a list of campaign angles/ideas based on a business goal
+ * @param {Object} brand - Brand context
+ * @param {Object} context - Strategy context { goal, product, avatars }
+ * @returns {Array} List of ideas objects
  */
-export async function generateStrategy(brand, goal) {
+export async function generateStrategy(brand, context = {}) {
+    const goal = context.goal || context; // Fallback for old string usage
+    const productStr = context.product ? `Sản phẩm trọng tâm: ${context.product}` : (brand?.products ? `Sản phẩm trọng tâm: ${brand.products}` : '');
+    const avatarsStr = context.avatars ? `Khách hàng mục tiêu chiến dịch: ${context.avatars}` : '';
+
+    // Build context string from brand + specific strategy inputs
+    const brandInfo = [
+        brand?.name ? `Brand: ${brand.name}` : '',
+        brand?.industry ? `Ngành: ${brand.industry}` : '',
+        productStr,
+        avatarsStr || (brand?.avatars ? `Khách hàng mục tiêu: ${brand.avatars}` : '')
+    ].filter(Boolean).join('\n');
+
     const systemPrompt = `Bạn là Chief Marketing Officer(CMO) với 20 năm kinh nghiệm.
 Nhiệm vụ: Lên chiến lược content cho thương hiệu dựa trên mục tiêu kinh doanh.
 
 THÔNG TIN THƯƠNG HIỆU:
-        - Tên: ${brand.name}
-        - Ngành: ${brand.industry}
+${brandInfo}
         - Archetype: ${brand.archetype || 'N/A'}
         - Voice: ${brand.voice || 'N/A'}
-        - Khách hàng: ${brand.avatars}
 
 OUTPUT FORMAT:
 Trả về JSON array thuần túy(không markdown block), mỗi item là một object:

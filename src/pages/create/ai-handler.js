@@ -8,6 +8,7 @@ import { openImageEditor } from '../../components/image-editor.js';
 import { generateImage, buildImagePrompt } from '../../services/image-gen.js';
 import { storage } from '../../utils/helpers.js';
 import { icon } from '../../utils/icons.js';
+import { store } from '../../utils/state.js';
 import { t } from '../../utils/i18n.js';
 import { runPredictionCheck } from './predictive-handler.js';
 
@@ -35,17 +36,68 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
             angle: angle,
         };
     } else {
-        // Normal flow — read from form fields
-        const product = document.getElementById('brief-product')?.value?.trim();
-        if (!product) {
+        // Handle Product selection
+        const productSelect = document.getElementById('brief-product-select')?.value;
+        let productStr = '';
+        let productId = null;
+        if (productSelect === 'custom') {
+            productStr = document.getElementById('brief-product')?.value?.trim();
+        } else if (productSelect) {
+            const brand = store.get('brand') || {};
+            const pObj = (brand.products || []).find(p => p.id === productSelect);
+            if (pObj) {
+                productStr = `${pObj.name} - ${pObj.highlight}`;
+                productId = pObj.id;
+            }
+        } else {
+            productStr = document.getElementById('brief-product')?.value?.trim();
+        }
+
+        if (!productStr) {
             showToast(t('create.productRequired'), 'warning');
-            document.getElementById('brief-product')?.focus();
+            document.getElementById('brief-product-select')?.focus();
             return;
         }
+
+        // Handle Avatars (String array vs single ID for now to preserve multi-avatar logic)
+        const avatarSelect = document.getElementById('brief-avatars-select')?.value;
+        let avatarsArr = [];
+        let avatarId = null;
+
+        if (avatarSelect === 'custom') {
+            avatarsArr = document.getElementById('brief-avatars')?.value?.split(',').map(s => s.trim()).filter(Boolean);
+        } else if (avatarSelect) {
+            const brand = store.get('brand') || {};
+            const aObj = (brand.avatars || []).find(a => a.id === avatarSelect);
+            if (aObj) {
+                avatarsArr = [`${aObj.name} (${aObj.description})`];
+                avatarId = aObj.id;
+            }
+        } else {
+            avatarsArr = document.getElementById('brief-avatars')?.value?.split(',').map(s => s.trim()).filter(Boolean);
+        }
+
+        // Handle System Prompt Selection
+        const promptSelect = document.getElementById('brief-prompt-select')?.value;
+        let customPrompt = null;
+        let promptId = null;
+        if (promptSelect) {
+            const brand = store.get('brand') || {};
+            const prObj = (brand.prompts || []).find(p => p.id === promptSelect);
+            if (prObj) {
+                customPrompt = prObj.content;
+                promptId = prObj.id;
+            }
+        }
+
         brief = {
             contentType: document.getElementById('brief-type')?.value,
-            product,
-            avatars: document.getElementById('brief-avatars')?.value?.split(',').map(s => s.trim()).filter(Boolean),
+            product: productStr,
+            productId: productId,
+            avatars: avatarsArr,
+            avatarId: avatarId,
+            promptId: promptId,
+            customPrompt: customPrompt,
             highlight: document.getElementById('brief-highlight')?.value?.trim(),
             promotion: document.getElementById('brief-promotion')?.value?.trim(),
             cta: document.getElementById('brief-cta')?.value,

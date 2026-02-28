@@ -10,7 +10,13 @@ import { icon } from '../utils/icons.js';
 
 export async function renderBrandPage() {
   const app = document.getElementById('app');
-  const brand = store.get('brand') || await loadBrand() || {};
+  let brand = store.get('brand') || await loadBrand() || {};
+
+  // Ensure context library data is initialized as arrays
+  brand.products = Array.isArray(brand.products) ? brand.products : (typeof brand.products === 'string' && brand.products.trim() ? [{ id: Date.now().toString(), name: brand.products.trim(), highlight: '' }] : []);
+  brand.avatars = Array.isArray(brand.avatars) ? brand.avatars : (typeof brand.avatars === 'string' && brand.avatars.trim() ? [{ id: Date.now().toString(), name: brand.avatars.trim(), description: '' }] : []);
+  brand.prompts = Array.isArray(brand.prompts) ? brand.prompts : [];
+
   const isNew = !brand.name;
 
   app.innerHTML = `
@@ -99,52 +105,49 @@ export async function renderBrandPage() {
             </select>
           </div>
 
+          <!-- Context Library (Products, Avatars, Prompts) -->
+          <h4 style="margin-top: var(--space-4);">${icon('database', 18)} ${t('brand.contextLibrary')}</h4>
+
+          <!-- Products List -->
           <div class="input-group">
-            <label for="brand-products">${t('brand.products')}</label>
-            <textarea id="brand-products" class="textarea" rows="3"
-                      placeholder="${t('brand.productsPlaceholder')}">${brand.products || ''}</textarea>
+            <div class="flex justify-between items-center mb-2">
+              <label for="brand-products-list" style="margin: 0;">${t('brand.productsList')}</label>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-add-product">
+                ${icon('plus', 14)} ${t('brand.addProduct')}
+              </button>
+            </div>
+            <div id="products-container" class="flex flex-col gap-3">
+              <!-- Dynamically populated products -->
+              ${renderContextList(brand.products, 'product')}
+            </div>
           </div>
 
+          <!-- Avatars List -->
           <div class="input-group">
-            <label for="brand-hashtags">${t('brand.defaultHashtags')}</label>
-            <input type="text" id="brand-hashtags" class="input"
-                   placeholder="${t('brand.hashtagsPlaceholder')}"
-                   value="${brand.defaultHashtags || ''}">
+            <div class="flex justify-between items-center mb-2">
+              <label for="brand-avatars-list" style="margin: 0;">${t('brand.avatarsList')}</label>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-add-avatar">
+                ${icon('plus', 14)} ${t('brand.addAvatar')}
+              </button>
+            </div>
+            <div id="avatars-container" class="flex flex-col gap-3">
+              <!-- Dynamically populated avatars -->
+              ${renderContextList(brand.avatars, 'avatar')}
+            </div>
           </div>
 
-          <!-- Strategy & Identity -->
-          <h4 style="margin-top: var(--space-4);">${icon('strategy', 18)} ${t('brand.strategyIdentity')}</h4>
-
+          <!-- Prompts List -->
           <div class="input-group">
-            <label for="brand-archetype">${t('brand.archetype')}</label>
-            <select id="brand-archetype" class="select">
-              <option value="">-- ${t('brand.selectArchetype')} --</option>
-              <option value="hero" ${brand.archetype === 'hero' ? 'selected' : ''}>${t('brand.archetypeHero')}</option>
-              <option value="sage" ${brand.archetype === 'sage' ? 'selected' : ''}>${t('brand.archetypeSage')}</option>
-              <option value="magician" ${brand.archetype === 'magician' ? 'selected' : ''}>${t('brand.archetypeMagician')}</option>
-              <option value="ruler" ${brand.archetype === 'ruler' ? 'selected' : ''}>${t('brand.archetypeRuler')}</option>
-              <option value="creator" ${brand.archetype === 'creator' ? 'selected' : ''}>${t('brand.archetypeCreator')}</option>
-              <option value="caregiver" ${brand.archetype === 'caregiver' ? 'selected' : ''}>${t('brand.archetypeCaregiver')}</option>
-              <option value="jester" ${brand.archetype === 'jester' ? 'selected' : ''}>${t('brand.archetypeJester')}</option>
-              <option value="lover" ${brand.archetype === 'lover' ? 'selected' : ''}>${t('brand.archetypeLover')}</option>
-              <option value="explorer" ${brand.archetype === 'explorer' ? 'selected' : ''}>${t('brand.archetypeExplorer')}</option>
-              <option value="outlaw" ${brand.archetype === 'outlaw' ? 'selected' : ''}>${t('brand.archetypeOutlaw')}</option>
-              <option value="innocent" ${brand.archetype === 'innocent' ? 'selected' : ''}>${t('brand.archetypeInnocent')}</option>
-              <option value="everyman" ${brand.archetype === 'everyman' ? 'selected' : ''}>${t('brand.archetypeEveryman')}</option>
-            </select>
-            <p class="text-xs text-muted" style="margin-top: 4px;">${t('brand.archetypeHint')}</p>
-          </div>
-
-          <div class="input-group">
-            <label for="brand-voice">${t('brand.voiceGuidelines')}</label>
-            <textarea id="brand-voice" class="textarea" rows="3"
-                      placeholder="${t('brand.voiceGuidelinesPlaceholder')}">${brand.voice || ''}</textarea>
-          </div>
-
-          <div class="input-group">
-            <label for="brand-avatars">${t('brand.customerAvatars')}</label>
-            <textarea id="brand-avatars" class="textarea" rows="3"
-                      placeholder="${t('brand.customerAvatarsPlaceholder')}">${brand.avatars || ''}</textarea>
+            <div class="flex justify-between items-center mb-2">
+              <label for="brand-prompts-list" style="margin: 0;">${t('brand.promptsList')}</label>
+              <button type="button" class="btn btn-secondary btn-sm" id="btn-add-prompt">
+                ${icon('plus', 14)} ${t('brand.addPrompt')}
+              </button>
+            </div>
+            <div id="prompts-container" class="flex flex-col gap-3">
+              <!-- Dynamically populated prompts -->
+              ${renderContextList(brand.prompts, 'prompt')}
+            </div>
           </div>
 
           <h4 style="margin-top: var(--space-4);">${icon('brand', 18)} ${t('brand.designTokens')}</h4>
@@ -211,6 +214,7 @@ export async function renderBrandPage() {
   `;
 
   attachSidebarEvents();
+  attachContextLibraryEvents(brand);
 
   // Logo upload handling
   let uploadedLogoUrl = brand.logoUrl || null;
@@ -366,11 +370,29 @@ export async function renderBrandPage() {
         industry: document.getElementById('brand-industry')?.value,
         targetAudience: document.getElementById('brand-target')?.value?.trim(),
         tone: document.getElementById('brand-tone')?.value,
-        products: document.getElementById('brand-products')?.value?.trim(),
         defaultHashtags: document.getElementById('brand-hashtags')?.value?.trim(),
+
+        // Extract context library arrays from DOM
+        products: Array.from(document.querySelectorAll('.context-item[data-type="product"]')).map(el => ({
+          id: el.dataset.id,
+          name: el.querySelector('.ctx-name').value.trim(),
+          highlight: el.querySelector('.ctx-desc').value.trim()
+        })).filter(p => p.name),
+
+        avatars: Array.from(document.querySelectorAll('.context-item[data-type="avatar"]')).map(el => ({
+          id: el.dataset.id,
+          name: el.querySelector('.ctx-name').value.trim(),
+          description: el.querySelector('.ctx-desc').value.trim()
+        })).filter(a => a.name),
+
+        prompts: Array.from(document.querySelectorAll('.context-item[data-type="prompt"]')).map(el => ({
+          id: el.dataset.id,
+          name: el.querySelector('.ctx-name').value.trim(),
+          content: el.querySelector('.ctx-desc').value.trim()
+        })).filter(p => p.name),
+
         archetype: document.getElementById('brand-archetype')?.value,
         voice: document.getElementById('brand-voice')?.value?.trim(),
-        avatars: document.getElementById('brand-avatars')?.value?.trim(),
         disclaimer: document.getElementById('brand-disclaimer')?.value?.trim(),
         colorPrimary: document.getElementById('brand-color-primary')?.value,
         colorSecondary: document.getElementById('brand-color-secondary')?.value,
@@ -399,4 +421,89 @@ function renderOnboardingBanner() {
       </div>
     </div>
   `;
+}
+
+// === Context Library Helpers ===
+
+function renderContextList(items, type) {
+  if (!items || items.length === 0) {
+    return `<div class="empty-list-placeholder text-sm text-muted" style="padding: var(--space-3); border: 1px dashed var(--border); border-radius: var(--radius-md); text-align: center;">${t('brand.emptyList')}</div>`;
+  }
+
+  let html = '';
+  // Name and Desc placeholder resolution based on type
+  const tNameLabel = t(`brand.${type}Name`);
+  const tNamePlaceholder = t(`brand.${type}NamePlaceholder`);
+  const tDescLabel = type === 'product' ? t('brand.productHighlight') : (type === 'avatar' ? t('brand.avatarDesc') : t('brand.promptContent'));
+  const tDescPlaceholder = type === 'product' ? t('brand.productHighlightPlaceholder') : (type === 'avatar' ? t('brand.avatarDescPlaceholder') : t('brand.promptContentPlaceholder'));
+
+  items.forEach(item => {
+    const descValue = item.highlight || item.description || item.content || '';
+    html += `
+      <div class="context-item card" data-id="${item.id}" data-type="${type}" style="padding: var(--space-3); border: 1px solid var(--border);">
+        <div class="flex justify-between items-start mb-2">
+          <input type="text" class="input ctx-name" style="font-weight: 600; padding: 4px 8px;" placeholder="${tNamePlaceholder}" value="${escapeHtml(item.name || '')}" required>
+          <button type="button" class="btn btn-ghost btn-icon btn-delete-ctx" style="color: var(--danger); padding: 4px;">${icon('trash', 14)}</button>
+        </div>
+        <textarea class="textarea ctx-desc" rows="2" style="font-size: var(--font-sm); padding: 6px 8px;" placeholder="${tDescPlaceholder}">${escapeHtml(descValue)}</textarea>
+      </div>
+    `;
+  });
+  return html;
+}
+
+function escapeHtml(unsafe) {
+  return (unsafe || '').toString()
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function attachContextLibraryEvents(brand) {
+  const attachDeleteEvents = (containerId) => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-delete-ctx');
+      if (btn) {
+        if (confirm(t('brand.deleteItemConfirm'))) {
+          const itemEl = btn.closest('.context-item');
+          itemEl.remove();
+          // Show placeholder if empty
+          if (container.querySelectorAll('.context-item').length === 0) {
+            container.innerHTML = `<div class="empty-list-placeholder text-sm text-muted" style="padding: var(--space-3); border: 1px dashed var(--border); border-radius: var(--radius-md); text-align: center;">${t('brand.emptyList')}</div>`;
+          }
+        }
+      }
+    });
+  };
+
+  attachDeleteEvents('products-container');
+  attachDeleteEvents('avatars-container');
+  attachDeleteEvents('prompts-container');
+
+  const addItem = (containerId, type) => {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    // Remove placeholder if it exists
+    const placeholder = container.querySelector('.empty-list-placeholder');
+    if (placeholder) placeholder.remove();
+
+    const newItemHtml = renderContextList([{ id: Date.now().toString(), name: '' }], type);
+    container.insertAdjacentHTML('beforeend', newItemHtml);
+
+    // Focus the newly added input
+    const inputs = container.querySelectorAll('.ctx-name');
+    if (inputs.length > 0) {
+      inputs[inputs.length - 1].focus();
+    }
+  };
+
+  document.getElementById('btn-add-product')?.addEventListener('click', () => addItem('products-container', 'product'));
+  document.getElementById('btn-add-avatar')?.addEventListener('click', () => addItem('avatars-container', 'avatar'));
+  document.getElementById('btn-add-prompt')?.addEventListener('click', () => addItem('prompts-container', 'prompt'));
 }
