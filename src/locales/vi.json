@@ -315,7 +315,11 @@
                 "postsComingSoon": "Tạo bài viết",
                 "postsDesc": "Chọn angle ở bước 2, rồi qua trang Tạo nội dung để viết bài.",
                 "pillarDescPrompt": "Mô tả ngắn về pillar này",
-                "selectPillar": "Chọn pillar (nhập số)"
+                "selectPillar": "Chọn pillar (nhập số)",
+                "createPost": "✨ Tạo bài viết",
+                "campaignPosts": "Bài viết thuộc chiến dịch",
+                "untitledPost": "Bài viết",
+                "loadPostsError": "Lỗi tải bài viết"
         },
         "conversion": {
                 "title": "Theo dõi chuyển đổi",
@@ -437,7 +441,10 @@
                 "scheduleDeleted": "Đã xoá lịch",
                 "noSchedulesYet": "Chưa có lịch nào cho ngày này",
                 "selectContentRequired": "Vui lòng chọn bài viết",
-                "scheduleAdded": "Đã thêm lịch đăng bài!"
+                "scheduleAdded": "Đã thêm lịch đăng bài!",
+                "statsScheduled": "bài lên lịch tháng này",
+                "statsPublished": "đã đăng",
+                "statsPending": "chờ đăng"
         },
         "publish": {
                 "title": "Nhật ký đăng",
@@ -491,6 +498,21 @@
                 "createFirstPost": "Tạo bài đầu tiên",
                 "post": "Bài viết",
                 "brandSetupTip": "Hãy setup Brand Profile để AI viết chuẩn tone hơn!"
+        },
+        "designer": {
+                "title": "Designer Hub",
+                "subtitle": "Quản lý các task thiết kế hình ảnh cho bài viết & Sinh AI Prompt cho Midjourney/Photoshop.",
+                "backlog": "Chờ thiết kế (Backlog)",
+                "inProgress": "Đang làm (In Progress)",
+                "review": "Chờ duyệt hình",
+                "done": "Hoàn tất",
+                "emptyBacklog": "Kéo bài viết vào đây",
+                "emptyInProgress": "Đang thiết kế...",
+                "emptyReview": "Chờ manager duyệt",
+                "emptyDone": "Hoàn tất!",
+                "generatePrompt": "Tạo Prompt (AI)",
+                "noTitle": "Không có tiêu đề",
+                "noHighlight": "Chưa rõ điểm nổi bật..."
         },
         "library": {
                 "title": "Thư viện content",

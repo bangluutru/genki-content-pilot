@@ -40,7 +40,7 @@ export async function initTheme(user = null) {
         }
     }
 
-    console.log(`🎨 Theme initialized: ${currentTheme}`);
+    // Theme initialized
 }
 
 /**

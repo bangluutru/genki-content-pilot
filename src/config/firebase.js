@@ -43,7 +43,7 @@ export async function initFirebase() {
         db = getFirestore(app);
         storage = getStorage(app);
         _initialized = true;
-        console.log('✅ Firebase initialized');
+        // Firebase initialized successfully
     } catch (error) {
         console.error('Firebase init failed:', error);
         _initialized = true;

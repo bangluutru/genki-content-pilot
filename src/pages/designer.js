@@ -11,12 +11,19 @@ import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
 import { timeAgo } from '../utils/helpers.js';
 
-const COLUMNS = [
-  { id: 'backlog', title: 'Chờ thiết kế (Backlog)', color: 'var(--text-muted)' },
-  { id: 'in_progress', title: 'Đang làm (In Progress)', color: 'var(--color-info)' },
-  { id: 'review', title: 'Chờ duyệt hình', color: 'var(--color-warning)' },
-  { id: 'done', title: 'Hoàn tất', color: 'var(--color-success)' }
-];
+const COLUMN_IDS = ['backlog', 'in_progress', 'review', 'done'];
+const COLUMN_COLORS = {
+  backlog: 'var(--text-muted)',
+  in_progress: 'var(--color-info)',
+  review: 'var(--color-warning)',
+  done: 'var(--color-success)'
+};
+
+const getColumns = (t) => COLUMN_IDS.map(id => ({
+  id,
+  title: t(`designer.${id === 'in_progress' ? 'inProgress' : id}`),
+  color: COLUMN_COLORS[id]
+}));
 
 export async function renderDesignerPage() {
   const app = document.getElementById('app');
@@ -37,14 +44,14 @@ export async function renderDesignerPage() {
       <div class="mb-6" style="flex-shrink: 0;">
         <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('image', 28)} Designer Hub</h1>
         <p class="text-muted text-sm" style="margin-top: var(--space-1);">
-          Quản lý các task thiết kế hình ảnh cho bài viết &amp; Sinh AI Prompt cho Midjourney/Photoshop.
+          ${t('designer.subtitle')}
         </p>
       </div>
 
       <!-- Kanban Board -->
       <div id="kanban-scroll-wrap" style="flex: 1; min-height: 0; overflow-x: auto; overflow-y: hidden; padding-bottom: var(--space-4); position: relative;">
         <div class="kanban-board" style="display: flex; gap: var(--space-4); height: 100%; min-width: max-content;">
-          ${COLUMNS.map(col => renderKanbanColumn(col, allContents)).join('')}
+          ${getColumns(t).map(col => renderKanbanColumn(col, allContents)).join('')}
         </div>
         <div id="kanban-scroll-hint" style="position: absolute; right: 0; top: 0; bottom: 0; width: 48px; background: linear-gradient(to right, transparent, var(--bg-primary)); display: flex; align-items: center; justify-content: center; pointer-events: none; transition: opacity 0.3s;">
           <span style="font-size: 20px; opacity: 0.6; animation: pulseRight 1.5s ease-in-out infinite;">→</span>
@@ -81,7 +88,7 @@ function renderKanbanColumn(col, contents) {
         ${colContents.length > 0 ? colContents.map(c => renderKanbanCard(c, col.id)).join('') : `
           <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; opacity: 0.4; text-align: center; padding: var(--space-4);">
             <span style="font-size: 32px; margin-bottom: var(--space-2);">${col.id === 'backlog' ? '📋' : col.id === 'in_progress' ? '🎨' : col.id === 'review' ? '👀' : '✅'}</span>
-            <span style="font-size: var(--font-xs); color: var(--text-muted);">${col.id === 'backlog' ? 'Kéo bài viết vào đây' : col.id === 'in_progress' ? 'Đang thiết kế...' : col.id === 'review' ? 'Chờ manager duyệt' : 'Hoàn tất!'}</span>
+            <span style="font-size: var(--font-xs); color: var(--text-muted);">${col.id === 'backlog' ? t('designer.emptyBacklog') : col.id === 'in_progress' ? t('designer.emptyInProgress') : col.id === 'review' ? t('designer.emptyReview') : t('designer.emptyDone')}</span>
           </div>
         `}
       </div>
@@ -96,15 +103,15 @@ function renderKanbanCard(content, currentColumnId) {
     : '';
 
   // Determine which column is next/prev for movement arrows
-  const colIndex = COLUMNS.findIndex(c => c.id === currentColumnId);
-  const prevCol = colIndex > 0 ? COLUMNS[colIndex - 1].id : null;
-  const nextCol = colIndex < COLUMNS.length - 1 ? COLUMNS[colIndex + 1].id : null;
+  const colIndex = COLUMN_IDS.indexOf(currentColumnId);
+  const prevCol = colIndex > 0 ? COLUMN_IDS[colIndex - 1] : null;
+  const nextCol = colIndex < COLUMN_IDS.length - 1 ? COLUMN_IDS[colIndex + 1] : null;
 
   return `
-    <div class="card kanban-card" data-id="${content.id}" draggable="true" style="padding: var(--space-3); border-left: 3px solid ${COLUMNS[colIndex].color}; cursor: grab; transition: opacity 0.2s, transform 0.2s;">
+    <div class="card kanban-card" data-id="${content.id}" draggable="true" style="padding: var(--space-3); border-left: 3px solid ${COLUMN_COLORS[currentColumnId]}; cursor: grab; transition: opacity 0.2s, transform 0.2s;">
       <div class="flex justify-between items-start mb-2">
         <h4 style="font-size: var(--font-sm); font-weight: 600; margin: 0; line-height: 1.4;">
-          ${content.product || content.brief || 'Không có tiêu đề'}
+          ${content.product || content.brief || t('designer.noTitle')}
         </h4>
         <div class="flex gap-1">
           ${prevCol ? `<button class="btn btn-ghost btn-icon btn-move-card" data-id="${content.id}" data-target="${prevCol}" title="Di chuyển lùi" style="width: 24px; height: 24px; padding: 0;">${icon('arrow-left', 14)}</button>` : ''}
@@ -113,7 +120,7 @@ function renderKanbanCard(content, currentColumnId) {
       </div>
       
       <p class="text-xs text-muted" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-        ${content.highlight || 'Chưa rõ điểm nổi bật...'}
+        ${content.highlight || t('designer.noHighlight')}
       </p>
       
       ${platformsHtml}
@@ -128,7 +135,7 @@ function renderKanbanCard(content, currentColumnId) {
         </div>
       ` : `
         <button class="btn btn-outline btn-sm btn-full btn-generate-prompt" data-id="${content.id}" style="margin-top: var(--space-3); font-size: 11px;">
-          ${icon('sparkle', 12)} Tạo Prompt (AI)
+          ${icon('sparkle', 12)} ${t('designer.generatePrompt')}
         </button>
       `}
       
@@ -211,7 +218,7 @@ function attachDesignerEvents() {
       } catch (err) {
         showToast('Lỗi AI: ' + err.message, 'error');
         btn.disabled = false;
-        btn.innerHTML = `${icon('sparkle', 12)} Tạo Prompt (AI)`;
+        btn.innerHTML = `${icon('sparkle', 12)} ${t('designer.generatePrompt')}`;
       }
     });
   });

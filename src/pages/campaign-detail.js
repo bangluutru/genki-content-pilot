@@ -259,7 +259,7 @@ function renderAnglesGroupedByPillar(pillars, angles) {
               ` : ''}
               <div style="margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--border-color);">
                 <button class="btn btn-primary btn-sm btn-full btn-create-post-from-angle" data-angle-id="${angle.id}">
-                  ✨ Tạo bài viết
+                  ${t('campaignDetail.createPost')}
                 </button>
               </div>
             </div>
@@ -304,7 +304,7 @@ async function loadAndRenderPosts() {
     // Render list
     container.innerHTML = `
       <div class="flex justify-between items-center" style="margin-bottom: var(--space-4);">
-        <h3>${icon('document', 20)} Bài viết thuộc chiến dịch (${campaignPosts.length})</h3>
+        <h3>${icon('document', 20)} ${t('campaignDetail.campaignPosts')} (${campaignPosts.length})</h3>
       </div>
       <div class="grid gap-3" style="grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));">
         ${campaignPosts.map(post => `
@@ -314,7 +314,7 @@ async function loadAndRenderPosts() {
                  <span class="badge ${post.status === 'published' ? 'badge-success' : 'badge-accent'}">${post.status}</span>
                  <span class="text-xs text-muted">${new Date(post.createdAt).toLocaleDateString()}</span>
                </div>
-               <h4 style="font-size: var(--font-sm); font-weight: 600; line-height: 1.4; margin-bottom: var(--space-1);">${post.brief || 'Bài viết'}</h4>
+               <h4 style="font-size: var(--font-sm); font-weight: 600; line-height: 1.4; margin-bottom: var(--space-1);">${post.brief || t('campaignDetail.untitledPost')}</h4>
                <p class="text-xs text-muted mb-2">Platform: ${post.publishedTo?.join(', ') || 'Draft'}</p>
              </div>
              <p class="text-sm text-muted" style="display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; font-style: italic;">
@@ -325,7 +325,7 @@ async function loadAndRenderPosts() {
       </div>
     `;
   } catch (error) {
-    container.innerHTML = `<p class="text-danger text-center">Lỗi tải bài viết: ${error.message}</p>`;
+    container.innerHTML = `<p class="text-danger text-center">${t('campaignDetail.loadPostsError')}: ${error.message}</p>`;
   }
 }
 

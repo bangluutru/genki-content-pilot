@@ -196,9 +196,9 @@ async function renderMonth() {
     const published = schedules.filter(s => s.status === 'published').length;
     const pending = total - published;
     statsEl.innerHTML = `
-      <span>📅 <strong>${total}</strong> bài lên lịch tháng này</span>
-      <span>✅ <strong>${published}</strong> đã đăng</span>
-      <span>⏳ <strong>${pending}</strong> chờ đăng</span>
+      <span>📅 <strong>${total}</strong> ${t('calendar.statsScheduled')}</span>
+      <span>✅ <strong>${published}</strong> ${t('calendar.statsPublished')}</span>
+      <span>⏳ <strong>${pending}</strong> ${t('calendar.statsPending')}</span>
     `;
   }
 

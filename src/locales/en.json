@@ -322,7 +322,11 @@
                 "postsComingSoon": "Create Posts",
                 "postsDesc": "Select angles in step 2, then go to Create page to write posts.",
                 "pillarDescPrompt": "Brief description of this pillar",
-                "selectPillar": "Select a pillar (enter number)"
+                "selectPillar": "Select a pillar (enter number)",
+                "createPost": "✨ Create Post",
+                "campaignPosts": "Campaign Posts",
+                "untitledPost": "Post",
+                "loadPostsError": "Error loading posts"
         },
         "conversion": {
                 "title": "Conversion Tracking",
@@ -473,6 +477,21 @@
                 "createFirstPost": "Create first post",
                 "post": "Post",
                 "brandSetupTip": "Set up Brand Profile for better AI-generated content!"
+        },
+        "designer": {
+                "title": "Designer Hub",
+                "subtitle": "Manage visual design tasks for posts & generate AI Prompts for Midjourney/Photoshop.",
+                "backlog": "Backlog",
+                "inProgress": "In Progress",
+                "review": "Pending Review",
+                "done": "Done",
+                "emptyBacklog": "Drag posts here",
+                "emptyInProgress": "Designing...",
+                "emptyReview": "Waiting for manager review",
+                "emptyDone": "All done!",
+                "generatePrompt": "Generate Prompt (AI)",
+                "noTitle": "Untitled",
+                "noHighlight": "No highlight yet..."
         },
         "library": {
                 "title": "Content library",
@@ -779,7 +798,10 @@
                 "scheduleDeleted": "Schedule deleted",
                 "noSchedulesYet": "No schedules for this day yet",
                 "selectContentRequired": "Please select content",
-                "scheduleAdded": "Schedule added!"
+                "scheduleAdded": "Schedule added!",
+                "statsScheduled": "scheduled this month",
+                "statsPublished": "published",
+                "statsPending": "pending"
         },
         "empty": {
                 "noCampaigns": {
