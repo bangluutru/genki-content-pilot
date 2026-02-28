@@ -212,7 +212,16 @@
                 "voiceGuidelines": "Hướng dẫn giọng văn (Voice Guidelines)",
                 "voiceGuidelinesPlaceholder": "VD: Dùng từ ngữ bình dân, tránh thuật ngữ chuyên ngành. Luôn xưng 'mình'...",
                 "customerAvatars": "Chân dung khách hàng (Avatars)",
-                "customerAvatarsPlaceholder": "VD: Chị Lan, 35 tuổi, văn phòng, bận rộn, thích nhanh gọn..."
+                "customerAvatarsPlaceholder": "VD: Chị Lan, 35 tuổi, văn phòng, bận rộn, thích nhanh gọn...",
+                "designTokens": "Design System Tokens",
+                "primaryColor": "Màu chủ đạo (Primary Color)",
+                "primaryColorHint": "Sử dụng cho nút, badge, accent",
+                "secondaryColor": "Màu phụ (Secondary Color)",
+                "secondaryColorHint": "Sử dụng cho highlight, link",
+                "brandFont": "Font chữ thương hiệu",
+                "fontDefault": "-- Mặc định (System) --",
+                "previewLabel": "Preview:",
+                "previewSample": "Aa Bb Cc — Thương hiệu XYZ"
         },
         "strategy": {
                 "title": "Chiến lược",
@@ -637,6 +646,9 @@
                 "ctaCustom": "Tự chọn",
                 "notesLabel": "Ghi chú thêm (tuỳ chọn)",
                 "notesPlaceholder": "VD: Nhấn mạnh chất lượng Nhật Bản, dùng cho phụ nữ 25-40 tuổi...",
+                "batchModeLabel": "Batch Mode — Tạo hàng loạt",
+                "batchPlaceholder": "Nhập mỗi sản phẩm/chủ đề trên 1 dòng:\nSerum Vitamin C\nKem chống nắng SPF50\nCollagen dạng nước",
+                "batchHint": "Mỗi dòng = 1 bài viết riêng. Tối đa 5 sản phẩm/lần.",
                 "generateButton": "AI viết content (≈30s)",
                 "aiWriting": "AI đang viết content...",
                 "aiTakesTime": "Thường mất 15-30 giây",

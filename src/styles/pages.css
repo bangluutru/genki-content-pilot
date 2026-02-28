@@ -875,3 +875,69 @@
         flex-direction: column;
     }
 }
+
+/* ---------- Task Overview (Team) ---------- */
+.task-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: var(--space-3);
+}
+
+.task-summary-card {
+    padding: var(--space-3);
+    text-align: center;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+}
+
+.task-summary-card .card-value {
+    font-size: var(--font-xl);
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.task-summary-card .card-label {
+    font-size: var(--font-xs);
+    color: var(--text-muted);
+    margin-top: var(--space-1);
+}
+
+.pipeline-bar {
+    display: flex;
+    height: 28px;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    background: var(--bg-tertiary);
+}
+
+.pipeline-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+    min-width: 2px;
+    transition: width 0.4s ease;
+}
+
+/* ---------- Design Tokens (Brand) ---------- */
+.color-picker-wrap {
+    width: 48px;
+    height: 40px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.hex-input {
+    width: 120px;
+    font-family: monospace;
+}
+
+.color-preview-box {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+}

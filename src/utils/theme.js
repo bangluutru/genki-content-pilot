@@ -93,7 +93,7 @@ export async function setTheme(theme, user = null) {
     // Notify listeners (to update UI icons, etc.)
     notifyListeners();
 
-    console.log(`🎨 Theme changed to: ${theme}`);
+
 }
 
 /**

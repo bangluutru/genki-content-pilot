@@ -39,7 +39,7 @@ export async function initI18n(user = null) {
     // Load translation file
     await loadTranslations(currentLocale);
 
-    console.log(`✅ i18n initialized: ${currentLocale}`);
+
 }
 
 /**
@@ -132,7 +132,7 @@ export async function setLocale(locale, user = null) {
     // Notify listeners (to re-render UI)
     notifyListeners();
 
-    console.log(`🌐 Locale changed to: ${locale}`);
+
 }
 
 /**

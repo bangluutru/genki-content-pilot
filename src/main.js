@@ -188,7 +188,7 @@ router
 
 // Initialize app
 async function init() {
-  console.log('🚀 ContentPilot v2 initializing...');
+
 
   // Show offline banner if Firebase not configured
   showOfflineBanner(document.body);
@@ -197,7 +197,7 @@ async function init() {
     // Wait for auth state with timeout (Firebase may not have config in dev)
     const timeout = new Promise((resolve) => setTimeout(() => resolve(null), 3000));
     const user = await Promise.race([initAuthListener(), timeout]);
-    console.log('Auth state:', user ? `Logged in as ${user.displayName}` : 'Not logged in');
+
 
     // Initialize i18n and theme systems
     const { initI18n } = await import('./utils/i18n.js');

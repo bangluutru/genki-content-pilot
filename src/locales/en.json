@@ -219,7 +219,16 @@
                 "voiceGuidelines": "Voice Guidelines",
                 "voiceGuidelinesPlaceholder": "e.g., Use simple words, avoid jargon. Always use 'we'...",
                 "customerAvatars": "Customer Avatars",
-                "customerAvatarsPlaceholder": "e.g., Sarah, 35yo, office worker, busy, likes quick solutions..."
+                "customerAvatarsPlaceholder": "e.g., Sarah, 35yo, office worker, busy, likes quick solutions...",
+                "designTokens": "Design System Tokens",
+                "primaryColor": "Primary Color",
+                "primaryColorHint": "Used for buttons, badges, accents",
+                "secondaryColor": "Secondary Color",
+                "secondaryColorHint": "Used for highlights, links",
+                "brandFont": "Brand Font",
+                "fontDefault": "-- Default (System) --",
+                "previewLabel": "Preview:",
+                "previewSample": "Aa Bb Cc — Brand XYZ"
         },
         "strategy": {
                 "title": "Strategy Hub",
@@ -619,6 +628,9 @@
                 "ctaCustom": "Custom",
                 "notesLabel": "Additional notes (optional)",
                 "notesPlaceholder": "e.g., Emphasize Japanese quality, target women 25-40 years old...",
+                "batchModeLabel": "Batch Mode — Create in bulk",
+                "batchPlaceholder": "Enter one product/topic per line:\nVitamin C Serum\nSunscreen SPF50\nLiquid Collagen",
+                "batchHint": "Each line = 1 separate post. Maximum 5 products/batch.",
                 "generateButton": "AI write content (≈30s)",
                 "aiWriting": "AI is writing content...",
                 "aiTakesTime": "Usually takes 15-30 seconds",

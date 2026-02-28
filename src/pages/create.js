@@ -186,15 +186,14 @@ export async function renderCreatePage(params = {}) {
                       placeholder="${t('create.notesPlaceholder')}">${draft?.additionalNotes || ''}</textarea>
           </div>
 
-          <!-- Batch Mode Toggle (Improvement #7) -->
           <div class="input-group" style="padding: var(--space-3); background: var(--bg-tertiary); border-radius: var(--radius-md);">
             <label class="flex items-center gap-2" style="cursor: pointer; font-weight: 600;">
               <input type="checkbox" id="batch-mode" class="toggle-input" style="width: 16px; height: 16px;">
-              <span>${icon('clipboard', 16)} Batch Mode — Tạo hàng loạt</span>
+              <span>${icon('clipboard', 16)} ${t('create.batchModeLabel')}</span>
             </label>
             <div id="batch-area" class="hidden" style="margin-top: var(--space-3);">
-              <textarea id="batch-products" class="textarea" rows="4" placeholder="Nhập mỗi sản phẩm/chủ đề trên 1 dòng:&#10;Serum Vitamin C&#10;Kem chống nắng SPF50&#10;Collagen dạng nước"></textarea>
-              <small class="text-muted" style="margin-top: 4px; display: block;">Mỗi dòng = 1 bài viết riêng. Tối đa 5 sản phẩm/lần.</small>
+              <textarea id="batch-products" class="textarea" rows="4" placeholder="${t('create.batchPlaceholder')}"></textarea>
+              <small class="text-muted" style="margin-top: 4px; display: block;">${t('create.batchHint')}</small>
             </div>
           </div>
 
