@@ -7,6 +7,7 @@ import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
+import { getAITemplates, resolveTemplate } from '../utils/smart-templates.js';
 
 const DEFAULT_TEMPLATES = [
   { id: '_default_1', name: `${icon('gift', 16)} ${t('templates.defaultProduct')}`, desc: t('templates.defaultProductDesc'), isDefault: true, fields: { contentType: 'product', product: '', highlight: '', promotion: '', cta: t('templates.ctaBuyNow'), additionalNotes: t('templates.defaultProductNotes') } },
@@ -35,6 +36,23 @@ export async function renderTemplatesPage() {
       <h3 style="margin-bottom: var(--space-4);">${icon('target', 20)} ${t('templates.defaultSection')}</h3>
       <div class="templates-grid" id="default-templates">
         ${DEFAULT_TEMPLATES.map(t => renderTemplateCard(t)).join('')}
+      </div>
+
+      <!-- AI Smart Templates -->
+      <h3 style="margin-top: var(--space-8); margin-bottom: var(--space-4);">${icon('sparkle', 20)} ${t('templates.aiTemplates')}</h3>
+      <div class="templates-grid" id="ai-templates">
+        ${getAITemplates().map(tmpl => `
+          <div class="template-card card" style="border-left: 3px solid var(--accent);">
+            <div style="margin-bottom: var(--space-2);">
+              <strong style="font-size: var(--font-base);">${tmpl.name}</strong>
+              <span class="badge badge-accent" style="font-size: 10px; margin-left: 6px;">AI</span>
+            </div>
+            <p class="text-sm text-muted" style="margin-bottom: var(--space-3);">${tmpl.desc}</p>
+            <button class="btn btn-primary btn-sm ai-template-btn" data-id="${tmpl.id}" style="width: 100%;">
+              ${icon('sparkle', 16)} ${t('templates.useAiTemplate')}
+            </button>
+          </div>
+        `).join('')}
       </div>
 
       <!-- User Templates -->
@@ -122,6 +140,27 @@ export async function renderTemplatesPage() {
       const id = btn.dataset.id;
       const template = DEFAULT_TEMPLATES.find(t => t.id === id);
       if (template) useTemplate(template);
+    });
+  });
+
+  // AI Smart Template handlers
+  document.querySelectorAll('.ai-template-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const resolved = resolveTemplate(btn.dataset.id);
+      if (resolved) {
+        const fields = {
+          product: resolved.product || '',
+          highlight: resolved.highlight || '',
+          additionalNotes: resolved.angle || '',
+          contentType: 'product',
+          cta: '',
+          promotion: '',
+        };
+        sessionStorage.setItem('cp_active_template', JSON.stringify(fields));
+        sessionStorage.setItem('cp_template_name', btn.closest('.template-card').querySelector('strong').textContent);
+        window.location.hash = '#/create';
+        showToast(t('templates.autoFill') + ' ✨', 'success');
+      }
     });
   });
 }

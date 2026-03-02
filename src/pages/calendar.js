@@ -9,6 +9,7 @@ import { showToast } from '../components/toast.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
 import { getEventsForMonth } from '../data/marketing-events.js';
+import { suggestBestSlots, findGaps } from '../utils/schedule-optimizer.js';
 
 let currentYear, currentMonth;
 
@@ -74,6 +75,7 @@ export async function renderCalendarPage() {
               <button class="btn btn-ghost btn-xs quick-time-btn" data-time="11:30">${icon('clock', 12)} 11:30</button>
               <button class="btn btn-ghost btn-xs quick-time-btn" data-time="20:00">${icon('moon', 12)} 20:00</button>
             </div>
+            <div id="smart-schedule-suggestions" style="margin-top: var(--space-3);"></div>
           </div>
 
           <div class="flex gap-2">
@@ -280,6 +282,35 @@ function openModal(date, schedules) {
   const contents = store.get('contents') || [];
   select.innerHTML = `<option value="">— ${t('calendar.selectFromLibrary')} —</option>` +
     contents.map(c => `<option value="${c.id}" data-title="${(c.brief || c.facebook || 'Untitled').slice(0, 50)}">${truncate(c.brief || c.facebook || 'Untitled', 60)}</option>`).join('');
+
+  // Render Smart Schedule Suggestions
+  const suggestionsEl = document.getElementById('smart-schedule-suggestions');
+  if (suggestionsEl) {
+    const schedules = store.get('schedules') || [];
+    const slots = suggestBestSlots(schedules, currentMonth, currentYear, 7);
+    if (slots.length > 0) {
+      suggestionsEl.innerHTML = `
+        <div style="font-size: var(--font-xs); color: var(--text-muted); margin-bottom: 6px;">⚡ ${t('calendar.smartSuggestions')}:</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+          ${slots.map(s => `
+            <button class="btn btn-ghost btn-xs smart-slot-btn" data-date="${s.date}" data-time="${s.time}"
+              style="border: 1px solid var(--accent); font-size: 11px; padding: 4px 8px;"
+              title="${s.reason}">
+              ⚡ ${s.date.slice(5)} ${s.time} <span style="opacity:.6">(${s.score}pt)</span>
+            </button>
+          `).join('')}
+        </div>
+      `;
+      suggestionsEl.querySelectorAll('.smart-slot-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.getElementById('schedule-time').value = btn.dataset.time;
+          showToast(`${t('calendar.autoSchedule')}: ${btn.dataset.date} ${btn.dataset.time}`, 'info');
+        });
+      });
+    } else {
+      suggestionsEl.innerHTML = '';
+    }
+  }
 
   modal.classList.remove('hidden');
 }

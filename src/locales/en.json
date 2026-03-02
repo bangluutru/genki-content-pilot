@@ -276,7 +276,11 @@
                 "templateAwareness": "Brand Awareness",
                 "templateLeadGen": "Lead Generation",
                 "templateLaunch": "New Product Launch",
-                "templateClearance": "Clearance Sale"
+                "templateClearance": "Clearance Sale",
+                "competitorTitle": "🔍 Competitor Analysis",
+                "competitorInput": "Enter competitor name or description (e.g., 'ABC Cosmetics — sells skincare on FB, targets women 25-35')",
+                "analyzeGaps": "Analyze gaps",
+                "createFromGap": "Create content from gap"
         },
         "connections": {
                 "title": "Connections",
@@ -569,13 +573,20 @@
                 "versionCreated": "Created",
                 "versionEdited": "Edited",
                 "versionApproved": "Approved",
-                "versionPublished": "Published"
+                "versionPublished": "Published",
+                "recycleTitle": "♻️ Recycling Suggestions",
+                "scanLibrary": "Scan Library",
+                "recycleNow": "Recycle now",
+                "recycleReason": "Suggested reason"
         },
         "templates": {
                 "title": "Templates",
                 "subtitle": "Brief templates for quick reuse",
                 "createNew": "Create template",
                 "defaultSection": "Default templates",
+                "aiTemplates": "🤖 AI Smart Templates",
+                "autoFill": "Context auto-filled",
+                "useAiTemplate": "Auto-fill & Create",
                 "userSection": "Your templates",
                 "createModalTitle": "Create new template",
                 "name": "Template name",
@@ -905,7 +916,10 @@
                 "statsPublished": "published",
                 "statsPending": "pending",
                 "today": "Today",
-                "createForEvent": "Create content for this event"
+                "createForEvent": "Create content for this event",
+                "smartSuggestions": "Smart time suggestions",
+                "autoSchedule": "Suggested schedule",
+                "optimalSlot": "Optimal slot"
         },
         "empty": {
                 "noCampaigns": {

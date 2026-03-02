@@ -5,7 +5,7 @@
 import { store } from '../utils/state.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
-import { generateStrategy } from '../services/gemini.js';
+import { generateStrategy, analyzeCompetitorGaps } from '../services/gemini.js';
 import { loadBrand } from '../services/firestore.js';
 import { t } from '../utils/i18n.js';
 import { router } from '../utils/router.js';
@@ -119,6 +119,19 @@ export async function renderStrategyPage() {
       <div id="strategy-loading" class="hidden" style="text-align: center; padding: var(--space-12);">
         <div class="loading-spinner" style="margin: 0 auto;"></div>
         <p style="margin-top: var(--space-4);" class="text-muted">${t('strategy.generating')}</p>
+      </div>
+
+      <!-- Competitor Gap Scanner -->
+      <div class="card" style="margin-top: var(--space-6);">
+        <h3 style="margin-bottom: var(--space-3); display: flex; align-items: center; gap: 8px;">
+          ${icon('search', 20)} ${t('strategy.competitorTitle')}
+        </h3>
+        <p class="text-sm text-muted" style="margin-bottom: var(--space-3);">Nhập mô tả đối thủ → AI phân tích content gaps và gợi ý angles</p>
+        <textarea id="competitor-input" class="form-input" rows="3" placeholder="${t('strategy.competitorInput')}"></textarea>
+        <button class="btn btn-secondary btn-sm" id="btn-analyze-competitor" style="margin-top: var(--space-3);">
+          ${icon('sparkle', 14)} ${t('strategy.analyzeGaps')}
+        </button>
+        <div id="competitor-results" class="hidden" style="margin-top: var(--space-4);"></div>
       </div>
 
     </main>
@@ -274,6 +287,54 @@ function renderIdeas(ideas) {
       const idea = JSON.parse(e.target.dataset.json);
       useStrategy(idea);
     });
+  });
+
+  // Competitor Gap Scanner
+  document.getElementById('btn-analyze-competitor')?.addEventListener('click', async () => {
+    const input = document.getElementById('competitor-input')?.value?.trim();
+    if (!input) { showToast('Nhập mô tả đối thủ trước', 'warning'); return; }
+
+    const btn = document.getElementById('btn-analyze-competitor');
+    const resultsEl = document.getElementById('competitor-results');
+    btn.disabled = true;
+    btn.innerHTML = `<span class="loading-spinner-sm"></span> ${t('strategy.generating')}`;
+
+    try {
+      const brand = store.get('brand') || {};
+      const data = await analyzeCompetitorGaps(input, brand);
+
+      resultsEl.innerHTML = `
+        <div class="grid gap-3">
+          <div class="card-flat" style="padding: var(--space-3); border-left: 3px solid var(--color-success);">
+            <h4 class="text-sm font-medium">💪 Đối thủ làm tốt</h4>
+            <ul class="text-sm text-muted" style="padding-left: 16px; margin-top: 6px;">
+              ${(data.strengths || []).map(s => `<li>${s}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="card-flat" style="padding: var(--space-3); border-left: 3px solid var(--color-warning);">
+            <h4 class="text-sm font-medium">🎯 Content Gaps (cơ hội cho bạn)</h4>
+            <ul class="text-sm text-muted" style="padding-left: 16px; margin-top: 6px;">
+              ${(data.gaps || []).map(g => `<li>${g}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="card-flat" style="padding: var(--space-3); border-left: 3px solid var(--accent);">
+            <h4 class="text-sm font-medium">✨ Góc content gợi ý</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px;">
+              ${(data.angles || []).map(a => `
+                <a href="#/create?angle=${encodeURIComponent(a)}" class="btn btn-ghost btn-xs" style="border: 1px solid var(--border);">${a}</a>
+              `).join('')}
+            </div>
+          </div>
+          ${data.summary ? `<p class="text-sm text-muted" style="font-style: italic;">${data.summary}</p>` : ''}
+        </div>
+      `;
+      resultsEl.classList.remove('hidden');
+    } catch (err) {
+      showToast(t('errors.generic') + ': ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = `${icon('sparkle', 14)} ${t('strategy.analyzeGaps')}`;
+    }
   });
 }
 

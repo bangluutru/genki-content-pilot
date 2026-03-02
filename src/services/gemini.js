@@ -270,6 +270,38 @@ Viết NGẮN GỌN (3-4 câu) tổng kết tuần + 1 gợi ý cho tuần tới
     return text.trim();
 }
 
+/**
+ * Analyze competitor content gaps and suggest angles
+ * @param {string} competitorDesc - Description of competitor
+ * @param {Object} brandInfo - Current brand info
+ * @returns {Object} { strengths, gaps, angles, summary }
+ */
+export async function analyzeCompetitorGaps(competitorDesc, brandInfo) {
+    const prompt = `Bạn là chiến lược gia content marketing. Phân tích đối thủ và gợi ý content gaps.
+
+ĐỐI THỦ: ${competitorDesc}
+
+THƯƠNG HIỆU CỦA TÔI:
+- Ngành: ${brandInfo?.industry || 'TPCN'}
+- Đối tượng: ${brandInfo?.targetAudience || 'Phụ nữ 25-45'}
+
+Trả về JSON (CHỈ JSON, không markdown):
+{
+  "strengths": ["Chủ đề đối thủ làm tốt 1", "Chủ đề 2"],
+  "gaps": ["Chủ đề đối thủ bỏ lỡ 1", "Chủ đề 2", "Chủ đề 3"],
+  "angles": ["Góc content bạn nên viết 1", "Góc 2", "Góc 3", "Góc 4", "Góc 5"],
+  "summary": "Tóm tắt 2-3 câu nhận xét chiến lược"
+}`;
+
+    const text = await callGemini(prompt, { temperature: 0.7, maxOutputTokens: 1024 });
+    try {
+        const cleaned = text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        return JSON.parse(cleaned);
+    } catch {
+        return { strengths: [], gaps: [], angles: [text], summary: text };
+    }
+}
+
 /** Build system prompt with brand context and intelligence */
 function buildSystemPrompt(brand, performanceContext = [], customPrompt = null) {
     const brandContext = brand ? `

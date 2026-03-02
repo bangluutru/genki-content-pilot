@@ -245,7 +245,11 @@
                 "templateAwareness": "Brand Awareness",
                 "templateLeadGen": "Thu thập Lead",
                 "templateLaunch": "Ra mắt sản phẩm mới",
-                "templateClearance": "Xả hàng tồn kho"
+                "templateClearance": "Xả hàng tồn kho",
+                "competitorTitle": "🔍 Phân tích Đối thủ",
+                "competitorInput": "Nhập tên hoặc mô tả đối thủ (VD: 'ABC Cosmetics — bán mỹ phẩm trên FB, target phụ nữ 25-35')",
+                "analyzeGaps": "Phân tích gaps",
+                "createFromGap": "Tạo content từ gap"
         },
         "connections": {
                 "title": "Kết nối",
@@ -455,7 +459,10 @@
                 "statsPublished": "đã đăng",
                 "statsPending": "chờ đăng",
                 "today": "Hôm nay",
-                "createForEvent": "Tạo content cho sự kiện này"
+                "createForEvent": "Tạo content cho sự kiện này",
+                "smartSuggestions": "Giờ đề xuất thông minh",
+                "autoSchedule": "Đề xuất lịch",
+                "optimalSlot": "Slot tối ưu"
         },
         "publish": {
                 "title": "Nhật ký đăng",
@@ -568,12 +575,19 @@
                 "versionCreated": "Tạo mới",
                 "versionEdited": "Chỉnh sửa",
                 "versionApproved": "Duyệt",
-                "versionPublished": "Đăng bài"
+                "versionPublished": "Đăng bài",
+                "recycleTitle": "♻️ Gợi ý Tái sử dụng",
+                "scanLibrary": "Quét Thư viện",
+                "recycleNow": "Tái chế ngay",
+                "recycleReason": "Lý do gợi ý"
         },
         "templates": {
                 "title": "Templates",
                 "subtitle": "Templates brief để tái sử dụng nhanh",
                 "createNew": "Tạo template",
+                "aiTemplates": "🤖 AI Smart Templates",
+                "autoFill": "Đã auto-fill context",
+                "useAiTemplate": "Auto-fill & Tạo bài",
                 "defaultSection": "Templates mặc định",
                 "userSection": "Templates của bạn",
                 "createModalTitle": "Tạo template mới",

@@ -12,6 +12,7 @@ import { publishToWordPress } from '../services/wordpress.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
 import { buildTrackingLink } from '../utils/utm.js';
+import { renderRecyclingWidget } from './create/recycle-handler.js';
 
 export async function renderLibraryPage() {
   const app = document.getElementById('app');
@@ -48,6 +49,9 @@ export async function renderLibraryPage() {
         </select>
       </div>
 
+      <!-- Content Recycling Widget -->
+      <div id="recycle-widget"></div>
+
       <!-- Content List -->
       <div id="library-list">
         <div class="skeleton" style="height: 100px; margin-bottom: var(--space-3);"></div>
@@ -70,6 +74,7 @@ export async function renderLibraryPage() {
     const contents = await loadContents(100);
     renderContentList(contents);
     attachLibraryEvents(contents);
+    renderRecyclingWidget(contents, document.getElementById('recycle-widget'));
   } catch (error) {
     console.error('Library load error:', error);
     showToast(t('library.loadError'), 'error');
