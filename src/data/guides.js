@@ -6,11 +6,72 @@
 
 export const GUIDES = [
     {
+        id: 'daily-workflow',
+        title: '🚀 Workflow Hàng Ngày',
+        route: 'dashboard',
+        icon: 'sparkle',
+        shortSummary: 'Quy trình làm việc hàng ngày theo vai trò — MKT Manager vs MKT Executive. Tối ưu hiệu suất team.',
+        content: `
+## Workflow theo Vai trò — Ai Làm Gì, Khi Nào?
+
+ContentPilot được thiết kế cho **hai vai trò chính** trong team marketing. Dưới đây là lịch trình tối ưu cho từng người.
+
+---
+
+### 🎯 Marketing Manager — Lịch trình Ngày
+
+| Giờ | Việc cần làm | Trang | Thời gian |
+|-----|-------------|-------|----------|
+| 8:00 | Đọc Dashboard → check chỉ số + duyệt bài | Dashboard | 5 phút |
+| 8:05 | Duyệt bài chờ ở Approval Queue | Duyệt bài | 10 phút |
+| 8:15 | Check Lịch đăng → sự kiện marketing hôm nay? | Lịch đăng | 3 phút |
+| 8:20 | Đọc Báo cáo tuần AI (thứ 2 hàng tuần) | Dashboard | 5 phút |
+| Chiều | Review A/B test results + Content Score | Tạo content | 15 phút |
+
+**KPI hàng ngày cho Manager:**
+- ✅ Duyệt hết bài pending trước 10:00 sáng
+- 📊 Check Content Score ≥ 70 cho tất cả bài publish
+- 📅 Đảm bảo lịch đăng 3 ngày tới không trống
+
+---
+
+### ✏️ Marketing Executive — Lịch trình Ngày
+
+| Giờ | Việc cần làm | Trang | Thời gian |
+|-----|-------------|-------|----------|
+| 8:30 | Check brief/feedback từ Manager | Duyệt bài | 5 phút |
+| 8:35 | Tạo 3-5 bài content AI | Tạo content | 20 phút |
+| 9:00 | Chạy A/B Test cho bài quan trọng | Tạo content | 10 phút |
+| 9:10 | Cải thiện Content Score → mục tiêu ≥70 | Tạo content | 10 phút |
+| 9:20 | Lên lịch đăng + chọn giờ vàng | Lịch đăng | 5 phút |
+| Chiều | Repurpose top posts + Copy UTM links | Thư viện | 15 phút |
+
+**KPI hàng ngày cho Executive:**
+- 📝 Tạo tối thiểu 3-5 bài/ngày
+- 🔬 A/B test ít nhất 1 bài/ngày cho bài quan trọng
+- 📊 Content Score trung bình ≥ 65 trước khi submit duyệt
+- 🔗 Gắn UTM cho mọi link chia sẻ
+
+---
+
+### 📋 Checklist Thứ Hai Hàng Tuần
+
+1. ☐ Manager: Tạo **Báo cáo tuần AI** trên Dashboard
+2. ☐ Manager: Review Cây Nội dung → đủ ý tưởng cho tuần mới?
+3. ☐ Executive: Batch tạo 15-20 bài cho cả tuần (Batch Mode)
+4. ☐ Executive: Lên lịch đăng tuần mới trên Lịch đăng
+5. ☐ Check Lịch sự kiện marketing → chuẩn bị content sự kiện
+
+> [!TIP]
+> Dành 30 phút thứ 2 để batch nội dung cả tuần. Các ngày còn lại chỉ cần fine-tune và respond trending — giảm 70% thời gian.
+`
+    },
+    {
         id: 'dashboard',
         title: 'Trung tâm Chỉ huy',
         route: 'dashboard',
         icon: 'home',
-        shortSummary: 'Đọc chỉ số quan trọng và điều phối toàn bộ hoạt động marketing trong 60 giây mỗi sáng.',
+        shortSummary: 'Đọc chỉ số, AI báo cáo tuần, và điều phối toàn bộ hoạt động marketing trong 60 giây mỗi sáng.',
         content: `
 ## Triết lý: "CEO sáng" trong 60 Giây
 
@@ -36,12 +97,38 @@ Nhìn vào hình dạng của biểu đồ cột, không phải con số:
 - **Bằng phẳng:** Nhịp ổn định — tốt!
 - **Tăng liên tục:** Team đang accelerate — hãy duy trì!
 
+---
+
+### 🆕 Báo cáo Tuần AI — Tự động Phân tích
+
+Widget **"📊 Báo cáo tuần"** nằm ngay trên Dashboard. Đây là công cụ **chỉ dành cho Manager** để nắm overview cả tuần.
+
+**Cách sử dụng:**
+1. Bấm **"✨ Tạo báo cáo AI"**
+2. Đợi 5-10 giây — AI phân tích toàn bộ content tuần qua
+3. Nhận bản tóm tắt dạng narrative: số liệu + insight + gợi ý tuần tới
+4. Bấm **"Tạo lại"** nếu muốn góc nhìn khác
+
+**Báo cáo bao gồm:**
+- 📈 Tổng bài tạo trong tuần
+- 🏆 Bài nổi bật nhất
+- 💡 Gợi ý content cho tuần tới
+- 🎯 Nhận xét AI về xu hướng sản xuất
+
+**Ví dụ output:**
+*"📊 Tuần qua team đã tạo 18 bài — tăng 20% so với tuần trước! 🏆 Bài nổi bật: 'Collagen Peptide 10000mg — Bí mật da mịn'. 💡 Gợi ý tuần tới: Nên tăng tỷ lệ bài testimonial (hiện chỉ 15%), tập trung vào tệp Mẹ bỉm 28-35."*
+
+> [!TIP]
+> Tạo báo cáo mỗi sáng thứ 2. Copy nội dung gửi vào group chat team để align cả nhóm chỉ trong 30 giây.
+
+---
+
 ### Widget "Cần Duyệt" — Ưu tiên Số 1
 
 Nếu có bài nào hiển thị trong "pending approval", đây là nhiệm vụ **khẩn** của bạn. Mỗi giờ delay = content cũ đi = cơ hội đăng lỡ.
 
-> [!TIP]
-> Cài lịch nhắc hàng ngày 8:00 sáng để check Dashboard. Chỉ mất 60 giây nhưng giúp bạn không bao giờ bị bất ngờ với deadline.
+> [!IMPORTANT]
+> SLA duyệt bài: post organic < 4 tiếng, post có hình < 8 tiếng, paid ads < 24 tiếng.
 `
     },
     {
@@ -128,28 +215,52 @@ Mỗi khi bạn tạo hình bằng AI, hình được lưu vào **Gallery lịch
 
 ---
 
-### Điểm Pre-flight Score
+### 🆕 Điểm Chất lượng Nội dung (Content Score Panel)
 
-Sau khi AI tạo xong, chú ý panel **"Dự đoán hiệu năng"**:
+Sau khi AI tạo xong, **Score Panel** tự động hiển thị — không cần bấm gì!
 
-**🎣 Hook Score:** Sức mạnh câu mở đầu
-- 0-40: Nhạt, người đọc scroll qua → Viết lại hook
-- 41-70: Oke nhưng chưa viral
-- 71-100: Hook sắc, khả năng viral cao
+**Vòng tròn điểm tổng (0-100):**
+- 🟢 **70-100 — Xuất sắc**: Publish ngay
+- 🟡 **40-69 — Trung bình**: Cải thiện 1-2 yếu tố
+- 🔴 **0-39 — Yếu**: Viết lại hoặc dùng A/B Test
 
-**✅ Proof Score:** Mật độ bằng chứng
-- Mỗi con số cụ thể (%, kg, ngày) = +10 điểm
-- Dưới 40 → thêm ít nhất 1 testimonial
+**3 thanh tiến trình:**
 
-**📣 CTA Score:** Sức kéo lời kêu gọi
-- "Inbox ngay" > "Liên hệ mình nhé"
+| Yếu tố | Ý nghĩa | Dưới 40 → Làm gì? |
+|---------|---------|-------------------|
+| 🪝 **Hook** | Câu mở đầu | Thay bằng câu hỏi gây tò mò |
+| 📊 **Proof** | Bằng chứng/số liệu | Thêm con số, testimonial |
+| 🎯 **CTA** | Lời kêu gọi hành động | "Inbox NGAY", "Chỉ còn 50 suất" |
+
+**🔮 AI Auto-Improve:** Dưới thanh điểm có **gợi ý cải thiện**. Bấm **"✨ Cải thiện"** → AI viết lại đúng phần yếu, Score tự cập nhật.
+
+**Ví dụ thực tế:**
+- Bài gốc: Hook 35, Proof 60, CTA 50 → Tổng **48** 🟡
+- Bấm "Cải thiện Hook" → Hook 75 → Tổng **62** (+14 điểm!)
+- Bấm tiếp "Cải thiện CTA" → CTA 80 → Tổng **72** 🟢
 
 > [!TIP]
-> Nhấp vào cảnh báo Vàng/Đỏ dưới bài → AI tự tối ưu lại đúng điểm yếu đó mà không cần viết lại từ đầu.
+> Mục tiêu vàng: Score ≥ 70 trước khi submit duyệt. Dưới 40 → không submit, dùng A/B test.
+
+---
+
+### 🆕 A/B Content Testing — So sánh 2 Phiên bản
+
+Tính năng **game-changing** cho Marketing Executive:
+1. Tạo content AI bình thường
+2. Nút **"🔬 A/B Test"** xuất hiện sau khi tạo xong
+3. Bấm → AI tạo **Version B** với hook + CTA khác hoàn toàn
+4. Xem so sánh cạnh nhau, mỗi version có Score riêng
+5. Bấm **"Chọn A"** hoặc **"Chọn B"**
+
+**Khi nào NÊN dùng:** Bài paid ads, campaign launch, Score < 60
+**Khi nào KHÔNG cần:** Post organic hàng ngày, bài evergreen
+
+---
 
 ### KOC Integration — Giả giọng Thần tượng
 
-Chọn KOC trong dropdown "Giả giọng KOC". AI sẽ bắt chước cấu trúc câu, emoji, từ "cửa miệng", và hashtag của KOC đó → Khách hàng đọc bài mà tưởng KOC tự viết → Trust và conversion tốt hơn.
+Chọn KOC trong dropdown "Giả giọng KOC". AI bắt chước cấu trúc câu, emoji, từ "cửa miệng" → Khách đọc tưởng KOC tự viết → Trust + conversion tốt hơn.
 `
     },
     {
@@ -646,6 +757,27 @@ Một bài Facebook hay → **5 định dạng khác:**
 
 ---
 
+### 🆕 Copy Link + UTM — Tracking Mọi Chia Sẻ
+
+Mỗi card bài viết giờ có nút **"🔗 UTM"**:
+
+1. Bấm nút **UTM** trên bất kỳ card nào
+2. Hệ thống tự tạo link UTM tracking (source, medium, campaign)
+3. Link được copy vào clipboard — dán vào tin nhắn, email, hoặc post
+
+**UTM tự động gắn:**
+- \`utm_source=contentpilot\` — biết traffic từ hệ thống nội bộ
+- \`utm_medium\` — theo loại content (facebook/blog)
+- \`utm_campaign\` — theo ID bài viết
+
+**Tại sao quan trọng?**
+Mỗi link chia sẻ cho KOC, gửi email, hay đăng cross-platform đều cần UTM. Không có UTM = không biết traffic từ đâu = "marketing mù".
+
+> [!TIP]
+> Khi chia link cho KOC, luôn dùng nút UTM. Sau 1 tháng, bạn biết chính xác KOC nào tạo traffic thật.
+
+---
+
 ### Bộ lọc — Tìm bài trong 5 giây
 
 - **Theo trạng thái:** Draft / Published → ưu tiên review draft
@@ -868,6 +1000,39 @@ Dòng thời gian hiển thị mọi hoạt động gần đây:
 ## Lịch đăng — Kế hoạch Content có Hệ thống
 
 Trang Lịch đăng giúp bạn sắp xếp nội dung theo **timeline**, đảm bảo không ai sót bài, không trùng lặp, và đăng đúng "giờ vàng".
+
+---
+
+### 🆕 Sự kiện Marketing — Không Bỏ Lỡ Cơ Hội
+
+Lịch đăng giờ hiển thị **icon sự kiện marketing** (🎄🌸💝...) trên các ô ngày có sự kiện Việt Nam:
+
+**Trên lịch tháng:**
+- Ô ngày có sự kiện sáng lên màu **vàng nhạt**
+- Emoji sự kiện nhấp nháy nhẹ bên cạnh số ngày
+- Hover emoji → xem tên sự kiện + gợi ý content
+
+**Click vào ngày có sự kiện:**
+- Modal popup hiển thị **chi tiết sự kiện**: tên, mô tả, gợi ý góc viết
+- Nút **"✨ Tạo content cho sự kiện này"** → chuyển thẳng sang Xưởng Nháp với context sự kiện
+
+**30+ sự kiện Việt Nam có sẵn:**
+| Tháng | Sự kiện |
+|-------|--------|
+| 1 | Tết Nguyên Đán, Valentine sớm |
+| 3 | 8/3 Ngày Phụ nữ |
+| 4 | 30/4 Giải phóng |
+| 6 | 1/6 Thiếu nhi |
+| 10 | 20/10 Phụ nữ VN |
+| 11 | Singles Day 11/11 |
+| 12 | Giáng sinh, Boxing Day |
+
+**Workflow cho Manager:**
+- Mỗi đầu tháng, xem lịch → biết sự kiện nào sắp tới
+- Brief cho Executive: "Tuần này có 8/3, chuẩn bị 5 bài theo góc: tặng quà, self-care, deal cho phụ nữ"
+
+> [!TIP]
+> Bật lịch đăng **3 tuần trước** sự kiện lớn (Tết, 8/3, 11/11). Seeding sớm = reach tốt hơn.
 
 ---
 
