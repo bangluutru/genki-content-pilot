@@ -176,6 +176,35 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
         document.getElementById('content-blog').textContent = finalContent.blog;
         document.getElementById('content-story').textContent = finalContent.story;
 
+        // Auto-save generated content to Firestore as draft
+        try {
+            const { saveContent, updateContent } = await import('../../services/firestore.js');
+            const context = window.__createContext;
+            const payload = {
+                ...currentContent,
+                status: 'draft',
+                highlight: brief.highlight || '',
+                promotion: brief.promotion || '',
+                product: brief.product || '',
+                productId: brief.productId || null,
+                avatarId: brief.avatarId || null,
+                ...(context && {
+                    campaignId: context.campaign?.id,
+                    pillarId: context.pillar?.id,
+                    angleId: context.angle?.id
+                })
+            };
+            if (window.__savedContentId) {
+                await updateContent(window.__savedContentId, payload);
+            } else {
+                const saved = await saveContent(payload);
+                window.__savedContentId = saved.id;
+            }
+            showToast(t('create.autoSaved') || '💾 Đã tự động lưu nháp', 'info', 2000);
+        } catch (autoSaveErr) {
+            console.warn('Auto-save after generate failed:', autoSaveErr);
+        }
+
         // Clear draft
         storage.remove('draft_brief');
 

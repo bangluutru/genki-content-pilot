@@ -26,7 +26,16 @@ export async function renderCampaignDetailPage(params) {
   }
 
   // Load campaign data
-  const campaigns = await loadCampaigns();
+  let campaigns = [];
+  try {
+    campaigns = await loadCampaigns();
+  } catch (loadErr) {
+    console.error('Failed to load campaigns for detail:', loadErr);
+    showToast(t('errors.generic') + ' — Không tải được danh sách campaign.', 'error');
+    router.navigate('campaigns');
+    return;
+  }
+
   currentCampaign = campaigns.find(c => c.id === campaignId);
 
   if (!currentCampaign) {

@@ -3,9 +3,8 @@
  */
 import { store } from '../utils/state.js';
 import { router } from '../utils/router.js';
-import { loadContents, loadContentStats, loadConnections } from '../services/firestore.js';
-import { loadBrand } from '../services/firestore.js';
-import { timeAgo, truncate } from '../utils/helpers.js';
+import { loadContents, loadContentStats, loadConnections, loadBrand } from '../services/firestore.js';
+import { timeAgo, truncate, escapeHtml } from '../utils/helpers.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { checkDailyLimit } from '../services/gemini.js';
@@ -316,7 +315,7 @@ function renderRecentContent(contents) {
             <span class="badge ${content.status === 'published' ? 'badge-success' : 'badge-accent'}">${content.status === 'published' ? t('status.published') : t('status.draft')}</span>
             <span class="text-sm text-muted">${content.contentType || t('dashboard.post')}</span>
           </div>
-          <p style="margin-top: var(--space-2); font-weight: 500;">${truncate(content.brief || content.facebook || 'Untitled', 80)}</p>
+          <p style="margin-top: var(--space-2); font-weight: 500;">${escapeHtml(truncate(content.brief || content.facebook || 'Untitled', 80))}</p>
         </div>
         <span class="text-sm text-muted" style="white-space: nowrap; margin-left: var(--space-4);">${timeAgo(content.createdAt)}</span>
       </div>

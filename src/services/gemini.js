@@ -268,7 +268,7 @@ function parseGeneratedContent(text) {
 /** Check daily usage limit */
 export function checkDailyLimit() {
     const today = new Date().toISOString().split('T')[0];
-    const key = `cp_usage_${today} `;
+    const key = `cp_usage_${today}`;
     const count = parseInt(localStorage.getItem(key) || '0');
     return { count, limit: 20, remaining: Math.max(0, 20 - count) };
 }
@@ -276,7 +276,7 @@ export function checkDailyLimit() {
 /** Increment usage counter */
 export function incrementUsage() {
     const today = new Date().toISOString().split('T')[0];
-    const key = `cp_usage_${today} `;
+    const key = `cp_usage_${today}`;
     const count = parseInt(localStorage.getItem(key) || '0') + 1;
     localStorage.setItem(key, count.toString());
     return count;

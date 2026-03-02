@@ -11,17 +11,27 @@ import { timeAgo } from '../utils/helpers.js';
 
 export async function renderCampaignsPage() {
   const app = document.getElementById('app');
-  const campaigns = await loadCampaigns();
+  let campaigns = [];
 
-  // Load actual pillar/angle counts from subcollections (not embedded arrays)
-  for (const c of campaigns) {
-    try {
-      c._pillars = await loadPillars(c.id, c);
-      c._angles = await loadAngles(c.id, c._pillars, c);
-    } catch {
-      c._pillars = [];
-      c._angles = [];
+  try {
+    campaigns = await loadCampaigns();
+
+    // Load actual pillar/angle counts from subcollections (not embedded arrays)
+    for (const c of campaigns) {
+      try {
+        c._pillars = await loadPillars(c.id, c);
+        c._angles = await loadAngles(c.id, c._pillars, c);
+      } catch {
+        c._pillars = [];
+        c._angles = [];
+      }
     }
+  } catch (loadErr) {
+    console.error('Failed to load campaigns:', loadErr);
+    if (loadErr?.message?.includes('requires an index')) {
+      console.error('👉 Firestore cần composite index cho campaigns. Chạy: npx firebase-tools deploy --only firestore:indexes');
+    }
+    showToast(t('errors.generic') + ' — Campaigns tải thất bại, vẫn có thể tạo mới.', 'warning', 5000);
   }
 
   app.innerHTML = `

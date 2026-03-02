@@ -104,8 +104,15 @@ export async function loadCampaigns() {
         store.set('campaigns', campaigns);
         return campaigns;
     } catch (error) {
-        console.warn('Firestore loadCampaigns failed, using local:', error);
-        return store.get('campaigns') || [];
+        console.error('❌ Could not load campaigns:', error?.code || error?.message || error);
+        if (error?.message?.includes('requires an index')) {
+            console.error('👉 Firestore cần composite index cho campaigns. Chạy: npx firebase-tools deploy --only firestore:indexes');
+            console.error('👉 Hoặc click link trong error message ở trên để tạo index thủ công.');
+        } else if (error?.code === 'permission-denied' || error?.message?.includes('permission-denied')) {
+            console.error('👉 Firestore Security Rules chưa cho phép. Kiểm tra workspace_members.');
+        }
+        // Re-throw to let the calling page handle gracefully
+        throw error;
     }
 }
 

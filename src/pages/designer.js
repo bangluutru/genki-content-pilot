@@ -5,11 +5,11 @@
 import { store } from '../utils/state.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
-import { loadContents, updateContent } from '../services/firestore.js';
+import { loadContents, updateContent, saveContent } from '../services/firestore.js';
 import { generateImagePrompt } from '../services/gemini.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
-import { timeAgo } from '../utils/helpers.js';
+import { timeAgo, escapeHtml } from '../utils/helpers.js';
 
 const COLUMN_IDS = ['backlog', 'in_progress', 'review', 'done'];
 const COLUMN_COLORS = {
@@ -41,11 +41,17 @@ export async function renderDesignerPage() {
   app.innerHTML = `
     ${renderSidebar()}
     <main class="main-content page" style="height: 100vh; display: flex; flex-direction: column; overflow: hidden;">
-      <div class="mb-6" style="flex-shrink: 0;">
-        <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('image', 28)} Designer Hub</h1>
-        <p class="text-muted text-sm" style="margin-top: var(--space-1);">
-          ${t('designer.subtitle')}
-        </p>
+      <div class="mb-6 flex justify-between items-start" style="flex-shrink: 0;">
+        <div>
+          <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('image', 28)} Designer Hub</h1>
+          <p class="text-muted text-sm" style="margin-top: var(--space-1);">
+            ${t('designer.subtitle')}
+          </p>
+        </div>
+        <div class="flex gap-2">
+          <a href="#/library" class="btn btn-ghost btn-sm">${icon('clipboard', 14)} ${t('designer.importLibrary') || 'Import từ Thư viện'}</a>
+          <button class="btn btn-primary btn-sm" id="btn-add-designer-task">${icon('sparkle', 14)} ${t('designer.addTask') || '+ Thêm Task'}</button>
+        </div>
       </div>
 
       <!-- Kanban Board -->
@@ -60,6 +66,34 @@ export async function renderDesignerPage() {
       <style>
         @keyframes pulseRight { 0%,100% { transform: translateX(0); opacity: 0.4; } 50% { transform: translateX(4px); opacity: 0.8; } }
       </style>
+
+      <!-- Add Task Modal -->
+      <div id="modal-add-designer-task" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 480px;">
+          <div class="modal-header">
+            <h3>${icon('sparkle', 18)} ${t('designer.addTaskTitle') || 'Tạo Task Thiết Kế Mới'}</h3>
+            <button class="btn-close" id="btn-close-designer-modal">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label>${icon('gift', 16)} ${t('designer.taskProduct') || 'Tên sản phẩm / Tiêu đề'} *</label>
+              <input type="text" id="designer-task-product" class="input" placeholder="VD: Serum Vitamin C...">
+            </div>
+            <div class="form-group">
+              <label>${icon('star', 16)} ${t('designer.taskHighlight') || 'Điểm nổi bật / Mô tả'}</label>
+              <input type="text" id="designer-task-highlight" class="input" placeholder="VD: Sáng da, mờ thâm, giảm nếp nhăn...">
+            </div>
+            <div class="form-group">
+              <label>${icon('edit', 16)} ${t('designer.taskContent') || 'Nội dung bài viết (Brief)'}</label>
+              <textarea id="designer-task-content" class="textarea" rows="4" placeholder="Paste nội dung bài viết để AI tạo prompt ảnh phù hợp..."></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-ghost" id="btn-cancel-designer-modal">${t('actions.cancel') || 'Huỷ'}</button>
+            <button class="btn btn-primary" id="btn-save-designer-task">${icon('save', 14)} ${t('actions.save') || 'Lưu'}</button>
+          </div>
+        </div>
+      </div>
     </main>
   `;
 
@@ -111,7 +145,7 @@ function renderKanbanCard(content, currentColumnId) {
     <div class="card kanban-card" data-id="${content.id}" draggable="true" style="padding: var(--space-3); border-left: 3px solid ${COLUMN_COLORS[currentColumnId]}; cursor: grab; transition: opacity 0.2s, transform 0.2s;">
       <div class="flex justify-between items-start mb-2">
         <h4 style="font-size: var(--font-sm); font-weight: 600; margin: 0; line-height: 1.4;">
-          ${content.product || content.brief || t('designer.noTitle')}
+          ${escapeHtml(content.product || content.brief || t('designer.noTitle'))}
         </h4>
         <div class="flex gap-1">
           ${prevCol ? `<button class="btn btn-ghost btn-icon btn-move-card" data-id="${content.id}" data-target="${prevCol}" title="Di chuyển lùi" style="width: 24px; height: 24px; padding: 0;">${icon('arrow-left', 14)}</button>` : ''}
@@ -120,7 +154,7 @@ function renderKanbanCard(content, currentColumnId) {
       </div>
       
       <p class="text-xs text-muted" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-        ${content.highlight || t('designer.noHighlight')}
+        ${escapeHtml(content.highlight || t('designer.noHighlight'))}
       </p>
       
       ${platformsHtml}
@@ -158,6 +192,52 @@ function attachDesignerEvents() {
     scrollWrap.addEventListener('scroll', checkScroll);
     checkScroll(); // initial check
   }
+
+  // Add Task Modal
+  const addTaskModal = document.getElementById('modal-add-designer-task');
+  const openAddTask = () => addTaskModal?.classList.remove('hidden');
+  const closeAddTask = () => addTaskModal?.classList.add('hidden');
+
+  document.getElementById('btn-add-designer-task')?.addEventListener('click', openAddTask);
+  document.getElementById('btn-close-designer-modal')?.addEventListener('click', closeAddTask);
+  document.getElementById('btn-cancel-designer-modal')?.addEventListener('click', closeAddTask);
+
+  document.getElementById('btn-save-designer-task')?.addEventListener('click', async () => {
+    const product = document.getElementById('designer-task-product')?.value?.trim();
+    const highlight = document.getElementById('designer-task-highlight')?.value?.trim();
+    const contentText = document.getElementById('designer-task-content')?.value?.trim();
+
+    if (!product) {
+      showToast(t('validation.required') || 'Vui lòng nhập tên sản phẩm', 'warning');
+      document.getElementById('designer-task-product')?.focus();
+      return;
+    }
+
+    const saveBtn = document.getElementById('btn-save-designer-task');
+    saveBtn.classList.add('loading');
+    saveBtn.disabled = true;
+
+    try {
+      const payload = {
+        product,
+        highlight: highlight || '',
+        brief: product,
+        facebook: contentText || '',
+        status: 'draft',
+        visualStatus: 'backlog',
+      };
+      await saveContent(payload);
+      showToast(t('designer.taskCreated') || '✅ Đã tạo task mới trong Backlog', 'success');
+      closeAddTask();
+      renderDesignerPage(); // Re-render board
+    } catch (err) {
+      console.error('Create designer task error:', err);
+      showToast(t('errors.generic') || 'Lỗi khi lưu task', 'error');
+    } finally {
+      saveBtn.classList.remove('loading');
+      saveBtn.disabled = false;
+    }
+  });
 
   // Handle moving cards
   document.querySelectorAll('.btn-move-card').forEach(btn => {

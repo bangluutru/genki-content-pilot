@@ -120,12 +120,7 @@ export async function initAuthListener() {
 /** Auth guard for router */
 export function authGuard(path) {
     const publicRoutes = ['login'];
-    let user = store.get('user');
-
-    if (!user) {
-        user = { uid: 'test_admin_uid', email: 'admin@test.com', displayName: 'Test Admin', role: 'admin' };
-        store.set('user', user);
-    }
+    const user = store.get('user');
 
     if (!user && !publicRoutes.includes(path)) {
         router.navigate('login');

@@ -5,7 +5,7 @@ import { store } from '../utils/state.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { loadContents, deleteContent, updateContent, loadConnections } from '../services/firestore.js';
-import { copyToClipboard, timeAgo, truncate } from '../utils/helpers.js';
+import { copyToClipboard, timeAgo, truncate, escapeHtml } from '../utils/helpers.js';
 import { confirm } from '../components/modal.js';
 import { publishToFacebook } from '../services/facebook.js';
 import { publishToWordPress } from '../services/wordpress.js';
@@ -125,11 +125,11 @@ function renderContentList(contents) {
       </div>
 
       <p style="font-weight: 500; margin-bottom: var(--space-2);">
-        ${truncate(c.brief || c.facebook?.split('\n')[0] || 'Untitled', 120)}
+        ${escapeHtml(truncate(c.brief || c.facebook?.split('\n')[0] || 'Untitled', 120))}
       </p>
 
       <p class="text-sm text-muted" style="margin-bottom: var(--space-3);">
-        ${truncate(c.facebook || '', 150)}
+        ${escapeHtml(truncate(c.facebook || '', 150))}
       </p>
 
       <div class="flex gap-2" style="flex-wrap: wrap;">
