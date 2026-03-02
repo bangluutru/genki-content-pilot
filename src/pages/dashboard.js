@@ -47,7 +47,7 @@ export async function renderDashboard() {
 
       <!-- Stats Cards -->
       <div class="stats-grid" id="stats-grid">
-        ${renderStatCard(icon('create', 24), t('dashboard.totalPosts'), '—', 'stat-total', 'var(--accent)')}
+        ${renderStatCard(icon('create', 24), t('dashboard.totalPosts'), '—', 'stat-total', '#3b82f6')}
         ${renderStatCard(icon('publish', 24), t('dashboard.published'), '—', 'stat-published', '#10b981')}
         ${renderStatCard(icon('library', 24), t('dashboard.drafts'), '—', 'stat-drafts', '#f59e0b')}
         ${renderStatCard(icon('sparkle', 24), t('dashboard.today'), '—', 'stat-today', '#8b5cf6')}

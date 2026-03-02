@@ -543,7 +543,14 @@
                 "emptyDone": "Hoàn tất!",
                 "generatePrompt": "Tạo Prompt (AI)",
                 "noTitle": "Không có tiêu đề",
-                "noHighlight": "Chưa rõ điểm nổi bật..."
+                "noHighlight": "Chưa rõ điểm nổi bật...",
+                "importLibrary": "Import từ Thư viện",
+                "addTask": "+ Thêm Task",
+                "addTaskTitle": "Tạo Task Thiết Kế Mới",
+                "taskProduct": "Tên sản phẩm / Tiêu đề",
+                "taskHighlight": "Điểm nổi bật / Mô tả",
+                "taskContent": "Nội dung bài viết (Brief)",
+                "taskCreated": "✅ Đã tạo task mới trong Backlog"
         },
         "library": {
                 "title": "Thư viện content",

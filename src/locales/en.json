@@ -541,7 +541,14 @@
                 "emptyDone": "All done!",
                 "generatePrompt": "Generate Prompt (AI)",
                 "noTitle": "Untitled",
-                "noHighlight": "No highlight yet..."
+                "noHighlight": "No highlight yet...",
+                "importLibrary": "Import from Library",
+                "addTask": "+ Add Task",
+                "addTaskTitle": "Create New Design Task",
+                "taskProduct": "Product name / Title",
+                "taskHighlight": "Highlight / Description",
+                "taskContent": "Post content (Brief)",
+                "taskCreated": "✅ New task created in Backlog"
         },
         "library": {
                 "title": "Content library",
