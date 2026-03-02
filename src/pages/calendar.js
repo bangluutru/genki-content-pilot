@@ -8,6 +8,7 @@ import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
+import { getEventsForMonth } from '../data/marketing-events.js';
 
 let currentYear, currentMonth;
 
@@ -165,12 +166,21 @@ async function renderMonth() {
     cells += '<div class="calendar-cell empty"></div>';
   }
 
+  // Load marketing events for this month
+  const marketingEvents = getEventsForMonth(currentMonth, currentYear);
+
   // Day cells
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const isToday = dateStr === todayStr;
     const daySchedules = schedules.filter(s => s.date === dateStr);
     const isPast = new Date(dateStr) < new Date(todayStr);
+
+    // Marketing event badge for this day
+    const dayEvents = marketingEvents.filter(e => e.day === day);
+    const eventBadge = dayEvents.map(e =>
+      `<div class="marketing-event-badge" title="${e.name}: ${e.tip}" data-event-name="${e.name}" data-event-tip="${e.tip}">${e.icon}</div>`
+    ).join('');
 
     const scheduleChips = daySchedules.slice(0, 3).map(s => {
       const chipIcon = s.platform === 'facebook' ? icon('phone', 12) : s.platform === 'blog' ? icon('blog', 12) : icon('phone', 12) + icon('blog', 12);
@@ -180,8 +190,8 @@ async function renderMonth() {
     const moreCount = daySchedules.length > 3 ? `<div class="schedule-more">+${daySchedules.length - 3}</div>` : '';
 
     cells += `
-      <div class="calendar-cell ${isToday ? 'today' : ''}" data-date="${dateStr}">
-        <div class="cell-day">${day}</div>
+      <div class="calendar-cell ${isToday ? 'today' : ''} ${dayEvents.length ? 'has-event' : ''}" data-date="${dateStr}">
+        <div class="cell-day">${eventBadge}${day}</div>
         <div class="cell-schedules">${scheduleChips}${moreCount}</div>
       </div>
     `;
@@ -219,6 +229,19 @@ function openModal(date, schedules) {
   document.getElementById('modal-title').innerHTML = `${icon('calendar', 20)} ${dateLabel}`;
   modal.dataset.date = date;
 
+  // Show marketing events for this date
+  const [, mm, dd] = date.split('-').map(Number);
+  const mktEvents = getEventsForMonth(mm - 1, parseInt(date.split('-')[0])).filter(e => e.day === dd);
+  const eventsHtml = mktEvents.length > 0 ? mktEvents.map(e => `
+    <div style="background: var(--accent-bg, #fef3c7); border-radius: var(--radius-md); padding: var(--space-3); margin-bottom: var(--space-3);">
+      <div style="font-weight: 600;">${e.icon} ${e.name}</div>
+      <div class="text-sm text-muted" style="margin-top: 4px;">${e.tip}</div>
+      <a href="#/create?angle=${encodeURIComponent(e.name)}" class="btn btn-primary btn-sm" style="margin-top: var(--space-2);">
+        ${icon('sparkle', 14)} ${t('calendar.createForEvent')}
+      </a>
+    </div>
+  `).join('') : '';
+
   // Show existing schedules for this date
   const daySchedules = schedules.filter(s => s.date === date);
   const schedulesEl = document.getElementById('modal-schedules');
@@ -249,7 +272,7 @@ function openModal(date, schedules) {
       });
     });
   } else {
-    schedulesEl.innerHTML = `<p class="text-sm text-muted">${t('calendar.noSchedulesYet')}</p>`;
+    schedulesEl.innerHTML = eventsHtml + `<p class="text-sm text-muted">${t('calendar.noSchedulesYet')}</p>`;
   }
 
   // Populate content dropdown

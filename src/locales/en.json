@@ -828,6 +828,33 @@
                 "day": "day",
                 "days": "days"
         },
+        "abtest": {
+                "title": "A/B Content Testing",
+                "trigger": "🔬 A/B Test",
+                "generating": "Generating Version B...",
+                "version": "Version",
+                "original": "Original",
+                "alternative": "Alternative",
+                "select": "Select",
+                "selected": "Selected version",
+                "error": "Failed to generate Version B"
+        },
+        "score": {
+                "title": "Content Quality Score",
+                "excellent": "Excellent",
+                "average": "Average",
+                "needsWork": "Needs Improvement",
+                "predictiveScore": "Predicted conversion performance",
+                "suggestions": "Improvement Suggestions",
+                "improve": "Improve",
+                "improved": "Content improved!"
+        },
+        "weekly": {
+                "title": "Weekly Report",
+                "generate": "Generate AI Report",
+                "generating": "Analyzing...",
+                "refresh": "Regenerate"
+        },
         "errors": {
                 "generic": "Something went wrong.",
                 "unauthorized": "You don't have permission to do this.",
@@ -877,7 +904,8 @@
                 "statsScheduled": "scheduled this month",
                 "statsPublished": "published",
                 "statsPending": "pending",
-                "today": "Today"
+                "today": "Today",
+                "createForEvent": "Create content for this event"
         },
         "empty": {
                 "noCampaigns": {

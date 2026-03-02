@@ -342,6 +342,17 @@ export async function renderCreatePage(params = {}) {
         <!-- Hashtag Optimizer Panel -->
         <div id="hashtag-panel" class="hidden"></div>
 
+        <!-- Content Score Panel -->
+        <div id="score-panel" class="hidden"></div>
+
+        <!-- A/B Test Trigger -->
+        <button class="btn btn-secondary btn-sm hidden" id="ab-test-trigger" style="margin-top: var(--space-3);">
+          ${icon('sparkle', 14)} ${t('abtest.trigger')}
+        </button>
+
+        <!-- A/B Test Panel -->
+        <div id="ab-test-panel" class="hidden"></div>
+
         <!-- Repurpose Panel -->
         <div id="repurpose-panel" class="hidden"></div>
 

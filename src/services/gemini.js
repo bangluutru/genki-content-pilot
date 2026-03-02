@@ -195,6 +195,81 @@ CHỈ TRÌNH BÀY NỘI DUNG ĐÃ CHUYỂN ĐỔI. KHÔNG giải thích, KHÔNG 
     }
 }
 
+/**
+ * Generate a Variant B for A/B testing
+ * @param {string} originalContent - The original content (Version A)
+ * @param {Object} brief - The original brief
+ * @returns {string} The alternative version
+ */
+export async function generateVariantB(originalContent, brief) {
+    const prompt = `Bạn là chuyên gia copywriting. Dưới đây là bài viết GỐC (Version A):
+
+---
+${originalContent}
+---
+
+Hãy viết lại BÀI MỚI (Version B) với:
+1. HOOK khác hoàn toàn (dùng góc tiếp cận khác)
+2. CTA khác (dùng kỹ thuật khác)
+3. Giữ nguyên thông tin sản phẩm/dịch vụ
+4. Cùng độ dài ± 20%
+${brief?.product ? `Sản phẩm: ${brief.product}` : ''}
+${brief?.audience ? `Đối tượng: ${brief.audience}` : ''}
+
+CHỈ VIẾT NỘI DUNG, KHÔNG giải thích.`;
+
+    const text = await callGemini(prompt, { temperature: 0.9, maxOutputTokens: 2048 });
+    return text.trim();
+}
+
+/**
+ * Improve a specific area of content (Hook, Proof, or CTA)
+ * @param {string} content - The current content
+ * @param {string} area - 'hook' | 'proof' | 'cta'
+ * @param {string} suggestion - The improvement suggestion
+ * @returns {string} Improved content
+ */
+export async function improveContentArea(content, area, suggestion) {
+    const areaInstructions = {
+        hook: 'Viết lại phần MỞ BÀI (3 dòng đầu) cho hấp dẫn và thu hút hơn. Dùng câu hỏi gây tò mò hoặc sự kiện bất ngờ.',
+        proof: 'Bổ sung BẰNG CHỨNG thuyết phục vào bài viết: con số, đánh giá khách hàng, hoặc nghiên cứu. Chèn tự nhiên vào giữa bài.',
+        cta: 'Viết lại phần CUỐI BÀI với lời kêu gọi hành động (CTA) rõ ràng, mạnh mẽ, và cấp bách hơn.'
+    };
+
+    const prompt = `Bạn là chuyên gia copywriting. Đây là bài viết hiện tại:
+
+---
+${content}
+---
+
+NHIỆM VỤ: ${areaInstructions[area] || suggestion}
+GỢI Ý BỔ SUNG: ${suggestion}
+
+Viết lại TOÀN BỘ bài viết đã cải thiện. CHỈ VIẾT NỘI DUNG, KHÔNG giải thích.`;
+
+    const text = await callGemini(prompt, { temperature: 0.7, maxOutputTokens: 2048 });
+    return text.trim();
+}
+
+/**
+ * Generate weekly content performance insight
+ * @param {Object} stats - { totalPosts, platforms, topPost, weekLabel }
+ * @returns {string} AI-generated weekly narrative
+ */
+export async function generateWeeklyInsight(stats) {
+    const prompt = `Bạn là Marketing Manager AI. Tổng kết tuần content marketing:
+
+- Tuần: ${stats.weekLabel || 'Tuần này'}
+- Tổng bài: ${stats.totalPosts || 0}
+- Nền tảng: ${stats.platforms || 'Facebook, Blog'}
+- Bài nổi bật: ${stats.topPost || 'N/A'}
+
+Viết NGẮN GỌN (3-4 câu) tổng kết tuần + 1 gợi ý cho tuần tới. Viết tiếng Việt, giọng chuyên nghiệp nhưng thân thiện. Dùng emoji phù hợp.`;
+
+    const text = await callGemini(prompt, { temperature: 0.7, maxOutputTokens: 512 });
+    return text.trim();
+}
+
 /** Build system prompt with brand context and intelligence */
 function buildSystemPrompt(brand, performanceContext = [], customPrompt = null) {
     const brandContext = brand ? `

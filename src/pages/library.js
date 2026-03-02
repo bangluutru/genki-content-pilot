@@ -11,6 +11,7 @@ import { publishToFacebook } from '../services/facebook.js';
 import { publishToWordPress } from '../services/wordpress.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
+import { buildTrackingLink } from '../utils/utm.js';
 
 export async function renderLibraryPage() {
   const app = document.getElementById('app');
@@ -135,6 +136,7 @@ function renderContentList(contents) {
       <div class="flex gap-2" style="flex-wrap: wrap;">
         <button class="btn btn-ghost btn-sm copy-fb-btn" data-id="${c.id}">${icon('clipboard', 14)} ${t('library.copyFB')}</button>
         <button class="btn btn-ghost btn-sm copy-blog-btn" data-id="${c.id}">${icon('clipboard', 14)} ${t('library.copyBlog')}</button>
+        <button class="btn btn-ghost btn-sm copy-utm-btn" data-id="${c.id}" title="Copy link kèm UTM tracking">${icon('link', 14)} UTM</button>
         <button class="btn btn-accent btn-sm publish-btn" data-id="${c.id}">${icon('publish', 14)} ${t('actions.publish')}</button>
         ${events.length > 0 ? `<button class="btn btn-ghost btn-sm btn-history" data-id="${c.id}" style="font-size: 11px;">${icon('templates', 14)} ${t('library.versionHistory')}</button>` : ''}
         <button class="btn btn-ghost btn-sm btn-delete" data-id="${c.id}" style="margin-left: auto; color: var(--danger);">${icon('trash', 14)} ${t('actions.delete')}</button>
@@ -174,6 +176,13 @@ function attachLibraryEvents(allContents) {
     if (btn.classList.contains('copy-blog-btn') && content) {
       await copyToClipboard(content.blog || '');
       showToast(t('library.copiedBlog'), 'success');
+    }
+
+    if (btn.classList.contains('copy-utm-btn') && content) {
+      const baseUrl = content.productUrl || content.landingPage || 'https://example.com';
+      const utmLink = buildTrackingLink(baseUrl, content.id, content.contentType || 'facebook');
+      await copyToClipboard(utmLink);
+      showToast('📋 Copied link + UTM tracking', 'success');
     }
 
     if (btn.classList.contains('btn-delete') && content) {

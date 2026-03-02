@@ -454,7 +454,8 @@
                 "statsScheduled": "bài lên lịch tháng này",
                 "statsPublished": "đã đăng",
                 "statsPending": "chờ đăng",
-                "today": "Hôm nay"
+                "today": "Hôm nay",
+                "createForEvent": "Tạo content cho sự kiện này"
         },
         "publish": {
                 "title": "Nhật ký đăng",
@@ -825,6 +826,33 @@
                 "noUpcoming": "Không có sự kiện nào trong 30 ngày tới.",
                 "day": "ngày",
                 "days": "ngày"
+        },
+        "abtest": {
+                "title": "A/B Content Testing",
+                "trigger": "🔬 A/B Test",
+                "generating": "Đang tạo phiên bản B...",
+                "version": "Phiên bản",
+                "original": "Gốc",
+                "alternative": "Thay thế",
+                "select": "Chọn",
+                "selected": "Đã chọn phiên bản",
+                "error": "Lỗi tạo phiên bản B"
+        },
+        "score": {
+                "title": "Điểm chất lượng nội dung",
+                "excellent": "Xuất sắc",
+                "average": "Trung bình",
+                "needsWork": "Cần cải thiện",
+                "predictiveScore": "Dự đoán hiệu suất chuyển đổi",
+                "suggestions": "Gợi ý cải thiện",
+                "improve": "Cải thiện",
+                "improved": "Đã cải thiện nội dung!"
+        },
+        "weekly": {
+                "title": "Báo cáo tuần",
+                "generate": "Tạo báo cáo AI",
+                "generating": "Đang phân tích...",
+                "refresh": "Tạo lại"
         },
         "errors": {
                 "generic": "Có lỗi xảy ra.",

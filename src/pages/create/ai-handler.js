@@ -12,6 +12,8 @@ import { store } from '../../utils/state.js';
 import { t } from '../../utils/i18n.js';
 import { runPredictionCheck } from './predictive-handler.js';
 import { showRepurposePanel } from './repurpose-handler.js';
+import { showABTestPanel } from './ab-test-handler.js';
+import { renderScorePanel } from './score-panel.js';
 
 /**
  * Handle content generation from brief form OR directly from Angle context
@@ -264,6 +266,18 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
 
         // Show repurpose panel
         showRepurposePanel(finalContent);
+
+        // Render content quality score
+        renderScorePanel(finalContent.facebook);
+
+        // Wire A/B test button
+        const abBtn = document.getElementById('ab-test-trigger');
+        if (abBtn) {
+            abBtn.classList.remove('hidden');
+            abBtn.addEventListener('click', () => {
+                showABTestPanel(finalContent.facebook, { product: brief?.product, audience: brief?.audience });
+            }, { once: true });
+        }
 
         // Run compliance check on Facebook content (bugfix: passed finalContent.facebook)
         if (onContentReady) onContentReady(finalContent.facebook);

@@ -11,6 +11,7 @@ import { checkDailyLimit } from '../services/gemini.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
 import { getUpcomingEvents } from '../data/marketing-events.js';
+import { generateWeeklyInsight } from '../services/gemini.js';
 
 const TYPE_COLORS = [
   '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b',
@@ -104,6 +105,16 @@ export async function renderDashboard() {
         <h3 class="chart-title">${icon('calendar', 18)} ${t('marketing.upcoming')}</h3>
         <div id="marketing-events-widget">
           ${renderMarketingWidget()}
+        </div>
+      </div>
+
+      <!-- Weekly Report Widget -->
+      <div class="card" style="margin-top: var(--space-4);">
+        <h3 class="chart-title">${icon('chart', 18)} ${t('weekly.title')}</h3>
+        <div id="weekly-report-widget">
+          <div class="text-sm text-muted" style="padding: var(--space-3);">
+            <button class="btn btn-secondary btn-sm" id="btn-generate-weekly">${icon('sparkle', 14)} ${t('weekly.generate')}</button>
+          </div>
         </div>
       </div>
 
@@ -495,6 +506,42 @@ function attachDashboardEvents() {
     } finally {
       btnSend.disabled = false;
       btnSend.innerHTML = originalText;
+    }
+  });
+
+  // Weekly Report button
+  document.getElementById('btn-generate-weekly')?.addEventListener('click', async (e) => {
+    const btn = e.target.closest('button');
+    const widget = document.getElementById('weekly-report-widget');
+    if (!widget) return;
+
+    btn.disabled = true;
+    btn.innerHTML = `<span class="loading-spinner-sm"></span> ${t('weekly.generating')}`;
+
+    try {
+      const contents = store.get('contents') || [];
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      const weekContents = contents.filter(c => new Date(c.createdAt) >= weekAgo);
+      const topPost = weekContents[0]?.brief?.slice(0, 50) || weekContents[0]?.product || 'N/A';
+
+      const insight = await generateWeeklyInsight({
+        totalPosts: weekContents.length,
+        platforms: 'Facebook, Blog',
+        topPost,
+        weekLabel: new Date().toLocaleDateString('vi-VN', { day: 'numeric', month: 'long', year: 'numeric' }),
+      });
+
+      widget.innerHTML = `
+        <div style="padding: var(--space-3); font-size: var(--font-sm); line-height: 1.8; white-space: pre-wrap;">
+          ${insight}
+        </div>
+        <button class="btn btn-ghost btn-sm" id="btn-generate-weekly" style="margin-top: var(--space-2);">
+          ${icon('refresh', 12)} ${t('weekly.refresh')}
+        </button>
+      `;
+    } catch (err) {
+      widget.innerHTML = `<p class="text-muted text-sm" style="padding: var(--space-3);">${t('errors.generic')}: ${err.message}</p>`;
     }
   });
 }
