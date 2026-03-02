@@ -100,7 +100,13 @@
                 "strategy": "Strategy",
                 "koc": "KOC & Affiliate",
                 "designer": "Designer Hub",
-                "help": "Help Center"
+                "help": "Help Center",
+                "group": {
+                        "overview": "Overview",
+                        "content": "Content",
+                        "campaigns": "Campaigns",
+                        "settings": "Settings"
+                }
         },
         "channels": {
                 "facebook": "Facebook",
@@ -798,6 +804,29 @@
                 "reportsTitle": "Notifications & Reports",
                 "ceoEmail": "CEO Email for Reports",
                 "ceoEmailHelp": "This email will receive automated weekly reports."
+        },
+        "repurpose": {
+                "title": "Repurpose to other channels",
+                "generating": "Converting content...",
+                "instagram": "Instagram",
+                "blog": "SEO Blog Article",
+                "zalo": "Zalo OA",
+                "tiktok": "TikTok",
+                "email": "Email/Newsletter"
+        },
+        "hashtag": {
+                "title": "Hashtag & CTA Optimizer",
+                "brand": "Brand",
+                "niche": "Niche",
+                "trending": "Trending",
+                "ctaSuggestions": "CTA Suggestions",
+                "copyAll": "Copy all hashtags"
+        },
+        "marketing": {
+                "upcoming": "Upcoming Marketing Events",
+                "noUpcoming": "No marketing events in the next 30 days.",
+                "day": "day",
+                "days": "days"
         },
         "errors": {
                 "generic": "Something went wrong.",

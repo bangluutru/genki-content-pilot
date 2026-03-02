@@ -100,7 +100,13 @@
                 "strategy": "Chiến lược",
                 "koc": "Quản lý KOC",
                 "designer": "Nhà thiết kế",
-                "help": "Trợ giúp"
+                "help": "Trợ giúp",
+                "group": {
+                        "overview": "Tổng quan",
+                        "content": "Nội dung",
+                        "campaigns": "Chiến dịch",
+                        "settings": "Cài đặt"
+                }
         },
         "channels": {
                 "facebook": "Facebook",
@@ -796,6 +802,29 @@
                 "reportsTitle": "Thông báo & Báo cáo",
                 "ceoEmail": "Email nhận báo cáo (CEO)",
                 "ceoEmailHelp": "Email này sẽ nhận các báo cáo tuần tự động từ hệ thống."
+        },
+        "repurpose": {
+                "title": "Chuyển đổi kênh khác",
+                "generating": "Đang chuyển đổi nội dung...",
+                "instagram": "Instagram",
+                "blog": "Bài blog SEO",
+                "zalo": "Zalo OA",
+                "tiktok": "TikTok",
+                "email": "Email/Newsletter"
+        },
+        "hashtag": {
+                "title": "Hashtag & CTA Optimizer",
+                "brand": "Brand",
+                "niche": "Ngách",
+                "trending": "Xu hướng",
+                "ctaSuggestions": "Gợi ý CTA",
+                "copyAll": "Copy tất cả hashtag"
+        },
+        "marketing": {
+                "upcoming": "Sự kiện Marketing sắp tới",
+                "noUpcoming": "Không có sự kiện nào trong 30 ngày tới.",
+                "day": "ngày",
+                "days": "ngày"
         },
         "errors": {
                 "generic": "Có lỗi xảy ra.",

@@ -154,6 +154,47 @@ export async function generateContent(brief) {
     }
 }
 
+/**
+ * Repurpose existing content for a different platform
+ * @param {string} originalContent - The original Facebook post content
+ * @param {string} platformKey - Target platform (instagram, blog, zalo, tiktok, email)
+ * @param {string} platformPrompt - Platform-specific instructions
+ * @returns {string} Repurposed content
+ */
+export async function repurposeForPlatform(originalContent, platformKey, platformPrompt) {
+    const brand = store.get('brand');
+    const brandName = brand?.name || '';
+    const brandTone = brand?.tone || 'thân thiện, chuyên nghiệp';
+
+    const prompt = `Bạn là chuyên gia content marketing.
+Hãy chuyển đổi bài Facebook post sau sang format ${platformKey}.
+
+THƯƠNG HIỆU: ${brandName}
+TONE: ${brandTone}
+
+NỘI DUNG GỐC (Facebook Post):
+---
+${originalContent}
+---
+
+YÊU CẦU CHUYỂN ĐỔI:
+${platformPrompt}
+
+CHỈ TRÌNH BÀY NỘI DUNG ĐÃ CHUYỂN ĐỔI. KHÔNG giải thích, KHÔNG thêm ghi chú.`;
+
+    try {
+        const text = await callGemini(prompt, {
+            temperature: 0.75,
+            topP: 0.9,
+            maxOutputTokens: 4096,
+        });
+        return text.trim();
+    } catch (error) {
+        console.error('Repurpose error:', error);
+        throw error;
+    }
+}
+
 /** Build system prompt with brand context and intelligence */
 function buildSystemPrompt(brand, performanceContext = [], customPrompt = null) {
     const brandContext = brand ? `
@@ -201,7 +242,7 @@ QUY TẮC:
         6. Story: Siêu ngắn, hook mạnh, 1 - 2 dòng
 
 OUTPUT FORMAT(BẮT BUỘC):
-Trả về đúng 3 phần, mỗi phần được đánh dấu bằng header:
+Trả về đúng 4 phần, mỗi phần được đánh dấu bằng header:
 
 === FACEBOOK ===
             [Nội dung Facebook post]
@@ -210,7 +251,13 @@ Trả về đúng 3 phần, mỗi phần được đánh dấu bằng header:
             [Nội dung blog article - có heading, dài hơn]
 
             === STORY ===
-            [Nội dung story caption - siêu ngắn]`;
+            [Nội dung story caption - siêu ngắn]
+
+            === HASHTAGS ===
+            BRAND: #Tag1 #Tag2 #Tag3
+            NICHE: #Tag4 #Tag5 #Tag6 #Tag7 #Tag8
+            TRENDING: #Tag9 #Tag10 #Tag11
+            CTA: [Gợi ý 2-3 CTA phù hợp với mục tiêu bài viết, mỗi CTA trên 1 dòng]`;
 }
 
 /** Build user prompt from guided brief */
@@ -237,23 +284,42 @@ function buildUserPrompt(brief) {
     return prompt;
 }
 
-/** Parse AI response into 3 sections */
+/** Parse AI response into sections */
 function parseGeneratedContent(text) {
     const result = {
         facebook: '',
         blog: '',
         story: '',
+        hashtags: { brand: [], niche: [], trending: [], cta: [] },
         raw: text,
     };
 
     // Try to parse with markers
     const fbMatch = text.match(/===FACEBOOK===([\s\S]*?)(?====BLOG===|$)/);
     const blogMatch = text.match(/===BLOG===([\s\S]*?)(?====STORY===|$)/);
-    const storyMatch = text.match(/===STORY===([\s\S]*?)$/);
+    const storyMatch = text.match(/===STORY===([\s\S]*?)(?====HASHTAGS===|$)/);
+    const hashtagMatch = text.match(/===HASHTAGS===([\s\S]*?)$/);
 
     if (fbMatch) result.facebook = fbMatch[1].trim();
     if (blogMatch) result.blog = blogMatch[1].trim();
     if (storyMatch) result.story = storyMatch[1].trim();
+
+    // Parse hashtags section
+    if (hashtagMatch) {
+        const hashSection = hashtagMatch[1].trim();
+        const brandLine = hashSection.match(/BRAND:\s*(.+)/i);
+        const nicheLine = hashSection.match(/NICHE:\s*(.+)/i);
+        const trendingLine = hashSection.match(/TRENDING:\s*(.+)/i);
+        const ctaMatch = hashSection.match(/CTA:\s*([\s\S]*?)$/i);
+
+        const extractTags = (line) => line ? line[1].match(/#[\wÀ-ỹ]+/g) || [] : [];
+        result.hashtags.brand = extractTags(brandLine);
+        result.hashtags.niche = extractTags(nicheLine);
+        result.hashtags.trending = extractTags(trendingLine);
+        if (ctaMatch) {
+            result.hashtags.cta = ctaMatch[1].trim().split('\n').map(s => s.trim()).filter(Boolean);
+        }
+    }
 
     // Fallback: if parsing failed, put everything in facebook
     if (!result.facebook && !result.blog && !result.story) {

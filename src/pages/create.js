@@ -339,6 +339,12 @@ export async function renderCreatePage(params = {}) {
           </div>
         </div>
 
+        <!-- Hashtag Optimizer Panel -->
+        <div id="hashtag-panel" class="hidden"></div>
+
+        <!-- Repurpose Panel -->
+        <div id="repurpose-panel" class="hidden"></div>
+
         <!-- Variation Panel -->
         <div class="card variation-panel" style="margin-top: var(--space-6);" id="variation-panel">
           <h4 style="margin-bottom: var(--space-4);">${icon('refresh', 18)} ${t('create.variationTitle')}</h4>

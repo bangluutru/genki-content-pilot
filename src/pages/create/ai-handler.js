@@ -11,6 +11,7 @@ import { icon } from '../../utils/icons.js';
 import { store } from '../../utils/state.js';
 import { t } from '../../utils/i18n.js';
 import { runPredictionCheck } from './predictive-handler.js';
+import { showRepurposePanel } from './repurpose-handler.js';
 
 /**
  * Handle content generation from brief form OR directly from Angle context
@@ -176,6 +177,56 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
         document.getElementById('content-blog').textContent = finalContent.blog;
         document.getElementById('content-story').textContent = finalContent.story;
 
+        // Render hashtag optimizer panel (Phase 2)
+        const hashtagPanel = document.getElementById('hashtag-panel');
+        if (hashtagPanel && finalContent.hashtags) {
+            const h = finalContent.hashtags;
+            const hasAny = h.brand.length || h.niche.length || h.trending.length;
+            if (hasAny) {
+                const tagGroup = (label, tags, color) => tags.length ? `
+                    <div style="margin-bottom: var(--space-2);">
+                        <span style="font-size: var(--font-xs); font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">${label}</span>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;">
+                            ${tags.map(tag => `<span class="badge" style="cursor: pointer; background: ${color}; font-size: var(--font-xs);" onclick="navigator.clipboard.writeText('${tag}')" title="Click to copy">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+                ` : '';
+
+                hashtagPanel.innerHTML = `
+                    <div style="margin-top: var(--space-4); padding: var(--space-4); background: var(--surface); border-radius: var(--radius-lg); border: 1px solid var(--border);">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-3);">
+                            <div style="display: flex; align-items: center; gap: var(--space-2);">
+                                ${icon('sparkle', 18)}
+                                <span style="font-weight: 600; font-size: var(--font-sm);">${t('hashtag.title')}</span>
+                            </div>
+                            <button class="btn btn-ghost btn-sm" id="btn-copy-all-hashtags" title="${t('actions.copy')}">
+                                ${icon('copy', 14)} ${t('hashtag.copyAll')}
+                            </button>
+                        </div>
+                        ${tagGroup(t('hashtag.brand'), h.brand, 'var(--primary-light)')}
+                        ${tagGroup(t('hashtag.niche'), h.niche, 'var(--success-bg, rgba(16,185,129,0.1))')}
+                        ${tagGroup(t('hashtag.trending'), h.trending, 'var(--warning-bg, rgba(245,158,11,0.1))')}
+                        ${h.cta.length ? `
+                            <div style="margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--border);">
+                                <span style="font-size: var(--font-xs); font-weight: 600; color: var(--text-muted); text-transform: uppercase;">${t('hashtag.ctaSuggestions')}</span>
+                                <div style="margin-top: 4px;">
+                                    ${h.cta.map(c => `<div style="font-size: var(--font-sm); padding: 4px 0; color: var(--text-secondary);">→ ${c}</div>`).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                hashtagPanel.classList.remove('hidden');
+
+                // Copy all hashtags
+                document.getElementById('btn-copy-all-hashtags')?.addEventListener('click', () => {
+                    const allTags = [...h.brand, ...h.niche, ...h.trending].join(' ');
+                    navigator.clipboard.writeText(allTags);
+                    showToast(t('create.copied'), 'success', 2000);
+                });
+            }
+        }
+
         // Auto-save generated content to Firestore as draft
         try {
             const { saveContent, updateContent } = await import('../../services/firestore.js');
@@ -210,6 +261,9 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
 
         // Run predictive check
         runPredictionCheck(finalContent.facebook);
+
+        // Show repurpose panel
+        showRepurposePanel(finalContent);
 
         // Run compliance check on Facebook content (bugfix: passed finalContent.facebook)
         if (onContentReady) onContentReady(finalContent.facebook);

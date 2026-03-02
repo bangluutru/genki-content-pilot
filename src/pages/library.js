@@ -31,7 +31,7 @@ export async function renderLibraryPage() {
       <!-- Search & Filter -->
       <div class="flex gap-4 mb-6" style="flex-wrap: wrap;">
         <div style="flex: 1; min-width: 200px;">
-          <input type="search" id="search-input" class="input" placeholder="${icon('search', 14)} ${t('library.searchPlaceholder')}">
+          <input type="search" id="search-input" class="input" placeholder="🔍 ${t('library.searchPlaceholder')}">
         </div>
         <select id="filter-status" class="select" style="width: auto; min-width: 150px;">
           <option value="all">${t('common.all')}</option>

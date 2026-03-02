@@ -10,6 +10,7 @@ import { showToast } from '../components/toast.js';
 import { checkDailyLimit } from '../services/gemini.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
+import { getUpcomingEvents } from '../data/marketing-events.js';
 
 const TYPE_COLORS = [
   '#8b5cf6', '#3b82f6', '#10b981', '#f59e0b',
@@ -95,6 +96,14 @@ export async function renderDashboard() {
               <span>${t('dashboard.connectAPI')}</span>
             </a>
           </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Marketing Events Widget -->
+      <div class="card" style="margin-top: var(--space-6);">
+        <h3 class="chart-title">${icon('calendar', 18)} ${t('marketing.upcoming')}</h3>
+        <div id="marketing-events-widget">
+          ${renderMarketingWidget()}
         </div>
       </div>
 
@@ -488,4 +497,34 @@ function attachDashboardEvents() {
       btnSend.innerHTML = originalText;
     }
   });
+}
+
+/** Render upcoming marketing events widget */
+function renderMarketingWidget() {
+  const events = getUpcomingEvents(30);
+  if (!events.length) {
+    return `<p class="text-muted" style="font-size: var(--font-sm); padding: var(--space-2) 0;">${t('marketing.noUpcoming')}</p>`;
+  }
+
+  return events.slice(0, 5).map(evt => {
+    const daysLabel = evt.daysUntil === 0 ? t('common.today')
+      : evt.daysUntil === 1 ? '1 ' + t('marketing.day')
+        : evt.daysUntil + ' ' + t('marketing.days');
+    const urgencyColor = evt.daysUntil <= 3 ? 'var(--danger, #ef4444)'
+      : evt.daysUntil <= 7 ? 'var(--warning, #f59e0b)'
+        : 'var(--text-muted)';
+
+    return `
+      <div style="display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border);">
+        <span style="font-size: 1.5rem; flex-shrink: 0;">${evt.icon}</span>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-weight: 600; font-size: var(--font-sm);">${escapeHtml(evt.name)}</div>
+          <div style="font-size: var(--font-xs); color: var(--text-muted); margin-top: 2px;">${escapeHtml(evt.tip)}</div>
+        </div>
+        <span class="badge" style="background: ${urgencyColor}; color: white; font-size: var(--font-xs); white-space: nowrap; flex-shrink: 0;">
+          ${daysLabel}
+        </span>
+      </div>
+    `;
+  }).join('');
 }

@@ -1,8 +1,7 @@
 /**
  * UTM Generator Utility
  * Auto-generates UTM parameters for content tracking
- * @deprecated All functions in this file are currently unused.
- * Reserved for post-Firebase Conversion Tracking integration.
+ * Used by Library copy and Create publish workflows
  */
 
 /**
