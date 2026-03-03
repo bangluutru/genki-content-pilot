@@ -272,34 +272,56 @@ Chọn KOC trong dropdown "Giả giọng KOC". AI bắt chước cấu trúc câ
     {
         id: 'data-foundation',
         title: 'Phân Hệ Dữ Liệu Lõi (Tiên Quyết)',
-        route: 'settings',
+        route: 'products',
         icon: 'database',
         shortSummary: 'Thiết lập Sản phẩm, Khách hàng (JTBD/Pain Points) và Thị trường. Bắt buộc cho MKT Manager.',
         content: `
 ## Trái tim của AI: Phân Hệ Dữ Liệu Lõi
 
-ContentPilot v2 không chỉ là công cụ viết bài, mà là một **AI Content Strategist**. Để AI viết "sâu" và chạm đúng "nỗi đau" (Pain points) của khách hàng, MKT Manager cần thiết lập 3 module dữ liệu lõi trong phần **Cài đặt**.
+ContentPilot v2 không chỉ là công cụ viết bài, mà là một **AI Content Strategist**. Để AI viết "sâu" và chạm đúng "nỗi đau" (Pain points) của khách hàng, MKT Manager cần thiết lập 3 module dữ liệu lõi trong menu **Cài đặt**.
+
+> [!IMPORTANT]
+> Mỗi module (Sản phẩm, Khách hàng, Thị trường) nay là **trang riêng** với giao diện danh sách. Bạn có thể quản lý **nhiều mục** cho mỗi loại và linh hoạt chuyển đổi khi tạo nội dung.
 
 ---
 
-### 📦 1. Quản lý Sản Phẩm / Dịch Vụ
+### 📦 1. Quản lý Sản Phẩm / Dịch Vụ — *Cài đặt → Sản phẩm*
+
 Thay vì chỉ nhập tên sản phẩm, bạn cung cấp cho AI "vũ khí" bán hàng:
 - **Ngành hàng & Phân loại**
 - **Điểm nổi bật (USP)**: Điểm khác biệt độc nhất so với đối thủ.
 - **Giá bán & Hướng dẫn**: Giúp AI tự động đóng gói lời kêu gọi hành động (CTA) cực chuẩn.
 - **Thành phần & Công dụng**: Để AI tự động chèn proof (bằng chứng) khoa học vào bài viết.
 
-### 👥 2. Chân Dung Khách Hàng (Customer Avatars)
+**Cách thêm nhiều sản phẩm:**
+1. Vào **Cài đặt → Sản phẩm** (sidebar trái)
+2. Bấm **"+ Cập nhật Sản phẩm"** để mở form thêm mới
+3. Điền thông tin → Bấm **"Lưu"** → Sản phẩm thu gọn thành thẻ trong danh sách
+4. Click vào thẻ bất kỳ để **mở rộng & chỉnh sửa** lại
+5. Bấm 🗑️ để **xoá** sản phẩm (có xác nhận)
+
+*Ví dụ: Nhập riêng Collagen Peptide, Omega 3, Magie để Executive chọn đúng sản phẩm khi viết bài.*
+
+---
+
+### 👥 2. Chân Dung Khách Hàng (Customer Avatars) — *Cài đặt → Khách hàng*
+
 Đây là tính năng làm thay đổi hoàn toàn chất lượng AI content. Định hình khách hàng 360 độ:
-- **Nhân khẩu học & Loại hình (B2B/B2C)**: Ví dụ: "Nữ 35-45 tuổi, kinh doanh tự do".
-- **JTBD (Job-to-be-Done)**: Nhiệm vụ họ muốn hoàn thành (VD: "Muốn thăng tiến nhưng thiếu tự tin vì da lão hoá").
-- **Nỗi đau (Pain Points)**: Lý do họ chần chừ xuống tiền (VD: "Sợ dùng mỹ phẩm bị kích ứng").
+- **Nhân khẩu học & Loại hình (B2B/B2C)**: Ví dụ: *"Nữ 35-45 tuổi, kinh doanh tự do"*.
+- **JTBD (Job-to-be-Done)**: Nhiệm vụ họ muốn hoàn thành *(VD: "Muốn thăng tiến nhưng thiếu tự tin vì da lão hoá")*.
+- **Nỗi đau (Pain Points)**: Lý do họ chần chừ xuống tiền *(VD: "Sợ dùng mỹ phẩm bị kích ứng")*.
 - **Mong muốn (Pain Relievers)**: Giải pháp họ thật sự khát khao trải nghiệm.
 
-### 🌍 3. Phân Khúc Thị Trường & Đối Thủ
+*Tạo 2-3 persona: 1 cho người dùng cuối (B2C), 1 cho đại lý/nhà thuốc (B2B). Khi Executive chọn đúng persona, bài viết sẽ hoàn toàn khác nhau về ngôn ngữ và cách tiếp cận.*
+
+---
+
+### 🌍 3. Phân Khúc Thị Trường & Đối Thủ — *Cài đặt → Thị trường*
+
 - **Quy mô & Xu hướng**: AI sẽ dùng dữ kiện này để viết bài bắt trend.
-- **Mối bận tâm của thị trường**: VD: "Thị trường đang chuộng sản phẩm organic".
-- **Đối thủ cạnh tranh**: VD: "Cạnh tranh với hàng xách tay Nhật". AI sẽ khéo léo lồng ghép USP để "đánh bật" đối thủ mà không cần nhắc tên trực tiếp.
+- **Mối bận tâm của thị trường**: VD: *"Thị trường đang chuộng sản phẩm organic"*.
+- **Đối thủ cạnh tranh**: VD: *"Cạnh tranh với hàng xách tay Nhật"*. AI sẽ khéo léo lồng ghép USP để "đánh bật" đối thủ mà không cần nhắc tên trực tiếp.
+- **Kênh tiếp cận**: Facebook Groups, TikTok, nhà thuốc, phòng khám...
 
 ---
 
@@ -307,8 +329,9 @@ Thay vì chỉ nhập tên sản phẩm, bạn cung cấp cho AI "vũ khí" bán
 
 ### 👨‍💼 Đối với Marketing Manager (Người Setup Hub)
 **Nhiệm vụ:**
-1. Dành 30 phút ban đầu để mô hình hóa toàn bộ sản phẩm và tệp khách hàng của công ty vào hệ thống.
-2. Thường xuyên điều chỉnh **Giá bán** (khi có khuyến mãi) hoặc thêm **Tệp khách hàng mới** (khi có định hướng mở rộng thị trường).
+1. Dành 30 phút ban đầu để nhập đầy đủ sản phẩm và tệp khách hàng của công ty.
+2. Thường xuyên điều chỉnh **Giá bán** (khi có khuyến mãi) hoặc thêm **Tệp khách hàng mới** (khi có định hướng mở rộng thị trường). Chỉ cần click vào thẻ tương ứng để sửa.
+
 **Lợi ích:** Đảm bảo 100% nội dung sinh ra bởi team Executive đi đúng định vị thương hiệu và không bị sai thông số kỹ thuật y tế/sản phẩm.
 
 ### 👩‍💻 Đối với Marketing Executive (Người Thực Hành Viết)
