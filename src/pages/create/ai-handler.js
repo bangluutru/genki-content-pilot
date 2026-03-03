@@ -47,9 +47,11 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
             productStr = document.getElementById('brief-product')?.value?.trim();
         } else if (productSelect) {
             const brand = store.get('brand') || {};
-            const pObj = (brand.products || []).find(p => p.id === productSelect);
+            const pObj = (brand.detailedProducts || brand.products || []).find(p => p.id === productSelect);
             if (pObj) {
-                productStr = `${pObj.name} - ${pObj.highlight}`;
+                // If detailed product, inject all properties. Otherwise fallback to old highlight.
+                const uspAttr = pObj.usp || pObj.highlight || '';
+                productStr = `[SẢN PHẨM/DỊCH VỤ]\nTên: ${pObj.name}\nPhân loại: ${pObj.category || ''}\nGiá/Ưu đãi: ${pObj.price || ''}\nThành phần/Đặc điểm: ${pObj.ingredients || ''}\nCông dụng/Lợi ích: ${pObj.benefits || ''}\nĐiểm khác biệt (USP): ${uspAttr}\nHDSD: ${pObj.usage || ''}`;
                 productId = pObj.id;
             }
         } else {
@@ -71,13 +73,28 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
             avatarsArr = document.getElementById('brief-avatars')?.value?.split(',').map(s => s.trim()).filter(Boolean);
         } else if (avatarSelect) {
             const brand = store.get('brand') || {};
-            const aObj = (brand.avatars || []).find(a => a.id === avatarSelect);
+            const aObj = (brand.detailedCustomers || brand.avatars || []).find(a => a.id === avatarSelect);
             if (aObj) {
-                avatarsArr = [`${aObj.name} (${aObj.description})`];
+                const painAttr = aObj.painPoints || aObj.description || '';
+                const avatarStr = `[CHÂN DUNG KHÁCH HÀNG]\nTên: ${aObj.name} (${aObj.type || 'Chưa phân loại'})\nNhân khẩu học: ${aObj.demographics || ''}\nJob-to-be-done (Nhiệm vụ): ${aObj.jtbd || ''}\nNỗi đau (Pain points): ${painAttr}\nGiải pháp mong muốn: ${aObj.painRelievers || ''}\nSở thích/Hành vi: ${aObj.interests || ''}`;
+                avatarsArr = [avatarStr];
                 avatarId = aObj.id;
             }
         } else {
             avatarsArr = document.getElementById('brief-avatars')?.value?.split(',').map(s => s.trim()).filter(Boolean);
+        }
+
+        // Handle Markets
+        const marketSelect = document.getElementById('brief-markets-select')?.value;
+        let marketStr = '';
+        let marketId = null;
+        if (marketSelect) {
+            const brand = store.get('brand') || {};
+            const mObj = (brand.detailedMarkets || []).find(m => m.id === marketSelect);
+            if (mObj) {
+                marketStr = `[THỊ TRƯỜNG MỤC TIÊU]\nTên phân khúc: ${mObj.name}\nĐặc điểm/Quy mô: ${mObj.size || ''}\nXu hướng: ${mObj.trends || ''}\nMối bận tâm chính: ${mObj.concerns || ''}\nĐối thủ cạnh tranh: ${mObj.competitors || ''}\nKênh tiếp cận: ${mObj.channels || ''}`;
+                marketId = mObj.id;
+            }
         }
 
         // Handle System Prompt Selection
@@ -99,6 +116,8 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
             productId: productId,
             avatars: avatarsArr,
             avatarId: avatarId,
+            marketStr: marketStr,
+            marketId: marketId,
             promptId: promptId,
             customPrompt: customPrompt,
             highlight: document.getElementById('brief-highlight')?.value?.trim(),

@@ -81,8 +81,9 @@ export async function renderCreatePage(params = {}) {
 
   // Get brand data specifically for Context Library
   const brandContext = store.get('brand') || await loadBrand() || {};
-  const products = Array.isArray(brandContext.products) ? brandContext.products : [];
-  const avatars = Array.isArray(brandContext.avatars) ? brandContext.avatars : [];
+  const products = Array.isArray(brandContext.detailedProducts) ? brandContext.detailedProducts : [];
+  const avatars = Array.isArray(brandContext.detailedCustomers) ? brandContext.detailedCustomers : [];
+  const markets = Array.isArray(brandContext.detailedMarkets) ? brandContext.detailedMarkets : [];
   const prompts = Array.isArray(brandContext.prompts) ? brandContext.prompts : [];
 
   // Restore draft from localStorage
@@ -166,6 +167,14 @@ export async function renderCreatePage(params = {}) {
                    placeholder="VD: Mẹ bỉm sửa nửa đêm, Dân văn phòng đau lưng (cách nhau bằng dấu phẩy)"
                    value="${draft?.avatars || ''}">
             <small class="text-muted" style="margin-top:4px; display:block;">Nhập nhiều đối tượng để AI tự động nhân bản nội dung (phân tách bởi dấu phẩy).</small>
+          </div>
+          
+          <div class="input-group">
+            <label for="brief-markets-select">🌍 Phân khúc Thị trường</label>
+            <select id="brief-markets-select" class="select">
+              <option value="">-- Mặc định (Không chọn) --</option>
+              ${markets.map(m => `<option value="${m.id}" ${draft?.marketId === m.id ? 'selected' : ''}>${escapeHtml(m.name)}</option>`).join('')}
+            </select>
           </div>
           
           <div class="input-group">

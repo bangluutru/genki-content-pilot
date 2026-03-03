@@ -54,16 +54,22 @@ ContentPilot được thiết kế cho **hai vai trò chính** trong team market
 
 ---
 
-### 📋 Checklist Thứ Hai Hàng Tuần
+### 📋 Checklist Khởi tạo Dự Án Mới (Cho MKT Manager)
 
-1. ☐ Manager: Tạo **Báo cáo tuần AI** trên Dashboard
-2. ☐ Manager: Review Cây Nội dung → đủ ý tưởng cho tuần mới?
-3. ☐ Executive: Batch tạo 15-20 bài cho cả tuần (Batch Mode)
-4. ☐ Executive: Lên lịch đăng tuần mới trên Lịch đăng
-5. ☐ Check Lịch sự kiện marketing → chuẩn bị content sự kiện
+1. ☐ Setup **Sản phẩm/Dịch vụ**: Nhập USP, Thành phần, Giá bán vào Cài đặt > Sản phẩm.
+2. ☐ Setup **Tệp khách hàng (Avatar)**: Phân tích JTBD, Nỗi đau (Pain points) vào Cài đặt > Khách hàng.
+3. ☐ Setup **Thị trường**: Xác định Quy mô, Đối thủ cạnh tranh vào Cài đặt > Thị trường.
+4. ☐ Training cho Executive cách chọn đúng combo (Sản phẩm + Khách hàng + Thị trường) trên Xưởng Nháp.
+
+### 📋 Checklist Thứ Hai Hàng Tuần (Cho Executive)
+
+1. ☐ Tạo **Báo cáo tuần AI** trên Dashboard (Manager review).
+2. ☐ Review Cây Nội dung → đủ ý tưởng cho tuần mới?
+3. ☐ Batch tạo 15-20 bài cho cả tuần (Batch Mode) kết hợp các Tệp Khách Hàng khác nhau.
+4. ☐ Lên lịch đăng tuần mới trên Lịch đăng.
 
 > [!TIP]
-> Dành 30 phút thứ 2 để batch nội dung cả tuần. Các ngày còn lại chỉ cần fine-tune và respond trending — giảm 70% thời gian.
+> Dành 30 phút thứ 2 để batch nội dung cả tuần. Mọi thông tin lõi (Giá, USP, Nỗi đau khách hàng) đã có AI tự động lấy từ Hệ Thống Dữ Liệu Lõi, bạn không cần gõ lại!
 `
     },
     {
@@ -264,123 +270,57 @@ Chọn KOC trong dropdown "Giả giọng KOC". AI bắt chước cấu trúc câ
 `
     },
     {
-        id: 'context-library',
-        title: 'Thư Viện Ngữ Cảnh',
-        route: 'brand',
+        id: 'data-foundation',
+        title: 'Phân Hệ Dữ Liệu Lõi (Tiên Quyết)',
+        route: 'settings',
         icon: 'database',
-        shortSummary: 'Quản lý danh sách sản phẩm, tệp khách hàng và trợ lý AI. Tái sử dụng bằng một cú click.',
+        shortSummary: 'Thiết lập Sản phẩm, Khách hàng (JTBD/Pain Points) và Thị trường. Bắt buộc cho MKT Manager.',
         content: `
-## Thư Viện Ngữ Cảnh là gì?
+## Trái tim của AI: Phân Hệ Dữ Liệu Lõi
 
-Đây là "ngân hàng dữ liệu" của team bạn. Thay vì gõ lại thông tin sản phẩm và mô tả khách hàng mỗi lần tạo bài, bạn **lưu sẵn một lần, dùng mãi mãi**.
-
-Context Library gồm ba bộ thẻ:
-
-| Thẻ | Dùng để lưu | Ví dụ |
-|---|---|---|
-| **Sản phẩm** | Tên + điểm nổi bật (USP) | Sakura Collagen 10000mg – hấp thụ 95% |
-| **Tệp khách hàng** | Tên tệp + mô tả chân dung | Mẹ bỉm 28-35 – lo da chảy xệ sau sinh |
-| **Trợ lý Marketing** | Prompt tùy chỉnh cho AI | Viết theo giọng nghiêm túc, khoa học |
+ContentPilot v2 không chỉ là công cụ viết bài, mà là một **AI Content Strategist**. Để AI viết "sâu" và chạm đúng "nỗi đau" (Pain points) của khách hàng, MKT Manager cần thiết lập 3 module dữ liệu lõi trong phần **Cài đặt**.
 
 ---
 
-## Hướng dẫn Setup (5 phút 1 lần)
+### 📦 1. Quản lý Sản Phẩm / Dịch Vụ
+Thay vì chỉ nhập tên sản phẩm, bạn cung cấp cho AI "vũ khí" bán hàng:
+- **Ngành hàng & Phân loại**
+- **Điểm nổi bật (USP)**: Điểm khác biệt độc nhất so với đối thủ.
+- **Giá bán & Hướng dẫn**: Giúp AI tự động đóng gói lời kêu gọi hành động (CTA) cực chuẩn.
+- **Thành phần & Công dụng**: Để AI tự động chèn proof (bằng chứng) khoa học vào bài viết.
 
-### Bước 1 — Vào Cài Đặt Thương Hiệu (Brand Profile)
-Vào **#/brand** trong menu bên trái.
+### 👥 2. Chân Dung Khách Hàng (Customer Avatars)
+Đây là tính năng làm thay đổi hoàn toàn chất lượng AI content. Định hình khách hàng 360 độ:
+- **Nhân khẩu học & Loại hình (B2B/B2C)**: Ví dụ: "Nữ 35-45 tuổi, kinh doanh tự do".
+- **JTBD (Job-to-be-Done)**: Nhiệm vụ họ muốn hoàn thành (VD: "Muốn thăng tiến nhưng thiếu tự tin vì da lão hoá").
+- **Nỗi đau (Pain Points)**: Lý do họ chần chừ xuống tiền (VD: "Sợ dùng mỹ phẩm bị kích ứng").
+- **Mong muốn (Pain Relievers)**: Giải pháp họ thật sự khát khao trải nghiệm.
 
-### Bước 2 — Thêm Sản Phẩm
-1. Trong mục **"Danh sách Sản phẩm / Dịch vụ"** → click nút **"+ Thêm sản phẩm"**
-2. Nhập **Tên sản phẩm** (VD: *Sakura Collagen Peptide 10000mg*)
-3. Nhập **Điểm nổi bật (USP)** vào ô bên dưới: "Dạng nước uống, hấp thụ 95% trong 30 phút, từ collagen cá Nhật Bản. Không đường, không calo."
-4. Lặp lại cho từng sản phẩm. Bấm **Lưu Thay Đổi**.
-
-### Bước 3 — Thêm Tệp Khách Hàng (Avatar)
-1. Trong mục **"Danh sách Tệp khách hàng"** → click **"+ Thêm tệp khách hàng"**
-2. **Tên tệp:** *Mẹ bỉm sữa 28-35*
-3. **Mô tả:** "Da chảy xệ sau sinh, ít ngủ. Bận rộn, hay lướt Facebook 10-11 giờ đêm. Mua theo review bạn bè + KOL."
-4. Bấm **Lưu Thay Đổi**.
-
-### Bước 4 — Thêm Trợ lý Marketing (System Prompt)
-1. Trong mục **"Danh sách Trợ lý Marketing"** → click **"+ Thêm prompt"**
-2. **Tên:** *Chuyên gia Y khoa*
-3. **Nội dung prompt:** "Bạn là chuyên gia dinh dưỡng với 15 năm nghiên cứu collagen. Viết nội dung bằng ngôn ngữ khoa học, dẫn chứng số liệu cụ thể, tone nghiêm túc nhưng thân thiện. TUYỆT ĐỐI không dùng từ chữa bệnh, thuốc, đặc trị."
-
-### Bước 5 — Sử dụng khi Tạo bài
-
-Vào **#/create** (Xưởng Nháp). Các dropdown mới:
-- **Sản phẩm:** Chọn sản phẩm từ thư viện
-- **Đối tượng Khách hàng:** Chọn tệp đã lưu
-- **Trợ lý Marketing:** Chọn prompt AI tùy chỉnh
-
-> [!TIP]
-> Vẫn có thể chọn **"+ Nhập thủ công"** nếu cần thông tin không có trong thư viện.
+### 🌍 3. Phân Khúc Thị Trường & Đối Thủ
+- **Quy mô & Xu hướng**: AI sẽ dùng dữ kiện này để viết bài bắt trend.
+- **Mối bận tâm của thị trường**: VD: "Thị trường đang chuộng sản phẩm organic".
+- **Đối thủ cạnh tranh**: VD: "Cạnh tranh với hàng xách tay Nhật". AI sẽ khéo léo lồng ghép USP để "đánh bật" đối thủ mà không cần nhắc tên trực tiếp.
 
 ---
 
-## 3 Case Study Thực Tế
+## Ứng Dụng Thực Tế Cho Team
 
-### Case Study 1 — Brand Collagen Nhật (Sakura Health)
+### 👨‍💼 Đối với Marketing Manager (Người Setup Hub)
+**Nhiệm vụ:**
+1. Dành 30 phút ban đầu để mô hình hóa toàn bộ sản phẩm và tệp khách hàng của công ty vào hệ thống.
+2. Thường xuyên điều chỉnh **Giá bán** (khi có khuyến mãi) hoặc thêm **Tệp khách hàng mới** (khi có định hướng mở rộng thị trường).
+**Lợi ích:** Đảm bảo 100% nội dung sinh ra bởi team Executive đi đúng định vị thương hiệu và không bị sai thông số kỹ thuật y tế/sản phẩm.
 
-**Bối cảnh:** Brand 4 sản phẩm, 3 tệp khách hàng, cần 20 bài/tuần.
+### 👩‍💻 Đối với Marketing Executive (Người Thực Hành Viết)
+**Thao tác hàng ngày tại Xưởng Nháp (#/create):**
+Chỉ cần mix-and-match (kết hợp) bộ 3 thẻ vũ khí từ dropdown:
+1. Chọn **Sản phẩm** (VD: Collagen Peptide)
+2. Chọn **Khách hàng** (VD: Mẹ bỉm sữa 30 tuổi)
+3. Chọn **Thị trường** (VD: Phân khúc organic)
+→ **Bấm "AI Viết Content"**. AI sẽ gộp toàn bộ Pain Points, USP, Giá bán để sinh ra một bản thảo được *cá nhân hóa 100%* cho tệp mẹ bỉm, chạm đúng nỗi đau thiếu thời gian chăm sóc thân thể, và chốt sale thẳng với giá bán đã niêm yết.
 
-**Setup Context Library:**
-
-Sản phẩm đã lưu:
-- Sakura Collagen 10000mg — "Collagen cá Nhật, dạng nước, hấp thụ 95%, cherry extract"
-- Sakura Beauty Complex — "Collagen + Vitamin C + Biotin, gói bột hòa tan"
-- Sakura Junior — "Collagen dành cho trẻ em 5-15 tuổi, vị cam"
-
-Tệp khách hàng:
-- Mẹ bỉm 28-35 — "Lo da chảy xệ sau sinh, hay lướt FB đêm khuya, mua theo review bạn bè"
-- Chị văn phòng 30-42 — "Da xỉn do stress + điều hòa, muốn glow không cần filter"
-- Mẹ chăm sóc con — "Tìm dinh dưỡng an toàn tự nhiên cho con, đọc kỹ thành phần"
-
-Trợ lý Marketing:
-- Mẹ kể chuyện — "Viết như bà mẹ thực sự đang chia sẻ với bạn bè. Ngôn ngữ gần gũi, emoji mẹ đặc trưng."
-- Khoa học & Trust — "Viết theo hướng khoa học, trích dẫn nghiên cứu, tạo trust khi dẫn số liệu."
-
-**Kết quả:** Mỗi sáng, Content Executive chỉ mất **3 phút** chọn brief → AI tạo 3 bài tùy chỉnh cho 3 nhóm thay vì 30 phút gõ tay.
-
----
-
-### Case Study 2 — Mỹ phẩm Thuần Chay (1 người làm marketing)
-
-**Bối cảnh:** Solo marketer, 2 dòng sản phẩm, post 7 ngày/tuần.
-
-**Sản phẩm đã lưu:**
-- Serum C15 — "Vitamin C chuẩn hóa 15%, làm mờ nám trong 3 tuần. Thuần chay, không paraben."
-- Kem dưỡng đêm — "Retinol 0.3% + Niacinamide, phục hồi da ban đêm, không gây kích ứng"
-
-**Tệp khách hàng:**
-- Gen Z yêu skincare 18-25 — "Hay theo trend TikTok, thích transparent branding, hỏi kỹ thành phần"
-- Chị 35-45 chống lão hóa — "Sẵn sàng chi nhiều cho hiệu quả thực sự, muốn trẻ hơn 5 tuổi"
-
-**Trợ lý tự tạo:**
-- Cô bạn thân rủ skincare — "Viết như nhắn tin cho bạn thân về skincare mới phát hiện. Slang Gen Z, authentic, không quảng cáo lộ liễu."
-
-**Workflow thực tế:**
-- Thứ 2-3: Chọn **Serum C15** + **Gen Z skincare** + **Cô bạn thân** → 3 post weekday
-- Thứ 5-6: Chọn **Kem ban đêm** + **Chị 35-45** → AI dùng voice brand mặc định, formal hơn
-
-Tổng thao tác: **< 5 phút/ngày** thay vì 45 phút trước.
-
----
-
-### Case Study 3 — Phân phối 12 SKU (Đội 3 người)
-
-**Vấn đề cũ:** Content hay gõ nhầm tên sản phẩm hoặc sai thông số liều lượng → phải sửa bài đã đăng.
-
-**Giải pháp:** Mỗi sản phẩm nhập **đầy đủ 1 lần** vào Context Library:
-
-Ví dụ entry:
-- **Tên:** Omega-3 Premium 1000mg
-- **USP:** "Tinh dầu cá hồi Na Uy, 1000mg EPA+DHA/viên. Hộp 60v đủ 2 tháng. Giá 450k. Ưu đãi tháng 3: mua 2 tặng 1. Enteric coating không tanh."
-
-**Kết quả:** 3 thành viên team đều chọn từ cùng một nguồn thông tin → **Zero lỗi sai thông số** kể từ khi áp dụng.
-
-> [!IMPORTANT]
-> Cập nhật USP mỗi khi có chương trình khuyến mãi mới để AI luôn dùng thông tin chính xác nhất!
+> [!CAUTION]
+> Output của AI phụ thuộc 90% vào độ "sâu" của dữ liệu lõi. Nếu phần Nỗi đau (Pain points) MKT Manager nhập sơ sài, AI sẽ viết rất chung chung. Quản lý cần đầu tư chất xám vào bước này!
 `
     },
     {
@@ -579,6 +519,16 @@ Khi bấm "Tạo Prompt AI", hệ thống trả về:
 - Facebook: 1200x628, text ≤ 20% ảnh
 - TikTok/Story: 1080x1920, vùng an toàn 150px
 - IG Feed: 1080x1080, center-weighted
+
+---
+
+### 🎨 Ứng dụng "Dữ Liệu Lõi" vào Thiết Kế Visual
+
+Với hệ thống dữ liệu lõi mới (Products, Customers, Markets), Designer có thể bấm xem chi tiết brief bài viết để đọc **Chân dung Khách hàng (JTBD/Pain Points)** và **Thị trường**, từ đó lên concept hình ảnh "đâm trúng tim đen" khách hàng nhất:
+
+- **Tệp Mẹ bỉm sữa (Khách hàng)** → Thiết kế ưu tiên tone màu ấm áp (Warm tones), lifestyle đời thường gần gũi, sử dụng hình ảnh em bé/gia đình để tạo sự đồng cảm.
+- **Tệp Dân văn phòng bận rộn** → Layout tối giản (Minimalist), sạch sẽ, màu sắc professional, nhấn cực mạnh vào text mô tả "tính tiện dụng", "tiết kiệm thời gian".
+- **Tôn vinh USP (Sản phẩm)** → Đọc thẻ thành phần sản phẩm, đưa trực tiếp hình ảnh nguyên liệu gốc (trà xanh nguyên bản, lát cam tươi, giọt mật ong...) làm background layer để tăng độ Trust (Niềm tin) cao nhất theo chuẩn y tế.
 
 ---
 

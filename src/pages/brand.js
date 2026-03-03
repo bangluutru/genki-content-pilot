@@ -109,33 +109,7 @@ export async function renderBrandPage() {
           <!-- Context Library (Products, Avatars, Prompts) -->
           <h4 style="margin-top: var(--space-4);">${icon('database', 18)} ${t('brand.contextLibrary')}</h4>
 
-          <!-- Products List -->
-          <div class="input-group">
-            <div class="flex justify-between items-center mb-2">
-              <label for="brand-products-list" style="margin: 0;">${t('brand.productsList')}</label>
-              <button type="button" class="btn btn-secondary btn-sm" id="btn-add-product">
-                ${icon('plus', 14)} ${t('brand.addProduct')}
-              </button>
-            </div>
-            <div id="products-container" class="flex flex-col gap-3">
-              <!-- Dynamically populated products -->
-              ${renderContextList(brand.products, 'product')}
-            </div>
-          </div>
-
-          <!-- Avatars List -->
-          <div class="input-group">
-            <div class="flex justify-between items-center mb-2">
-              <label for="brand-avatars-list" style="margin: 0;">${t('brand.avatarsList')}</label>
-              <button type="button" class="btn btn-secondary btn-sm" id="btn-add-avatar">
-                ${icon('plus', 14)} ${t('brand.addAvatar')}
-              </button>
-            </div>
-            <div id="avatars-container" class="flex flex-col gap-3">
-              <!-- Dynamically populated avatars -->
-              ${renderContextList(brand.avatars, 'avatar')}
-            </div>
-          </div>
+          <!-- Context Library (Products, Avatars migrating to Settings Submenu) -->
 
           <!-- Prompts List -->
           <div class="input-group">
@@ -374,17 +348,6 @@ export async function renderBrandPage() {
         defaultHashtags: document.getElementById('brand-hashtags')?.value?.trim(),
 
         // Extract context library arrays from DOM
-        products: Array.from(document.querySelectorAll('.context-item[data-type="product"]')).map(el => ({
-          id: el.dataset.id,
-          name: el.querySelector('.ctx-name').value.trim(),
-          highlight: el.querySelector('.ctx-desc').value.trim()
-        })).filter(p => p.name),
-
-        avatars: Array.from(document.querySelectorAll('.context-item[data-type="avatar"]')).map(el => ({
-          id: el.dataset.id,
-          name: el.querySelector('.ctx-name').value.trim(),
-          description: el.querySelector('.ctx-desc').value.trim()
-        })).filter(a => a.name),
 
         prompts: Array.from(document.querySelectorAll('.context-item[data-type="prompt"]')).map(el => ({
           id: el.dataset.id,
@@ -474,8 +437,7 @@ function attachContextLibraryEvents(brand) {
     });
   };
 
-  attachDeleteEvents('products-container');
-  attachDeleteEvents('avatars-container');
+
   attachDeleteEvents('prompts-container');
 
   const addItem = (containerId, type) => {
@@ -496,7 +458,6 @@ function attachContextLibraryEvents(brand) {
     }
   };
 
-  document.getElementById('btn-add-product')?.addEventListener('click', () => addItem('products-container', 'product'));
-  document.getElementById('btn-add-avatar')?.addEventListener('click', () => addItem('avatars-container', 'avatar'));
+
   document.getElementById('btn-add-prompt')?.addEventListener('click', () => addItem('prompts-container', 'prompt'));
 }

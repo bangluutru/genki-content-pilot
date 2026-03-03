@@ -36,6 +36,18 @@ async function loadPage(name) {
       const { renderSettingsPage } = await import('./pages/settings.js');
       return renderSettingsPage;
     }
+    case 'products': {
+      const { renderProductsPage } = await import('./pages/products-setup.js');
+      return renderProductsPage;
+    }
+    case 'customers': {
+      const { renderCustomersPage } = await import('./pages/customers-setup.js');
+      return renderCustomersPage;
+    }
+    case 'markets': {
+      const { renderMarketsPage } = await import('./pages/markets-setup.js');
+      return renderMarketsPage;
+    }
     case 'calendar': {
       const { renderCalendarPage } = await import('./pages/calendar.js');
       return renderCalendarPage;
@@ -129,6 +141,21 @@ router
     const render = await loadPage('settings');
     await render?.();
     afterPageRender('settings');
+  })
+  .on('products', async () => {
+    const render = await loadPage('products');
+    await render?.();
+    afterPageRender('products');
+  })
+  .on('customers', async () => {
+    const render = await loadPage('customers');
+    await render?.();
+    afterPageRender('customers');
+  })
+  .on('markets', async () => {
+    const render = await loadPage('markets');
+    await render?.();
+    afterPageRender('markets');
   })
   .on('calendar', async () => {
     const render = await loadPage('calendar');

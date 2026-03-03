@@ -49,6 +49,9 @@ const NAV_GROUPS = [
     icon: 'settings',
     items: [
       { route: 'brand', iconName: 'brand', labelKey: 'brand.title' },
+      { route: 'products', iconName: 'document', labelKey: 'nav.products' },
+      { route: 'customers', iconName: 'team', labelKey: 'nav.customers' },
+      { route: 'markets', iconName: 'dashboard', labelKey: 'nav.markets' },
       { route: 'team', iconName: 'team', labelKey: 'nav.team' },
       { route: 'settings', iconName: 'settings', labelKey: 'nav.connections' },
       { route: 'help', iconName: 'info', labelKey: 'nav.help' },

@@ -101,6 +101,9 @@
                 "koc": "Quản lý KOC",
                 "designer": "Nhà thiết kế",
                 "help": "Trợ giúp",
+                "products": "Sản phẩm",
+                "customers": "Khách hàng",
+                "markets": "Thị trường",
                 "group": {
                         "overview": "Tổng quan",
                         "content": "Nội dung",
@@ -228,6 +231,71 @@
                 "tpcnWarningDesc": "Ngành TPCN cần tuân thủ nghiêm ngặt quy định quảng cáo. ContentPilot đã tích hợp bộ lọc AI tự động.",
                 "welcomeTitle": "Chào mừng đến ContentPilot!",
                 "welcomeDesc": "Hãy cài đặt thông tin thương hiệu của bạn để AI có thể viết nội dung đúng tone và phong cách."
+        },
+        "productsDB": {
+                "title": "Quản lý Sản phẩm / Dịch vụ",
+                "subtitle": "Chi tiết về thành phần, công dụng và điểm khác biệt để AI viết bài chuẩn xác",
+                "addBtn": "Cập nhật Sản phẩm",
+                "empty": "Chưa có sản phẩm nào. Bấm nút Thêm để bắt đầu.",
+                "form": {
+                        "name": "Tên Sản phẩm / Dịch vụ *",
+                        "namePlaceholder": "VD: Trà Giảm Cân Detox Xanh",
+                        "category": "Phân loại",
+                        "categoryPlaceholder": "VD: Thực phẩm bảo vệ sức khoẻ",
+                        "price": "Giá bán / Chương trình (Tuỳ chọn)",
+                        "pricePlaceholder": "VD: 450.000đ / hộp. Combo 3 tặng 1.",
+                        "ingredients": "Thành phần chính *",
+                        "ingredientsPlaceholder": "Ghi rõ các thành phần tạo nên giá trị sản phẩm...",
+                        "benefits": "Công dụng chính *",
+                        "benefitsPlaceholder": "Sản phẩm giúp ích gì cho khách hàng?",
+                        "usp": "Điểm khác biệt (USP) *",
+                        "uspPlaceholder": "Tại sao khách hàng nên chọn bạn thay vì đối thủ?",
+                        "usage": "Hướng dẫn sử dụng",
+                        "usagePlaceholder": "Liều dùng, cách sử dụng chi tiết (nếu có)"
+                }
+        },
+        "customersDB": {
+                "title": "Hồ sơ Khách hàng (Personas)",
+                "subtitle": "Chân dung chi tiết của khách hàng để AI cá nhân hoá văn phong",
+                "addBtn": "Cập nhật Khách hàng",
+                "empty": "Chưa có hồ sơ khách hàng nào. Bấm nút Thêm để bắt đầu.",
+                "form": {
+                        "name": "Tên Chân dung *",
+                        "namePlaceholder": "VD: Mẹ bỉm sữa 30t, Đại lý cấp 1...",
+                        "type": "Loại khách hàng",
+                        "typeB2C": "B2C - Người dùng cuối",
+                        "typeB2B": "B2B - Đại lý / Nhà phân phối",
+                        "demographics": "Nhân khẩu học (Tuổi, Nghề, Thu nhập, Vị trí)",
+                        "demographicsPlaceholder": "VD: Nữ, 25-35 tuổi, dân văn phòng, thu nhập >15tr...",
+                        "jtbd": "Job To Be Done (Nhiệm vụ khách hàng cần hoàn thành) *",
+                        "jtbdPlaceholder": "Họ đang cố gắng giải quyết vấn đề gì trong cuộc sống/công việc?",
+                        "painPoints": "Nỗi đau (Pain Points) *",
+                        "painPointsPlaceholder": "Những khó khăn, rào cản làm họ mệt mỏi...",
+                        "painRelievers": "Giải pháp (Pain Relievers) *",
+                        "painRelieversPlaceholder": "Sản phẩm của bạn giúp họ giải quyết nỗi đau đó như thế nào?",
+                        "interests": "Sở thích / Quan tâm",
+                        "interestsPlaceholder": "VD: Thích đọc review làm đẹp, mua sắm shopee..."
+                }
+        },
+        "marketsDB": {
+                "title": "Phân khúc Thị trường",
+                "subtitle": "Đặc điểm của thị trường mục tiêu mà chuyên dịch hướng đến",
+                "addBtn": "Cập nhật Thị trường",
+                "empty": "Chưa có phân khúc nào. Bấm nút Thêm để bắt đầu.",
+                "form": {
+                        "name": "Tên Phân khúc *",
+                        "namePlaceholder": "VD: Thị trường miền Nam, Ngách Mẹ bầu...",
+                        "size": "Đặc điểm / Quy mô",
+                        "sizePlaceholder": "Quy mô sức mua lớn, nhiều đối thủ cạnh tranh...",
+                        "trends": "Xu hướng (Trends)",
+                        "trendsPlaceholder": "Khách hàng dạo này chuộng organic, thích đóng gói cẩn thận...",
+                        "concerns": "Mối bận tâm chính",
+                        "concernsPlaceholder": "Quan tâm giá cả hơn chất lượng, hay ngược lại?",
+                        "competitors": "Đối thủ chính",
+                        "competitorsPlaceholder": "Liệt kê các đối thủ họ hay so sánh",
+                        "channels": "Kênh tiếp cận",
+                        "channelsPlaceholder": "TikTok, Facebook Group chia sẻ kinh nghiệm..."
+                }
         },
         "strategy": {
                 "title": "Chiến lược",

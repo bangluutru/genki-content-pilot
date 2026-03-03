@@ -101,6 +101,9 @@
                 "koc": "KOC & Affiliate",
                 "designer": "Designer Hub",
                 "help": "Help Center",
+                "products": "Products",
+                "customers": "Customers",
+                "markets": "Markets",
                 "group": {
                         "overview": "Overview",
                         "content": "Content",
@@ -259,6 +262,71 @@
                 "promptContent": "AI Instructions (Prompt Content)",
                 "promptContentPlaceholder": "Ex: Act as a medical expert. Write objectively, use medical terminology...",
                 "emptyList": "No items yet. Click add new."
+        },
+        "productsDB": {
+                "title": "Products & Services",
+                "subtitle": "Details about ingredients, benefits, and differentiators for better AI writing",
+                "addBtn": "Update Product",
+                "empty": "No products yet. Click Add to start.",
+                "form": {
+                        "name": "Product / Service Name *",
+                        "namePlaceholder": "e.g., Green Detox Tea",
+                        "category": "Category",
+                        "categoryPlaceholder": "e.g., Health Supplement",
+                        "price": "Price / Offers (Optional)",
+                        "pricePlaceholder": "e.g., $20 / box. Buy 3 get 1 free.",
+                        "ingredients": "Key Ingredients / Components *",
+                        "ingredientsPlaceholder": "Specify the components that make up the value...",
+                        "benefits": "Key Benefits *",
+                        "benefitsPlaceholder": "How does this product help the customer?",
+                        "usp": "Unique Selling Proposition (USP) *",
+                        "uspPlaceholder": "Why should they choose you over competitors?",
+                        "usage": "Usage Instructions",
+                        "usagePlaceholder": "Dosage, detailed instructions (if any)"
+                }
+        },
+        "customersDB": {
+                "title": "Customer Personas",
+                "subtitle": "Detailed customer profiles to personalize AI tone and messaging",
+                "addBtn": "Update Customer",
+                "empty": "No customer profiles yet. Click Add to start.",
+                "form": {
+                        "name": "Persona Name *",
+                        "namePlaceholder": "e.g., Working Mom 30yo, Level 1 Distributor...",
+                        "type": "Customer Type",
+                        "typeB2C": "B2C - End User",
+                        "typeB2B": "B2B - Agency / Distributor",
+                        "demographics": "Demographics (Age, Job, Income, Geo)",
+                        "demographicsPlaceholder": "e.g., Female, 25-35 yo, office worker, income >$1k...",
+                        "jtbd": "Job To Be Done *",
+                        "jtbdPlaceholder": "What problem are they trying to solve in their life/work?",
+                        "painPoints": "Pain Points *",
+                        "painPointsPlaceholder": "Difficulties and barriers that exhaust them...",
+                        "painRelievers": "Pain Relievers *",
+                        "painRelieversPlaceholder": "How does your product solve their pain?",
+                        "interests": "Interests / Hobbies",
+                        "interestsPlaceholder": "e.g., Likes reading beauty reviews, shopping online..."
+                }
+        },
+        "marketsDB": {
+                "title": "Market Segmentation",
+                "subtitle": "Characteristics of the target market for the campaign",
+                "addBtn": "Update Market",
+                "empty": "No market segments yet. Click Add to start.",
+                "form": {
+                        "name": "Segment Name *",
+                        "namePlaceholder": "e.g., Southern Market, Pregnant Women Niche...",
+                        "size": "Characteristics / Scale",
+                        "sizePlaceholder": "High purchasing power, many competitors...",
+                        "trends": "Trends",
+                        "trendsPlaceholder": "Customers recently prefer organic, careful packaging...",
+                        "concerns": "Main Concerns",
+                        "concernsPlaceholder": "Care more about price than quality, or vice versa?",
+                        "competitors": "Key Competitors",
+                        "competitorsPlaceholder": "List the competitors they usually compare with",
+                        "channels": "Approach Channels",
+                        "channelsPlaceholder": "TikTok, Facebook Groups sharing experiences..."
+                }
         },
         "strategy": {
                 "title": "Strategy Hub",

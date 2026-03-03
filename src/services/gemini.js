@@ -380,8 +380,9 @@ function buildUserPrompt(brief) {
         if (brief.angle.keyMessage) prompt += `   - Điểm nhấn chính: ${brief.angle.keyMessage} \n`;
     }
 
-    if (brief.product) prompt += `📦 Sản phẩm / Chủ đề: ${brief.product} \n`;
-    if (brief.targetAvatar) prompt += `🎯 TỆP KHÁCH HÀNG MỤC TIÊU(QUAN TRỌNG): Viết ĐÚNG VÀO IDIOM VÀ INSIGHT CỦA TỆP "${brief.targetAvatar}".Chạm đúng nỗi đau và ngôn từ của họ!\n`;
+    if (brief.product) prompt += `📦 Sản phẩm / Chủ đề:\n${brief.product}\n\n`;
+    if (brief.targetAvatar) prompt += `🎯 TỆP KHÁCH HÀNG MỤC TIÊU (QUAN TRỌNG): Viết ĐÚNG VÀO IDIOM VÀ INSIGHT của tệp sau. Chạm đúng nỗi đau và ngôn từ của họ:\n${brief.targetAvatar}\n\n`;
+    if (brief.marketStr) prompt += `🌍 BỐI CẢNH THỊ TRƯỜNG & ĐỐI THỦ:\n${brief.marketStr}\n\n`;
     if (brief.highlight) prompt += `⭐ Điểm nổi bật: ${brief.highlight} \n`;
     if (brief.promotion) prompt += `🎁 Khuyến mãi: ${brief.promotion} \n`;
     if (brief.cta) prompt += `👉 CTA mong muốn: ${brief.cta} \n`;
