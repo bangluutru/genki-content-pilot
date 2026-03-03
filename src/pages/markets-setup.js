@@ -46,25 +46,22 @@ export async function renderMarketsPage() {
 function renderMarketCard(item) {
     return `
         <div class="market-item" data-id="${item.id}" style="border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface);">
-            <!-- Collapsed Header -->
-            <div class="market-header" style="display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); cursor: pointer; border-left: 3px solid #f59e0b;"
-                 onclick="this.closest('.market-item').classList.toggle('is-expanded')">
-                <div style="display: flex; align-items: center; gap: var(--space-3);">
-                    <span style="font-size: 18px;">🌍</span>
-                    <div>
-                        <p class="item-display-name" style="font-weight: 600; margin: 0;">${escapeHtml(item.name || 'Phân khúc chưa đặt tên')}</p>
-                        ${item.size ? `<p class="text-sm text-muted" style="margin: 0;">Quy mô: ${escapeHtml(item.size)}</p>` : ''}
+            <div class="market-header" style="display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); cursor: pointer; border-left: 3px solid #f59e0b; user-select: none;">
+                <div style="display: flex; align-items: center; gap: var(--space-3); flex: 1; min-width: 0;">
+                    <span style="font-size: 18px; flex-shrink: 0;">🌍</span>
+                    <div style="min-width: 0;">
+                        <p class="item-display-name" style="font-weight: 600; margin: 0;">${escapeHtml(item.name || 'Chưa đặt tên')}</p>
+                        <p class="item-display-size text-sm text-muted" style="margin: 0;">${item.size ? 'Quy mô: ' + escapeHtml(item.size) : ''}</p>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: var(--space-2);">
-                    <span class="expand-icon text-muted" style="transition: transform 0.2s;">${icon('chevron', 16)}</span>
-                    <button type="button" class="btn btn-ghost btn-icon btn-delete-market" style="color: var(--danger);" onclick="event.stopPropagation()">
+                <div style="display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0;">
+                    <span class="expand-icon text-muted" style="transition: transform 0.2s; display: flex;">${icon('chevron', 16)}</span>
+                    <button type="button" class="btn btn-ghost btn-icon btn-delete-market" style="color: var(--danger);">
                         ${icon('trash', 16)}
                     </button>
                 </div>
             </div>
 
-            <!-- Expandable Form Body -->
             <div class="market-body" style="display: none; padding: var(--space-5); border-top: 1px solid var(--border); background: var(--bg-secondary);">
                 <div class="grid" style="grid-template-columns: 1fr 1fr; gap: var(--space-4);">
                     <div class="input-group" style="grid-column: 1 / -1;">
@@ -93,7 +90,7 @@ function renderMarketCard(item) {
                     </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; margin-top: var(--space-4);">
-                    <button type="button" class="btn btn-primary btn-save-market" style="gap: 8px;">
+                    <button type="button" class="btn btn-primary btn-save-market">
                         ${icon('save', 16)} Lưu phân khúc
                     </button>
                 </div>
@@ -104,7 +101,7 @@ function renderMarketCard(item) {
 
 function renderMarketsList(items) {
     if (!items || items.length === 0) {
-        return `<div class="card empty-list-placeholder text-muted" style="text-align: center; padding: var(--space-8); border: 1px dashed var(--border);">
+        return `<div class="empty-list-placeholder text-muted" style="text-align: center; padding: var(--space-8); border: 1px dashed var(--border); border-radius: var(--radius-lg);">
             ${t('marketsDB.empty')}
         </div>`;
     }
@@ -114,7 +111,6 @@ function renderMarketsList(items) {
 function attachMarketsEvents(brand) {
     const container = document.getElementById('markets-container');
 
-    // Inject accordion CSS (shared)
     if (!document.getElementById('accordion-style')) {
         const style = document.createElement('style');
         style.id = 'accordion-style';
@@ -129,67 +125,64 @@ function attachMarketsEvents(brand) {
         document.head.appendChild(style);
     }
 
-    // Add new market
     document.getElementById('add-market-btn')?.addEventListener('click', () => {
         const placeholder = container.querySelector('.empty-list-placeholder');
         if (placeholder) placeholder.remove();
 
         const newItem = { id: Date.now().toString(), name: '', size: '', trends: '', concerns: '', competitors: '', channels: '' };
-        container.querySelectorAll('.market-item.is-expanded').forEach(el => el.classList.remove('is-expanded'));
-
         container.insertAdjacentHTML('beforeend', renderMarketCard(newItem));
         const newCard = container.lastElementChild;
+        container.querySelectorAll('.market-item.is-expanded').forEach(el => el.classList.remove('is-expanded'));
         newCard.classList.add('is-expanded');
         newCard.querySelector('.item-name')?.focus();
-        newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        newCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
     container.addEventListener('click', async (e) => {
-        // Expand/collapse header
-        const header = e.target.closest('.market-header');
-        if (header && !e.target.closest('.btn-delete-market')) {
-            const card = header.closest('.market-item');
-            const isExpanded = card.classList.contains('is-expanded');
-            container.querySelectorAll('.market-item.is-expanded').forEach(el => el.classList.remove('is-expanded'));
-            if (!isExpanded) card.classList.add('is-expanded');
-            return;
-        }
+        const card = e.target.closest('.market-item');
+        if (!card) return;
 
         // Delete
-        const deleteBtn = e.target.closest('.btn-delete-market');
-        if (deleteBtn) {
-            const card = deleteBtn.closest('.market-item');
+        if (e.target.closest('.btn-delete-market')) {
             if (confirm(t('brand.deleteItemConfirm'))) {
                 card.remove();
                 await persistAllMarkets(container, brand);
-                if (container.children.length === 0) container.innerHTML = renderMarketsList([]);
+                if (container.querySelectorAll('.market-item').length === 0) {
+                    container.innerHTML = renderMarketsList([]);
+                }
             }
             return;
         }
 
-        // Save per item
-        const saveBtn = e.target.closest('.btn-save-market');
-        if (saveBtn) {
-            const card = saveBtn.closest('.market-item');
+        // Save
+        if (e.target.closest('.btn-save-market')) {
+            const saveBtn = e.target.closest('.btn-save-market');
             const originalHtml = saveBtn.innerHTML;
             saveBtn.disabled = true;
             saveBtn.textContent = 'Đang lưu...';
             try {
                 const name = card.querySelector('.item-name').value.trim();
                 const size = card.querySelector('.item-size').value.trim();
-                card.querySelector('.item-display-name').textContent = name || 'Phân khúc chưa đặt tên';
-                const sizeEl = card.querySelector('.market-header .text-sm');
-                if (sizeEl) sizeEl.textContent = size ? `Quy mô: ${size}` : '';
-
+                card.querySelector('.item-display-name').textContent = name || 'Chưa đặt tên';
+                card.querySelector('.item-display-size').textContent = size ? `Quy mô: ${size}` : '';
                 await persistAllMarkets(container, brand);
                 showToast(t('toasts.brandSaved'), 'success');
                 card.classList.remove('is-expanded');
             } catch (err) {
+                console.error(err);
                 showToast(t('brand.saveError'), 'error');
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.innerHTML = originalHtml;
             }
+            return;
+        }
+
+        // Header click — expand/collapse
+        if (e.target.closest('.market-header')) {
+            const isExpanded = card.classList.contains('is-expanded');
+            container.querySelectorAll('.market-item.is-expanded').forEach(el => el.classList.remove('is-expanded'));
+            if (!isExpanded) card.classList.add('is-expanded');
         }
     });
 }
@@ -197,12 +190,12 @@ function attachMarketsEvents(brand) {
 async function persistAllMarkets(container, brand) {
     const items = Array.from(container.querySelectorAll('.market-item')).map(el => ({
         id: el.dataset.id,
-        name: el.querySelector('.item-name').value.trim(),
-        size: el.querySelector('.item-size').value.trim(),
-        trends: el.querySelector('.item-trends').value.trim(),
-        concerns: el.querySelector('.item-concerns').value.trim(),
-        competitors: el.querySelector('.item-competitors').value.trim(),
-        channels: el.querySelector('.item-channels').value.trim()
+        name: el.querySelector('.item-name')?.value.trim() || '',
+        size: el.querySelector('.item-size')?.value.trim() || '',
+        trends: el.querySelector('.item-trends')?.value.trim() || '',
+        concerns: el.querySelector('.item-concerns')?.value.trim() || '',
+        competitors: el.querySelector('.item-competitors')?.value.trim() || '',
+        channels: el.querySelector('.item-channels')?.value.trim() || ''
     })).filter(m => m.name);
 
     brand.detailedMarkets = items;

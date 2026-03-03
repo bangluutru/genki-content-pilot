@@ -56,29 +56,25 @@ export async function renderProductsPage() {
     attachProductsEvents(brand);
 }
 
-function renderProductCard(item, expanded = false) {
-    const cardId = `product-card-${item.id}`;
+function renderProductCard(item) {
     return `
-        <div class="product-item" id="${cardId}" data-id="${item.id}" style="border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface);">
-            <!-- Collapsed Header -->
-            <div class="product-header" style="display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); cursor: pointer; border-left: 3px solid var(--accent);"
-                 onclick="this.closest('.product-item').classList.toggle('is-expanded')">
-                <div style="display: flex; align-items: center; gap: var(--space-3);">
-                    <span style="font-size: 18px;">📦</span>
-                    <div>
-                        <p class="item-display-name" style="font-weight: 600; margin: 0;">${escapeHtml(item.name || 'Sản phẩm chưa đặt tên')}</p>
-                        ${item.category ? `<p class="text-sm text-muted" style="margin: 0;">${escapeHtml(item.category)}</p>` : ''}
+        <div class="product-item" data-id="${item.id}" style="border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface);">
+            <div class="product-header" style="display: flex; align-items: center; justify-content: space-between; padding: var(--space-4) var(--space-5); cursor: pointer; border-left: 3px solid var(--accent); user-select: none;">
+                <div style="display: flex; align-items: center; gap: var(--space-3); flex: 1; min-width: 0;">
+                    <span style="font-size: 18px; flex-shrink: 0;">📦</span>
+                    <div style="min-width: 0;">
+                        <p class="item-display-name" style="font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(item.name || 'Chưa đặt tên')}</p>
+                        <p class="item-display-category text-sm text-muted" style="margin: 0;">${escapeHtml(item.category || '')}</p>
                     </div>
                 </div>
-                <div style="display: flex; align-items: center; gap: var(--space-2);">
-                    <span class="expand-icon text-muted" style="transition: transform 0.2s;">${icon('chevron', 16)}</span>
-                    <button type="button" class="btn btn-ghost btn-icon btn-delete-product" style="color: var(--danger);" onclick="event.stopPropagation()">
+                <div style="display: flex; align-items: center; gap: var(--space-2); flex-shrink: 0;">
+                    <span class="expand-icon text-muted" style="transition: transform 0.2s; display: flex;">${icon('chevron', 16)}</span>
+                    <button type="button" class="btn btn-ghost btn-icon btn-delete-product" style="color: var(--danger);">
                         ${icon('trash', 16)}
                     </button>
                 </div>
             </div>
 
-            <!-- Expandable Form Body -->
             <div class="product-body" style="display: none; padding: var(--space-5); border-top: 1px solid var(--border); background: var(--bg-secondary);">
                 <div class="grid" style="grid-template-columns: 1fr 1fr; gap: var(--space-4);">
                     <div class="input-group">
@@ -111,7 +107,7 @@ function renderProductCard(item, expanded = false) {
                     </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; margin-top: var(--space-4);">
-                    <button type="button" class="btn btn-primary btn-save-product" style="gap: 8px;">
+                    <button type="button" class="btn btn-primary btn-save-product">
                         ${icon('save', 16)} Lưu sản phẩm
                     </button>
                 </div>
@@ -122,30 +118,36 @@ function renderProductCard(item, expanded = false) {
 
 function renderProductsList(items) {
     if (!items || items.length === 0) {
-        return `<div class="card empty-list-placeholder text-muted" style="text-align: center; padding: var(--space-8); border: 1px dashed var(--border);">
+        return `<div class="empty-list-placeholder text-muted" style="text-align: center; padding: var(--space-8); border: 1px dashed var(--border); border-radius: var(--radius-lg);">
             ${t('productsDB.empty')}
         </div>`;
     }
     return items.map(item => renderProductCard(item)).join('');
 }
 
+function injectAccordionStyle() {
+    if (document.getElementById('accordion-style')) return;
+    const style = document.createElement('style');
+    style.id = 'accordion-style';
+    style.textContent = `
+        .product-item.is-expanded .product-body,
+        .customer-item.is-expanded .customer-body,
+        .market-item.is-expanded .market-body { display: block !important; }
+        .product-item.is-expanded .expand-icon,
+        .customer-item.is-expanded .expand-icon,
+        .market-item.is-expanded .expand-icon { transform: rotate(180deg); }
+    `;
+    document.head.appendChild(style);
+}
+
+function expandOnly(container, itemSelector, card) {
+    container.querySelectorAll(`${itemSelector}.is-expanded`).forEach(el => el.classList.remove('is-expanded'));
+    card.classList.add('is-expanded');
+}
+
 function attachProductsEvents(brand) {
     const container = document.getElementById('products-container');
-
-    // Inject accordion CSS
-    if (!document.getElementById('accordion-style')) {
-        const style = document.createElement('style');
-        style.id = 'accordion-style';
-        style.textContent = `
-            .product-item.is-expanded .product-body,
-            .customer-item.is-expanded .customer-body,
-            .market-item.is-expanded .market-body { display: block !important; }
-            .product-item.is-expanded .expand-icon,
-            .customer-item.is-expanded .expand-icon,
-            .market-item.is-expanded .expand-icon { transform: rotate(180deg); }
-        `;
-        document.head.appendChild(style);
-    }
+    injectAccordionStyle();
 
     // Add new product
     document.getElementById('add-product-btn')?.addEventListener('click', () => {
@@ -153,67 +155,59 @@ function attachProductsEvents(brand) {
         if (placeholder) placeholder.remove();
 
         const newItem = { id: Date.now().toString(), name: '', category: '', price: '', ingredients: '', benefits: '', usp: '', usage: '' };
-        // Close all open items first
-        container.querySelectorAll('.product-item.is-expanded').forEach(el => el.classList.remove('is-expanded'));
-
         container.insertAdjacentHTML('beforeend', renderProductCard(newItem));
         const newCard = container.lastElementChild;
-        newCard.classList.add('is-expanded');
+        expandOnly(container, '.product-item', newCard);
         newCard.querySelector('.item-name')?.focus();
-        newCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        newCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     });
 
-    // Event delegation for expand, delete, save
+    // Single event listener for all interactions (no inline onclick)
     container.addEventListener('click', async (e) => {
-        // Handle header click (expand/collapse) — single expand mode
-        const header = e.target.closest('.product-header');
-        if (header && !e.target.closest('.btn-delete-product')) {
-            const card = header.closest('.product-item');
-            const isExpanded = card.classList.contains('is-expanded');
-            // Close all
-            container.querySelectorAll('.product-item.is-expanded').forEach(el => el.classList.remove('is-expanded'));
-            if (!isExpanded) card.classList.add('is-expanded');
-            return;
-        }
+        const card = e.target.closest('.product-item');
+        if (!card) return;
 
-        // Handle delete
-        const deleteBtn = e.target.closest('.btn-delete-product');
-        if (deleteBtn) {
-            const card = deleteBtn.closest('.product-item');
+        // Delete button
+        if (e.target.closest('.btn-delete-product')) {
             if (confirm(t('brand.deleteItemConfirm'))) {
                 card.remove();
-                // Persist deletion
                 await persistAllProducts(container, brand);
-                if (container.children.length === 0) container.innerHTML = renderProductsList([]);
+                if (container.querySelectorAll('.product-item').length === 0) {
+                    container.innerHTML = renderProductsList([]);
+                }
             }
             return;
         }
 
-        // Handle save per item
-        const saveBtn = e.target.closest('.btn-save-product');
-        if (saveBtn) {
-            const card = saveBtn.closest('.product-item');
+        // Save button
+        if (e.target.closest('.btn-save-product')) {
+            const saveBtn = e.target.closest('.btn-save-product');
             const originalHtml = saveBtn.innerHTML;
             saveBtn.disabled = true;
             saveBtn.textContent = 'Đang lưu...';
             try {
-                // Update display name
                 const name = card.querySelector('.item-name').value.trim();
                 const category = card.querySelector('.item-category').value.trim();
-                card.querySelector('.item-display-name').textContent = name || 'Sản phẩm chưa đặt tên';
-                const catEl = card.querySelector('.product-header .text-sm');
-                if (catEl) catEl.textContent = category;
-
+                card.querySelector('.item-display-name').textContent = name || 'Chưa đặt tên';
+                card.querySelector('.item-display-category').textContent = category;
                 await persistAllProducts(container, brand);
                 showToast(t('toasts.brandSaved'), 'success');
-                // Collapse after saving
                 card.classList.remove('is-expanded');
             } catch (err) {
+                console.error(err);
                 showToast(t('brand.saveError'), 'error');
             } finally {
                 saveBtn.disabled = false;
                 saveBtn.innerHTML = originalHtml;
             }
+            return;
+        }
+
+        // Header click — toggle expand (single expand mode)
+        if (e.target.closest('.product-header')) {
+            const isExpanded = card.classList.contains('is-expanded');
+            container.querySelectorAll('.product-item.is-expanded').forEach(el => el.classList.remove('is-expanded'));
+            if (!isExpanded) card.classList.add('is-expanded');
         }
     });
 }
@@ -221,13 +215,13 @@ function attachProductsEvents(brand) {
 async function persistAllProducts(container, brand) {
     const items = Array.from(container.querySelectorAll('.product-item')).map(el => ({
         id: el.dataset.id,
-        name: el.querySelector('.item-name').value.trim(),
-        category: el.querySelector('.item-category').value.trim(),
-        price: el.querySelector('.item-price').value.trim(),
-        ingredients: el.querySelector('.item-ingredients').value.trim(),
-        benefits: el.querySelector('.item-benefits').value.trim(),
-        usp: el.querySelector('.item-usp').value.trim(),
-        usage: el.querySelector('.item-usage').value.trim()
+        name: el.querySelector('.item-name')?.value.trim() || '',
+        category: el.querySelector('.item-category')?.value.trim() || '',
+        price: el.querySelector('.item-price')?.value.trim() || '',
+        ingredients: el.querySelector('.item-ingredients')?.value.trim() || '',
+        benefits: el.querySelector('.item-benefits')?.value.trim() || '',
+        usp: el.querySelector('.item-usp')?.value.trim() || '',
+        usage: el.querySelector('.item-usage')?.value.trim() || ''
     })).filter(p => p.name);
 
     brand.detailedProducts = items;
