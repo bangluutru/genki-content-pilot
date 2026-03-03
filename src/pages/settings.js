@@ -38,7 +38,7 @@ export async function renderSettingsPage() {
             <img src="${user.photoURL || ''}" alt=""
                  style="width: 40px; height: 40px; border-radius: 50%; background: var(--surface); flex-shrink: 0;"
                  onerror="this.style.display='none'">
-            <div style="min-width: 0;">
+            <div style="flex: 1; min-width: 0; overflow: hidden;">
               <h3 style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${user.displayName || 'User'}</h3>
               <p class="text-sm text-muted" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${user.email || ''}</p>
             </div>

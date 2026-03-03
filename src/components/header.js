@@ -184,8 +184,8 @@ export function renderSidebar() {
         <span class="nav-icon">${icon('calendar', 22)}</span>
         <span class="nav-label">${t('nav.calendar')}</span>
       </a>
-      <a href="#/create" class="nav-item-mobile star-btn" data-route="create">
-        <span class="nav-icon">${icon('create', 22)}</span>
+      <a href="#/create" class="nav-item-mobile fab-btn" data-route="create">
+        <span class="nav-icon">${icon('plus', 24)}</span>
       </a>
       <a href="#/library" class="nav-item-mobile" data-route="library">
         <span class="nav-icon">${icon('library', 22)}</span>

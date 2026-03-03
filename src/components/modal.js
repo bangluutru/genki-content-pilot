@@ -25,7 +25,7 @@ export function showModal({ title, content, actions = [] }) {
     <div class="modal">
       <h3 class="modal-title">${title}</h3>
       <div class="modal-body">${content}</div>
-      ${actionsHtml ? `<div class="flex gap-4 mt-6 justify-end">${actionsHtml}</div>` : ''}
+      ${actionsHtml ? `<div class="modal-actions">${actionsHtml}</div>` : ''}
     </div>
   `;
 

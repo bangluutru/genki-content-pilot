@@ -493,13 +493,15 @@
 .calendar-grid-wrap {
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
-    overflow: hidden;
     background: var(--bg-glass);
     backdrop-filter: blur(var(--glass-blur-light));
     -webkit-backdrop-filter: blur(var(--glass-blur-light));
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .calendar-weekdays {
+    min-width: 350px;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     background: var(--bg-glass);
@@ -517,6 +519,7 @@
 }
 
 .calendar-grid {
+    min-width: 350px;
     display: grid;
     grid-template-columns: repeat(7, 1fr);
 }
