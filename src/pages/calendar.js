@@ -22,16 +22,16 @@ export async function renderCalendarPage() {
   app.innerHTML = `
     ${renderSidebar()}
     <main class="main-content page">
-      <div class="flex justify-between items-center mb-6">
-        <div>
-          <h1 style="font-size: var(--font-2xl); display: flex; align-items: center; gap: 12px;">${icon('calendar', 28)} ${t('calendar.title')}</h1>
-          <p class="text-muted text-sm" style="margin-top: var(--space-1);">${t('calendar.subtitle')}</p>
+      <div class="calendar-header">
+        <div class="calendar-header-title">
+          <h1>${icon('calendar', 24)} ${t('calendar.title')}</h1>
+          <p class="text-muted text-sm">${t('calendar.subtitle')}</p>
         </div>
-        <div class="flex gap-2">
-          <button class="btn btn-ghost" id="btn-prev-month">← ${t('calendar.prev')}</button>
-          <span class="btn btn-ghost" id="month-label" style="min-width: 150px; text-align: center; font-weight: 700;"></span>
-          <button class="btn btn-ghost" id="btn-next-month">${t('calendar.next')} →</button>
-          <button class="btn btn-secondary btn-sm" id="btn-today" style="margin-left: var(--space-2);">📍 ${t('calendar.today') || 'Hôm nay'}</button>
+        <div class="calendar-header-nav">
+          <button class="btn btn-ghost btn-sm" id="btn-prev-month">← ${t('calendar.prev')}</button>
+          <span id="month-label" class="calendar-month-label"></span>
+          <button class="btn btn-ghost btn-sm" id="btn-next-month">${t('calendar.next')} →</button>
+          <button class="btn btn-secondary btn-sm" id="btn-today">📍 ${t('calendar.today') || 'Hôm nay'}</button>
         </div>
       </div>
       <div id="calendar-stats" class="flex gap-4 mb-4" style="font-size: var(--font-xs); color: var(--text-muted);"></div>
