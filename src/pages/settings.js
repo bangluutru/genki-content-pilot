@@ -1,6 +1,3 @@
-/**
- * Settings Page — Manage Facebook & WordPress connections
- */
 import { store } from '../utils/state.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
@@ -9,13 +6,20 @@ import { testFacebookConnection } from '../services/facebook.js';
 import { testWordPressConnection } from '../services/wordpress.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
+import { getLocale, getLocaleFlag, setLocale } from '../utils/i18n.js';
+import { getTheme, getThemeIcon, toggleTheme } from '../utils/theme.js';
+import { router } from '../utils/router.js';
 
 export async function renderSettingsPage() {
   const app = document.getElementById('app');
   const connections = store.get('connections') || await loadConnections() || {};
+  const user = store.get('user') || {};
 
   const fb = connections.facebook || {};
   const wp = connections.wordpress || {};
+
+  const currentLocale = getLocale();
+  const currentTheme = getTheme();
 
   app.innerHTML = `
     ${renderSidebar()}
@@ -25,6 +29,33 @@ export async function renderSettingsPage() {
         <p class="text-muted text-sm" style="margin-top: var(--space-1);">
           ${t('settings.subtitle')}
         </p>
+      </div>
+
+      <!-- Account & Personalization -->
+      <div class="card connection-card" style="margin-bottom: var(--space-6);">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-4">
+            <img src="${user.photoURL || ''}" alt=""
+                 style="width: 40px; height: 40px; border-radius: 50%; background: var(--surface); flex-shrink: 0;"
+                 onerror="this.style.display='none'">
+            <div style="min-width: 0;">
+              <h3 style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${user.displayName || 'User'}</h3>
+              <p class="text-sm text-muted" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${user.email || ''}</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: var(--space-2); flex-wrap: wrap;">
+          <button class="btn btn-ghost btn-sm" id="btn-locale-settings" title="${t('common.language')}" style="flex: 1; min-width: 100px;">
+            ${getLocaleFlag()} ${currentLocale.toUpperCase()} — ${currentLocale === 'vi' ? 'Tiếng Việt' : 'English'}
+          </button>
+          <button class="btn btn-ghost btn-sm" id="btn-theme-settings" title="${t('common.theme')}" style="flex: 1; min-width: 100px;">
+            ${getThemeIcon()} ${currentTheme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+          </button>
+          <button class="btn btn-ghost btn-sm" id="btn-logout-settings" style="color: var(--danger); flex: 1; min-width: 100px;">
+            ${icon('logout', 16)} ${t('auth.signOut')}
+          </button>
+        </div>
       </div>
 
       <!-- Facebook Connection -->
@@ -164,6 +195,30 @@ export async function renderSettingsPage() {
 }
 
 function attachSettingsEvents() {
+  const user = store.get('user');
+
+  // Account & Personalization — Language toggle
+  document.getElementById('btn-locale-settings')?.addEventListener('click', async (e) => {
+    e.target.closest('button').disabled = true;
+    const current = getLocale();
+    const next = current === 'vi' ? 'en' : 'vi';
+    await setLocale(next, user);
+    router.resolve();
+  });
+
+  // Account & Personalization — Theme toggle
+  document.getElementById('btn-theme-settings')?.addEventListener('click', async (e) => {
+    e.target.closest('button').disabled = true;
+    await toggleTheme(user);
+    router.resolve();
+  });
+
+  // Account & Personalization — Logout
+  document.getElementById('btn-logout-settings')?.addEventListener('click', async () => {
+    const { signOutUser } = await import('../services/auth.js');
+    await signOutUser();
+  });
+
   // Facebook - Test Connection
   document.getElementById('btn-test-fb')?.addEventListener('click', async () => {
     const pageId = document.getElementById('fb-page-id')?.value?.trim();
