@@ -58,7 +58,7 @@ export async function renderCalendarPage() {
           </div>
 
           <div class="form-group" style="margin-bottom: var(--space-4);">
-            <label class="form-label">Platform</label>
+            <label class="form-label">${t('calendar.platform')}</label>
             <select class="form-input" id="schedule-platform">
               <option value="facebook">${icon('phone', 14)} Facebook</option>
               <option value="blog">${icon('blog', 14)} Blog</option>

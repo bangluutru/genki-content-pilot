@@ -171,11 +171,13 @@ function injectCSS() {
       .hw-md p { font-size: 0.85rem; color: var(--text-secondary,#94a3b8); line-height: 1.7; margin-bottom: 9px; }
       .hw-md strong { color: var(--text-primary,#e2e8f0); font-weight: 600; }
       .hw-md em { color: #818cf8; font-style: normal; }
-      .hw-md li { font-size: 0.85rem; color: var(--text-secondary,#94a3b8); line-height: 1.6; margin-bottom: 5px; padding-left: 14px; position: relative; }
-      .hw-md li::before { content: "▸"; position: absolute; left: 0; color: var(--primary,#6366f1); }
-      .hw-md ol { counter-reset: list-counter; }
-      .hw-md ol li { counter-increment: list-counter; }
-      .hw-md ol li::before { content: counter(list-counter) "."; color: var(--primary,#6366f1); font-weight: 700; font-size: 0.82rem; }
+      .hw-md ul, .hw-md ol { padding-left: 20px; margin: 8px 0; }
+      .hw-md li { font-size: 0.85rem; color: var(--text-secondary,#94a3b8); line-height: 1.6; margin-bottom: 5px; }
+      .hw-md ul li { list-style: none; padding-left: 14px; position: relative; }
+      .hw-md ul li::before { content: "▸"; position: absolute; left: 0; color: var(--primary,#6366f1); }
+      .hw-md ol { list-style: none; counter-reset: hw-counter; }
+      .hw-md ol li { counter-increment: hw-counter; padding-left: 20px; position: relative; }
+      .hw-md ol li::before { content: counter(hw-counter) "."; position: absolute; left: 0; color: var(--primary,#6366f1); font-weight: 700; font-size: 0.82rem; }
       .hw-md code { background: rgba(99,102,241,0.12); color: #a5b4fc; padding: 2px 5px; border-radius: 3px; font-size: 0.8rem; font-family: monospace; }
       .hw-md pre { background: rgba(0,0,0,0.3); border-radius: 7px; padding: 10px; margin: 10px 0; overflow-x: auto; border-left: 3px solid #6366f1; }
       .hw-md pre code { background: none; padding: 0; color: #a5b4fc; font-size: 0.78rem; }
@@ -544,7 +546,7 @@ function parseMarkdown(md) {
 
   // Lists — wrap consecutive items
   html = html.replace(/((?:^\d+\. .+\n?)+)/gm, match => {
-    const items = match.trim().split('\n').map(l => `<li>${l.replace(/^\d+\. /, '')}</li>`).join('');
+    const items = match.trim().split('\n').map(l => `<li>${l.replace(/^\d+\.\s*/, '')}</li>`).join('');
     return `<ol>${items}</ol>`;
   });
   html = html.replace(/((?:^- .+\n?)+)/gm, match => {
