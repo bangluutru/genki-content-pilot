@@ -45,7 +45,7 @@ export async function renderCalendarPage() {
 
       <!-- Schedule Modal -->
       <div class="modal-overlay hidden" id="schedule-modal">
-        <div class="card" style="max-width: 480px; width: 90%; padding: var(--space-6);">
+        <div class="card" style="max-width: 480px; width: 92%; padding: var(--space-5); box-sizing: border-box; overflow-y: auto; max-height: 90vh;">
           <h3 id="modal-title" style="margin-bottom: var(--space-4);"></h3>
 
           <div id="modal-schedules" style="margin-bottom: var(--space-4);"></div>
@@ -68,9 +68,9 @@ export async function renderCalendarPage() {
 
           <div class="form-group" style="margin-bottom: var(--space-4);">
             <label class="form-label">${t('calendar.publishTime')}</label>
-            <input type="time" class="form-input" id="schedule-time" value="09:00">
-            <div class="quick-times" style="margin-top: var(--space-2); display: flex; gap: var(--space-2);">
-              <span class="text-xs text-muted" style="align-self: center;">${t('calendar.suggestions')}:</span>
+            <input type="time" class="form-input" id="schedule-time" value="09:00" style="max-width: 100%; box-sizing: border-box;">
+            <div class="quick-times" style="margin-top: var(--space-2); display: flex; gap: var(--space-2); flex-wrap: wrap; align-items: center;">
+              <span class="text-xs text-muted">${t('calendar.suggestions')}:</span>
               <button class="btn btn-ghost btn-xs quick-time-btn" data-time="09:00">${icon('sun', 12)} 09:00</button>
               <button class="btn btn-ghost btn-xs quick-time-btn" data-time="11:30">${icon('clock', 12)} 11:30</button>
               <button class="btn btn-ghost btn-xs quick-time-btn" data-time="20:00">${icon('moon', 12)} 20:00</button>

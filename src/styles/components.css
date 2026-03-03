@@ -156,6 +156,19 @@
     outline: none;
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
     min-height: 44px;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+
+/* iOS time/date input normalization */
+input[type="time"].form-input,
+input[type="date"].form-input,
+input[type="datetime-local"].form-input {
+    -webkit-appearance: none;
+    appearance: none;
+    max-width: 100%;
 }
 
 .input:focus,
