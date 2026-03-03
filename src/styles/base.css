@@ -1,5 +1,6 @@
 /* ============================================================
-   Base Styles — Reset, Typography, Focus, iOS Fixes
+   Base Styles — Reset, Typography, Focus, iOS Fixes, Ambient BG
+   Glassmorphism v3
    ============================================================ */
 
 /* ---------- CSS Reset ---------- */
@@ -10,9 +11,6 @@
     margin: 0;
     padding: 0;
 }
-
-/* NOTE: Typography, spacing, borders, transitions, and layout tokens
-   are now defined in tokens.css. Components below reference those vars. */
 
 /* ---------- Base Styles ---------- */
 html {
@@ -35,11 +33,9 @@ html {
     }
 }
 
-/* ---------- Enhanced Keyboard Focus Indicators ---------- */
-/* High-visibility focus states for accessibility (WCAG 2.4.7) */
+/* ---------- Focus Indicators (WCAG 2.4.7) ---------- */
 *:focus {
     outline: none;
-    /* Remove default outline */
 }
 
 *:focus-visible {
@@ -64,12 +60,11 @@ select:focus-visible {
     border-color: var(--primary);
 }
 
-/* Ensure focus is visible in dark mode too */
 .dark *:focus-visible {
     outline-color: var(--primary);
 }
 
-
+/* ---------- Body + Ambient Glass Background ---------- */
 body {
     font-family: var(--font-family);
     font-size: var(--font-base);
@@ -81,6 +76,80 @@ body {
     -moz-osx-font-smoothing: grayscale;
     padding-top: var(--safe-top);
     padding-bottom: var(--safe-bottom);
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Ambient floating orbs — creates the glassmorphism atmosphere */
+body::before,
+body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: -1;
+    pointer-events: none;
+    will-change: transform;
+    animation: orbFloat 20s ease-in-out infinite;
+}
+
+body::before {
+    width: 500px;
+    height: 500px;
+    background: var(--orb-color-1);
+    top: -10%;
+    right: -5%;
+    animation-delay: 0s;
+}
+
+body::after {
+    width: 400px;
+    height: 400px;
+    background: var(--orb-color-2);
+    bottom: -5%;
+    left: -5%;
+    animation-delay: -10s;
+}
+
+@keyframes orbFloat {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(30px, -20px) scale(1.05);
+    }
+
+    50% {
+        transform: translate(-20px, 15px) scale(0.95);
+    }
+
+    75% {
+        transform: translate(15px, 25px) scale(1.02);
+    }
+}
+
+/* Third orb via the #app wrapper */
+#app {
+    position: relative;
+}
+
+#app::before {
+    content: '';
+    position: fixed;
+    width: 350px;
+    height: 350px;
+    background: var(--orb-color-3);
+    border-radius: 50%;
+    filter: blur(80px);
+    top: 40%;
+    left: 30%;
+    z-index: -1;
+    pointer-events: none;
+    animation: orbFloat 25s ease-in-out infinite;
+    animation-delay: -5s;
 }
 
 /* ---------- iOS Safari Fixes (CRITICAL) ---------- */
@@ -88,16 +157,13 @@ input,
 select,
 textarea {
     font-size: 16px !important;
-    /* Prevent iOS auto-zoom */
     font-family: var(--font-family);
 }
 
-/* Remove tap highlight */
 * {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Touch optimization */
 html {
     touch-action: manipulation;
 }
@@ -145,4 +211,14 @@ a {
 
 a:hover {
     color: var(--link-hover);
+}
+
+/* ---------- Selection ---------- */
+::selection {
+    background: rgba(0, 105, 100, 0.2);
+    color: var(--text);
+}
+
+.dark ::selection {
+    background: rgba(81, 191, 157, 0.25);
 }

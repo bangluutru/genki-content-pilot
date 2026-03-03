@@ -1,5 +1,6 @@
 /* ============================================================
-   Utilities — Helper classes, Scrollbar, Focus, Firebase Banner
+   Utilities — Helper classes, Scrollbar, Firebase Banner
+   Glassmorphism v3
    ============================================================ */
 
 /* ---------- Utility Classes ---------- */
@@ -94,7 +95,7 @@
     outline: none;
 }
 
-/* ---------- Scrollbar ---------- */
+/* ---------- Scrollbar (Glass-themed) ---------- */
 ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -105,18 +106,18 @@
 }
 
 ::-webkit-scrollbar-thumb {
-    background: var(--bg-tertiary);
+    background: var(--glass-border);
     border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--text-muted);
+    background: var(--glass-border-hover);
 }
 
 /* ---------- Firebase Offline Banner ---------- */
 .firebase-offline-banner {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-    color: #fff;
+    background: linear-gradient(135deg, var(--color-digest), var(--color-digest-tint));
+    color: var(--color-brain-dark);
     padding: 12px 20px;
     text-align: center;
     font-size: 14px;
@@ -126,11 +127,13 @@
     left: 0;
     right: 0;
     z-index: 9999;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: var(--shadow-md);
+    backdrop-filter: blur(var(--glass-blur-light));
+    -webkit-backdrop-filter: blur(var(--glass-blur-light));
 }
 
 .firebase-offline-banner a {
-    color: #fff;
+    color: var(--color-brain-dark);
     text-decoration: underline;
     font-weight: 700;
 }
@@ -138,8 +141,9 @@
 .firebase-offline-banner button {
     margin-left: 12px;
     background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(4px);
     border: none;
-    color: #fff;
+    color: var(--color-brain-dark);
     cursor: pointer;
     padding: 2px 8px;
     border-radius: 4px;

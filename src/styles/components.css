@@ -1,5 +1,6 @@
 /* ============================================================
-   UI Components — Buttons, Inputs, Cards, Badges, Tabs, Toast, Modal
+   UI Components — Glassmorphism v3
+   Buttons, Inputs, Cards, Badges, Tabs, Toast, Modal, Toggles
    ============================================================ */
 
 /* ---------- Buttons ---------- */
@@ -18,21 +19,21 @@
     cursor: pointer;
     transition: all var(--transition-fast);
     min-height: 44px;
-    /* Touch target */
     min-width: 44px;
     white-space: nowrap;
 }
 
 .btn-primary {
-    background: var(--primary);
+    background: var(--gradient-primary);
     color: var(--btn-primary-text);
-    box-shadow: var(--shadow-sm);
+    box-shadow: var(--glow-primary);
+    border: 1px solid var(--glass-border);
 }
 
 .btn-primary:hover {
-    background: var(--primary-hover);
     transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
+    box-shadow: var(--glow-primary), var(--shadow-md);
+    border-color: var(--glass-border-hover);
 }
 
 .btn-primary:active {
@@ -40,14 +41,17 @@
 }
 
 .btn-secondary {
-    background: var(--surface);
+    background: var(--bg-glass);
+    backdrop-filter: blur(var(--glass-blur-light));
+    -webkit-backdrop-filter: blur(var(--glass-blur-light));
     color: var(--text);
-    border: 1px solid var(--border);
+    border: 1px solid var(--glass-border);
 }
 
 .btn-secondary:hover {
-    background: var(--surface-elevated);
-    border-color: var(--primary);
+    background: var(--bg-glass-hover);
+    border-color: var(--glass-border-hover);
+    box-shadow: var(--glow-accent);
 }
 
 .btn-ghost {
@@ -63,21 +67,24 @@
 .btn-danger {
     background: var(--danger);
     color: white;
+    box-shadow: 0 0 15px rgba(167, 29, 69, 0.2);
 }
 
 .btn-danger:hover {
-    background: #dc2626;
+    opacity: 0.9;
+    box-shadow: 0 0 20px rgba(167, 29, 69, 0.3);
 }
 
 .btn-accent {
-    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-    color: white;
-    box-shadow: var(--shadow-sm), 0 0 0 0 rgba(139, 92, 246, 0.3);
+    background: var(--gradient-primary);
+    color: var(--btn-primary-text);
+    box-shadow: var(--glow-accent);
+    border: 1px solid var(--glass-border);
 }
 
 .btn-accent:hover {
     transform: translateY(-1px);
-    box-shadow: var(--shadow-md), 0 0 20px rgba(139, 92, 246, 0.3);
+    box-shadow: var(--glow-accent), var(--shadow-md);
 }
 
 .btn-accent:active {
@@ -139,11 +146,12 @@
     width: 100%;
     padding: var(--space-3) var(--space-4);
     font-size: 16px !important;
-    /* iOS zoom prevention */
     font-family: var(--font-family);
     color: var(--text);
-    background: var(--surface);
-    border: 1px solid var(--border);
+    background: var(--bg-glass);
+    backdrop-filter: blur(var(--glass-blur-light));
+    -webkit-backdrop-filter: blur(var(--glass-blur-light));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
     outline: none;
     transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
@@ -154,8 +162,8 @@
 .textarea:focus,
 .select:focus,
 .form-input:focus {
-    border-color: var(--focus-ring);
-    box-shadow: 0 0 0 3px var(--primary-light);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-alpha), var(--glow-accent);
 }
 
 .input::placeholder,
@@ -172,23 +180,26 @@
 
 /* ---------- Cards (Glassmorphism) ---------- */
 .card {
-    background: var(--surface);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
+    background: var(--bg-glass);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     padding: var(--space-6);
     transition: all var(--transition-base);
+    box-shadow: var(--shadow-glass);
 }
 
 .card:hover {
-    border-color: var(--border-hover);
-    box-shadow: var(--shadow-md);
+    border-color: var(--glass-border-hover);
+    box-shadow: var(--glow-card), var(--shadow-md);
 }
 
 .card-flat {
-    background: var(--surface-elevated);
-    border: 1px solid var(--border);
+    background: var(--bg-glass);
+    backdrop-filter: blur(var(--glass-blur-light));
+    -webkit-backdrop-filter: blur(var(--glass-blur-light));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
     padding: var(--space-6);
 }
@@ -204,26 +215,32 @@
     border-radius: var(--radius-full);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    backdrop-filter: blur(var(--glass-blur-light));
+    -webkit-backdrop-filter: blur(var(--glass-blur-light));
 }
 
 .badge-success {
     background: var(--success-light);
     color: var(--success);
+    border: 1px solid rgba(81, 191, 157, 0.2);
 }
 
 .badge-warning {
     background: var(--warning-light);
     color: var(--warning);
+    border: 1px solid rgba(198, 186, 98, 0.2);
 }
 
 .badge-danger {
     background: var(--danger-light);
     color: var(--danger);
+    border: 1px solid rgba(167, 29, 69, 0.2);
 }
 
 .badge-accent {
     background: var(--info-light);
     color: var(--info);
+    border: 1px solid rgba(102, 102, 204, 0.2);
 }
 
 /* ---------- Tabs ---------- */
@@ -231,7 +248,10 @@
     display: flex;
     gap: var(--space-1);
     padding: var(--space-1);
-    background: var(--surface);
+    background: var(--bg-glass);
+    backdrop-filter: blur(var(--glass-blur-light));
+    -webkit-backdrop-filter: blur(var(--glass-blur-light));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
     overflow-x: auto;
 }
@@ -253,13 +273,15 @@
 }
 
 .tab.active {
-    background: var(--bg);
+    background: var(--bg-glass-hover);
     color: var(--text);
     box-shadow: var(--shadow-sm);
+    border: 1px solid var(--glass-border);
 }
 
 .tab:hover:not(.active) {
     color: var(--text);
+    background: var(--bg-glass);
 }
 
 /* ---------- Toast ---------- */
@@ -278,11 +300,12 @@
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-3) var(--space-5);
-    background: var(--surface);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
+    background: var(--bg-glass);
+    backdrop-filter: blur(var(--glass-blur-heavy));
+    -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-md);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-lg), var(--glow-card);
     animation: slideIn 0.3s ease;
     max-width: 400px;
     font-size: var(--font-sm);
@@ -331,8 +354,9 @@
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -346,8 +370,10 @@
 }
 
 .modal {
-    background: var(--surface-elevated);
-    border: 1px solid var(--border);
+    background: var(--bg-glass);
+    backdrop-filter: blur(var(--glass-blur-heavy));
+    -webkit-backdrop-filter: blur(var(--glass-blur-heavy));
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-xl);
     padding: var(--space-8);
     max-width: 500px;
@@ -355,6 +381,7 @@
     max-height: 90dvh;
     overflow-y: auto;
     animation: scaleIn 0.2s ease;
+    box-shadow: var(--shadow-lg), var(--glow-primary);
 }
 
 .modal-title {
@@ -363,13 +390,15 @@
 }
 
 .modal-content {
-    background: var(--bg);
+    background: var(--bg-glass);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
     padding: var(--space-6);
     border-radius: var(--radius-lg);
     width: 100%;
     max-width: 500px;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border);
+    box-shadow: var(--shadow-lg), var(--glow-card);
+    border: 1px solid var(--glass-border);
     animation: slideUp 0.2s ease-out;
 }
 
@@ -438,7 +467,7 @@
 }
 
 .publish-toggle:hover {
-    background: var(--bg-tertiary);
+    background: var(--bg-glass);
 }
 
 .toggle-input {
@@ -453,6 +482,7 @@
     width: 44px;
     height: 24px;
     background: var(--bg-tertiary);
+    border: 1px solid var(--glass-border);
     border-radius: var(--radius-full);
     transition: all var(--transition-fast);
     flex-shrink: 0;
@@ -471,7 +501,9 @@
 }
 
 .toggle-input:checked+.toggle-slider {
-    background: linear-gradient(135deg, #8b5cf6, #a78bfa);
+    background: var(--gradient-primary);
+    border-color: var(--glass-border-active);
+    box-shadow: var(--glow-accent);
 }
 
 .toggle-input:checked+.toggle-slider::after {
@@ -516,7 +548,7 @@
 .logo-text {
     font-size: var(--font-3xl);
     font-weight: 800;
-    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -525,7 +557,7 @@
 .loading-spinner {
     width: 32px;
     height: 32px;
-    border: 3px solid var(--bg-tertiary);
+    border: 3px solid var(--glass-border);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
@@ -542,7 +574,7 @@
     display: inline-block;
     width: 14px;
     height: 14px;
-    border: 2px solid var(--bg-tertiary);
+    border: 2px solid var(--glass-border);
     border-top-color: currentColor;
     border-radius: 50%;
     animation: spin 0.6s linear infinite;
@@ -552,15 +584,15 @@
 .spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid var(--border-color);
-    border-top-color: #8b5cf6;
+    border: 3px solid var(--glass-border);
+    border-top-color: var(--accent);
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
 }
 
 /* ---------- Skeleton ---------- */
 .skeleton {
-    background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-secondary) 50%, var(--bg-tertiary) 75%);
+    background: linear-gradient(90deg, var(--bg-glass) 25%, var(--bg-glass-hover) 50%, var(--bg-glass) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: var(--radius-sm);
