@@ -65,10 +65,28 @@ function injectCSS() {
         display: flex; align-items: center; justify-content: center;
         box-shadow: 0 4px 20px rgba(99,102,241,0.4);
         z-index: 9000;
-        transition: transform 0.18s ease, box-shadow 0.18s ease;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, bottom 0.25s ease, right 0.25s ease, left 0.25s ease;
         color: #fff; font-size: 22px;
+        touch-action: none; /* Prevent scroll while dragging */
+        user-select: none;
+        -webkit-user-select: none;
       }
       #help-fab:hover { transform: scale(1.08) translateY(-2px); box-shadow: 0 8px 28px rgba(99,102,241,0.5); }
+      #help-fab.dragging {
+        transition: none !important;
+        transform: scale(1.12);
+        box-shadow: 0 8px 32px rgba(99,102,241,0.6);
+        opacity: 0.9;
+      }
+      /* Mobile: raise above bottom nav bar */
+      @media (max-width: 768px) {
+        #help-fab {
+          bottom: 84px; /* Above bottom nav (~64px + safe-area + gap) */
+          right: 16px;
+          width: 48px; height: 48px;
+          font-size: 18px;
+        }
+      }
       .fab-badge {
         position: absolute; top: -4px; right: -4px;
         width: 18px; height: 18px;
@@ -304,10 +322,20 @@ function attachWidgetEvents(root) {
   const openDrawer = () => { overlay.classList.add('open'); panel.classList.add('open'); };
   const closeDrawer = () => { overlay.classList.remove('open'); panel.classList.remove('open'); };
 
-  fab.addEventListener('click', openDrawer);
+  fab.addEventListener('click', (e) => {
+    // Don't open if user just finished dragging
+    if (fab._wasDragged) { fab._wasDragged = false; return; }
+    openDrawer();
+  });
   closeBtn.addEventListener('click', closeDrawer);
   overlay.addEventListener('click', closeDrawer);
   gotoHelp.addEventListener('click', closeDrawer);
+
+  // ── Draggable FAB (touch + mouse) ──────────────────
+  _attachDragBehavior(fab);
+
+  // Restore saved position from localStorage
+  _restoreFabPosition(fab);
 
   // Tab switching — instant (just toggle CSS class, no re-parse)
   tabs.forEach(tab => {
@@ -333,6 +361,123 @@ function attachWidgetEvents(root) {
     root.querySelectorAll('.hw-tab-panel').forEach(p => p.classList.remove('active'));
     root.querySelector('#hw-panel-current')?.classList.add('active');
   });
+}
+
+// ─────────────────────────────────────────────
+// Draggable FAB — touch + mouse with snap-to-edge
+// ─────────────────────────────────────────────
+function _attachDragBehavior(fab) {
+  let startX = 0, startY = 0;
+  let startLeft = 0, startTop = 0;
+  let isDragging = false;
+  let hasMoved = false;
+  const DRAG_THRESHOLD = 8; // px — distinguish tap from drag
+
+  function getPointerPos(e) {
+    const t = e.touches ? e.touches[0] : e;
+    return { x: t.clientX, y: t.clientY };
+  }
+
+  function onStart(e) {
+    const pos = getPointerPos(e);
+    const rect = fab.getBoundingClientRect();
+    startX = pos.x;
+    startY = pos.y;
+    startLeft = rect.left;
+    startTop = rect.top;
+    hasMoved = false;
+    isDragging = true;
+  }
+
+  function onMove(e) {
+    if (!isDragging) return;
+    const pos = getPointerPos(e);
+    const dx = pos.x - startX;
+    const dy = pos.y - startY;
+
+    if (!hasMoved && Math.sqrt(dx * dx + dy * dy) < DRAG_THRESHOLD) return;
+    hasMoved = true;
+    fab.classList.add('dragging');
+
+    // Constrain to viewport
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const size = fab.offsetWidth;
+    let newLeft = Math.max(4, Math.min(vw - size - 4, startLeft + dx));
+    let newTop = Math.max(4, Math.min(vh - size - 4, startTop + dy));
+
+    fab.style.left = newLeft + 'px';
+    fab.style.top = newTop + 'px';
+    fab.style.right = 'auto';
+    fab.style.bottom = 'auto';
+
+    if (e.cancelable) e.preventDefault();
+  }
+
+  function onEnd() {
+    if (!isDragging) return;
+    isDragging = false;
+    fab.classList.remove('dragging');
+
+    if (hasMoved) {
+      fab._wasDragged = true;
+      // Snap to nearest edge (left or right)
+      const rect = fab.getBoundingClientRect();
+      const vw = window.innerWidth;
+      const snapRight = vw - rect.right < rect.left;
+
+      fab.style.top = rect.top + 'px';
+      fab.style.bottom = 'auto';
+      if (snapRight) {
+        fab.style.left = 'auto';
+        fab.style.right = '16px';
+      } else {
+        fab.style.left = '16px';
+        fab.style.right = 'auto';
+      }
+
+      // Save position
+      try {
+        localStorage.setItem('cp_fab_pos', JSON.stringify({
+          top: rect.top,
+          snapRight,
+        }));
+      } catch { /* ignore */ }
+    }
+  }
+
+  // Touch events (mobile)
+  fab.addEventListener('touchstart', onStart, { passive: true });
+  fab.addEventListener('touchmove', onMove, { passive: false });
+  fab.addEventListener('touchend', onEnd);
+  fab.addEventListener('touchcancel', onEnd);
+
+  // Mouse events (desktop drag support)
+  fab.addEventListener('mousedown', onStart);
+  document.addEventListener('mousemove', onMove);
+  document.addEventListener('mouseup', onEnd);
+}
+
+/** Restore saved FAB position from localStorage */
+function _restoreFabPosition(fab) {
+  try {
+    const saved = localStorage.getItem('cp_fab_pos');
+    if (!saved) return;
+    const { top, snapRight } = JSON.parse(saved);
+    const vh = window.innerHeight;
+    const size = fab.offsetWidth || 56;
+    // Clamp top within viewport
+    const clampedTop = Math.max(4, Math.min(vh - size - 4, top));
+    fab.style.top = clampedTop + 'px';
+    fab.style.bottom = 'auto';
+    if (snapRight) {
+      fab.style.left = 'auto';
+      fab.style.right = '16px';
+    } else {
+      fab.style.left = '16px';
+      fab.style.right = 'auto';
+    }
+  } catch { /* ignore, use default CSS position */ }
 }
 
 // ─────────────────────────────────────────────

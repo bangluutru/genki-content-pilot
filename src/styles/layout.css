@@ -216,16 +216,6 @@
 }
 
 @media (max-width: 768px) {
-    .sidebar {
-        display: none;
-    }
-
-    .main-content {
-        margin-left: 0;
-        padding-bottom: 80px;
-        /* Space for bottom nav */
-    }
-
     .bottom-nav {
         display: flex;
     }
