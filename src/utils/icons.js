@@ -158,6 +158,20 @@ const ICONS = {
     database: `<ellipse class="duo-f" cx="12" cy="5" rx="9" ry="3"/><ellipse class="duo-s" cx="12" cy="5" rx="9" ry="3"/><path class="duo-s" d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path class="duo-s" d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>`,
 
     info: `<circle class="duo-f" cx="12" cy="12" r="10"/><circle class="duo-s" cx="12" cy="12" r="10"/><line class="duo-s" x1="12" y1="16" x2="12" y2="12"/><line class="duo-s" x1="12" y1="8" x2="12.01" y2="8"/>`,
+
+    // ── Communication ───────────────────────────────────
+    mail: `<path class="duo-f" d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline class="duo-s" points="22,6 12,13 2,6"/>`,
+
+    send: `<line class="duo-s" x1="22" y1="2" x2="11" y2="13"/><polygon class="duo-f" points="22 2 15 22 11 13 2 9 22 2"/><polygon class="duo-s" points="22 2 15 22 11 13 2 9 22 2"/>`,
+
+    link: `<path class="duo-s" d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path class="duo-s" d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>`,
+
+    // ── Directional / Navigation ─────────────────────────
+    chevron: `<polyline class="duo-s" points="6 9 12 15 18 9"/>`,
+
+    'arrow-left': `<line class="duo-s" x1="19" y1="12" x2="5" y2="12"/><polyline class="duo-s" points="12 19 5 12 12 5"/>`,
+
+    'arrow-right': `<line class="duo-s" x1="5" y1="12" x2="19" y2="12"/><polyline class="duo-s" points="12 5 19 12 12 19"/>`,
 };
 
 
