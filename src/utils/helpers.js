@@ -2,18 +2,6 @@
  * Utility helpers for ContentPilot v2
  */
 
-/** Format date to Vietnamese locale */
-export function formatDate(date) {
-    if (!date) return '';
-    const d = date instanceof Date ? date : new Date(date);
-    return d.toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
 
 /** Relative time (e.g., "5 phút trước") */
 export function timeAgo(date) {
@@ -46,14 +34,6 @@ export function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 }
 
-/** Debounce function */
-export function debounce(fn, delay = 300) {
-    let timer;
-    return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn(...args), delay);
-    };
-}
 
 /** Copy text to clipboard */
 export async function copyToClipboard(text) {

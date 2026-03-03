@@ -42,28 +42,6 @@ export function generateUTM(baseUrl, params = {}) {
 }
 
 /**
- * Parse UTM parameters from URL
- * @param {string} url - URL with UTM parameters
- * @returns {Object} Parsed UTM params
- */
-export function parseUTM(url) {
-    if (!url) return {};
-
-    try {
-        const urlObj = new URL(url);
-        return {
-            source: urlObj.searchParams.get('utm_source') || '',
-            medium: urlObj.searchParams.get('utm_medium') || '',
-            campaign: urlObj.searchParams.get('utm_campaign') || '',
-            content: urlObj.searchParams.get('utm_content') || '',
-            term: urlObj.searchParams.get('utm_term') || '',
-        };
-    } catch (e) {
-        return {};
-    }
-}
-
-/**
  * Build tracking link for product
  * @param {string} productUrl - Original product URL
  * @param {string} contentId - Content ID for tracking

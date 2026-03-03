@@ -135,14 +135,6 @@ export async function setLocale(locale, user = null) {
 
 }
 
-/**
- * Subscribe to locale changes
- * Returns unsubscribe function
- */
-export function onLocaleChange(callback) {
-    listeners.add(callback);
-    return () => listeners.delete(callback);
-}
 
 /**
  * Notify all listeners
@@ -157,16 +149,6 @@ function notifyListeners() {
     });
 }
 
-/**
- * Get locale display name
- */
-export function getLocaleDisplayName(locale = currentLocale) {
-    const names = {
-        vi: 'Tiếng Việt',
-        en: 'English'
-    };
-    return names[locale] || locale;
-}
 
 /**
  * Get locale flag emoji

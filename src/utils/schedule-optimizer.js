@@ -79,23 +79,6 @@ export function suggestBestSlots(existingSchedules, currentMonth, currentYear, d
 }
 
 /**
- * Get posting density for the current month (posts per day-of-week)
- * @param {Array} schedules
- * @returns {Array<{day: string, count: number}>}
- */
-export function getPostingDensity(schedules) {
-    const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-    const counts = new Array(7).fill(0);
-
-    schedules.forEach(s => {
-        const dow = new Date(s.date + 'T00:00:00').getDay();
-        counts[dow]++;
-    });
-
-    return days.map((day, i) => ({ day, count: counts[i] }));
-}
-
-/**
  * Find gap days (no scheduled posts) within the next N days
  * @param {Array} schedules
  * @param {number} daysAhead

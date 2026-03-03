@@ -105,15 +105,6 @@ export async function toggleTheme(user = null) {
 }
 
 /**
- * Subscribe to theme changes
- * Returns unsubscribe function
- */
-export function onThemeChange(callback) {
-    listeners.add(callback);
-    return () => listeners.delete(callback);
-}
-
-/**
  * Notify all listeners
  */
 function notifyListeners() {
@@ -133,18 +124,3 @@ export function getThemeIcon(theme = currentTheme) {
     return theme === 'dark' ? '🌙' : '☀️';
 }
 
-/**
- * Get theme display name
- */
-export function getThemeDisplayName(theme = currentTheme) {
-    // Import t() function for translations
-    // Note: This creates a circular dependency, so we'll use a simple mapping
-    const names = {
-        light: { vi: 'Sáng', en: 'Light' },
-        dark: { vi: 'Tối', en: 'Dark' }
-    };
-
-    // Get current locale from localStorage
-    const locale = localStorage.getItem('locale') || 'vi';
-    return names[theme]?.[locale] || theme;
-}

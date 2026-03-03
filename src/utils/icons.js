@@ -189,11 +189,3 @@ export function icon(name, size = 20) {
     }
     return `<svg class="duo-icon" width="${size}" height="${size}" viewBox="0 0 24 24">${paths}</svg>`;
 }
-
-/**
- * Get all available icon names.
- * @returns {string[]}
- */
-export function getIconNames() {
-    return Object.keys(ICONS);
-}

@@ -96,11 +96,4 @@ export function getEventsForMonth(month, year) {
         .sort((a, b) => a.day - b.day);
 }
 
-/**
- * Get all events (for reference)
- */
-export function getAllMarketingEvents() {
-    return MARKETING_EVENTS;
-}
-
 export default MARKETING_EVENTS;
