@@ -590,14 +590,19 @@ function attachCreateEvents() {
       }
 
       // Auto-fill fields with highlight animation
+      // Switch product dropdown to 'custom' and show the custom input
+      const productSelect = document.getElementById('brief-product-select');
       const productEl = document.getElementById('brief-product');
-      if (productEl && !productEl.value) {
+      const productCustomGroup = document.getElementById('brief-product-custom-group');
+      if (productEl && productName) {
+        if (productSelect) productSelect.value = 'custom';
+        if (productCustomGroup) productCustomGroup.classList.remove('hidden');
         productEl.value = productName;
         highlightField(productEl);
       }
 
       const highlightEl = document.getElementById('brief-highlight');
-      if (highlightEl && !highlightEl.value && description) {
+      if (highlightEl && description) {
         highlightEl.value = description.slice(0, 200);
         highlightField(highlightEl);
       }
