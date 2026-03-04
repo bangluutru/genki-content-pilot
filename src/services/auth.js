@@ -88,9 +88,12 @@ export async function signOutUser() {
 
 /**
  * Check if a user is authorized to use the app.
- * A user is authorized if:
- *   1. Their UID exists in the `users` collection (existing user), OR
- *   2. Their email exists in `workspace_members` (invited user)
+ * Authorization logic:
+ *   1. UID exists in `users` collection → authorized (existing registered user)
+ *   2. Email exists in `workspace_members` → authorized (invited user)
+ *   3. Neither → NOT authorized
+ * 
+ * FAIL CLOSED: if checks fail, deny access.
  * @param {string} email
  * @param {string} userId - Firebase UID
  * @returns {boolean}
@@ -100,34 +103,52 @@ async function isUserAuthorized(email, userId) {
 
     try {
         const { db } = await initFirebase();
-        if (!db) return false;
+        if (!db) {
+            console.error('Auth check: Firestore not available');
+            return false;
+        }
 
         const { doc, getDoc, collection, query, where, getDocs } = await import('firebase/firestore');
 
-        // Check 1: Does the user document exist by UID? (fastest, no index needed)
+        // Check 1: Does the user document exist by UID?
+        // Firestore rules allow: `request.auth.uid == userId`
+        // So authenticated user CAN read their own document
         if (userId) {
-            const userRef = doc(db, 'users', userId);
-            const userSnap = await getDoc(userRef);
-            if (userSnap.exists()) return true;
+            try {
+                const userRef = doc(db, 'users', userId);
+                const userSnap = await getDoc(userRef);
+                if (userSnap.exists()) {
+                    return true; // User is registered
+                }
+            } catch (e) {
+                console.warn('Auth check: users lookup failed:', e.code || e.message);
+                // Continue to check 2
+            }
         }
 
-        // Check 2: Is the email in workspace_members? (invited user)
+        // Check 2: Is the email in workspace_members? (pending invitation)
         if (email) {
-            const membersQuery = query(
-                collection(db, 'workspace_members'),
-                where('email', '==', email)
-            );
-            const membersSnap = await getDocs(membersQuery);
-            if (!membersSnap.empty) return true;
+            try {
+                const membersQuery = query(
+                    collection(db, 'workspace_members'),
+                    where('email', '==', email)
+                );
+                const membersSnap = await getDocs(membersQuery);
+                if (!membersSnap.empty) {
+                    return true; // User has been invited
+                }
+            } catch (e) {
+                console.warn('Auth check: workspace_members lookup failed:', e.code || e.message);
+                // This query may fail due to Firestore rules — not critical
+            }
         }
 
+        // Neither check passed → user is not authorized
         return false;
     } catch (error) {
         console.error('Authorization check failed:', error.code, error.message);
-        // Fail OPEN for first-time setup: if Firestore rules prevent reading,
-        // allow access so the owner can set up the app initially
-        console.warn('⚠️ Auth check could not verify — allowing access as fallback');
-        return true;
+        // FAIL CLOSED: deny access if we can't verify
+        return false;
     }
 }
 
