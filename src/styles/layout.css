@@ -31,6 +31,8 @@
 .main-content {
     box-sizing: border-box;
     width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
     padding: var(--space-8);
     padding-left: calc(var(--sidebar-width) + var(--space-8));
     max-width: calc(var(--max-content-width) + var(--sidebar-width) + var(--space-8));

@@ -18,11 +18,20 @@ export async function signInWithGoogle() {
     try {
         store.set('isLoading', true);
         const { auth } = await initFirebase();
-        const { signInWithPopup, GoogleAuthProvider } = await import('firebase/auth');
+        const { signInWithPopup, GoogleAuthProvider, signOut } = await import('firebase/auth');
         const googleProvider = new GoogleAuthProvider();
 
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
+
+        // ACCESS CONTROL: Check if user is authorized before granting access
+        const authorized = await isUserAuthorized(user.email);
+        if (!authorized) {
+            await signOut(auth);
+            store.set('user', null);
+            showToast('Bạn chưa được mời sử dụng ứng dụng. Liên hệ admin để được cấp quyền.', 'error');
+            return;
+        }
 
         const authData = {
             uid: user.uid,
@@ -77,6 +86,43 @@ export async function signOutUser() {
     }
 }
 
+/**
+ * Check if a user email is authorized to use the app.
+ * A user is authorized if they exist in workspace_members (invited)
+ * OR in users collection (already has an account).
+ * @param {string} email
+ * @returns {boolean}
+ */
+async function isUserAuthorized(email) {
+    if (!email) return false;
+
+    try {
+        const { db, collection, query, where, getDocs, doc, getDoc } = await import('./db/helpers.js').then(m => m.getFirestore());
+
+        // Check 1: Is the email in workspace_members? (invited user)
+        const membersQuery = query(
+            collection(db, 'workspace_members'),
+            where('email', '==', email)
+        );
+        const membersSnap = await getDocs(membersQuery);
+        if (!membersSnap.empty) return true;
+
+        // Check 2: Is the email in users collection? (existing user)
+        const usersQuery = query(
+            collection(db, 'users'),
+            where('email', '==', email)
+        );
+        const usersSnap = await getDocs(usersQuery);
+        if (!usersSnap.empty) return true;
+
+        return false;
+    } catch (error) {
+        console.error('Authorization check failed:', error);
+        // Fail CLOSED: if we can't verify, deny access
+        return false;
+    }
+}
+
 /** Listen to auth state changes */
 export async function initAuthListener() {
     if (!hasFirebaseConfig()) {
@@ -94,6 +140,16 @@ export async function initAuthListener() {
         onAuthStateChanged(auth, async (user) => {
             try {
                 if (user) {
+                    // ACCESS CONTROL: Verify user is still authorized on session restore
+                    const authorized = await isUserAuthorized(user.email);
+                    if (!authorized) {
+                        const { signOut } = await import('firebase/auth');
+                        await signOut(auth);
+                        store.set('user', null);
+                        if (firstRun) { resolve(null); firstRun = false; }
+                        return;
+                    }
+
                     const authData = {
                         uid: user.uid,
                         email: user.email,
