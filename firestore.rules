@@ -61,8 +61,8 @@ service cloud.firestore {
       allow read: if isWorkspaceMember(workspaceId);
       // Only admins can update workspace settings
       allow write: if isWorkspaceAdmin(workspaceId);
-      // Any authenticated user can create a workspace (they become owner)
-      allow create: if isAuthenticated();
+      // Only super admins can create new workspaces
+      allow create: if isAuthenticated() && request.auth.uid in ["7qxzjNiNAlbeYFFnRlu3qvBBRMw2", "EYsMlTXMwPYjkuc7nEoMdn39CHr1"];
     }
 
     // 3. Workspace Members
