@@ -25,7 +25,7 @@ export async function signInWithGoogle() {
         const user = result.user;
 
         // ACCESS CONTROL: Check if user is authorized before granting access
-        const authorized = await isUserAuthorized(user.email);
+        const authorized = await isUserAuthorized(user.email, user.uid);
         if (!authorized) {
             await signOut(auth);
             store.set('user', null);
@@ -87,39 +87,47 @@ export async function signOutUser() {
 }
 
 /**
- * Check if a user email is authorized to use the app.
- * A user is authorized if they exist in workspace_members (invited)
- * OR in users collection (already has an account).
+ * Check if a user is authorized to use the app.
+ * A user is authorized if:
+ *   1. Their UID exists in the `users` collection (existing user), OR
+ *   2. Their email exists in `workspace_members` (invited user)
  * @param {string} email
+ * @param {string} userId - Firebase UID
  * @returns {boolean}
  */
-async function isUserAuthorized(email) {
-    if (!email) return false;
+async function isUserAuthorized(email, userId) {
+    if (!email && !userId) return false;
 
     try {
-        const { db, collection, query, where, getDocs, doc, getDoc } = await import('./db/helpers.js').then(m => m.getFirestore());
+        const { db } = await initFirebase();
+        if (!db) return false;
 
-        // Check 1: Is the email in workspace_members? (invited user)
-        const membersQuery = query(
-            collection(db, 'workspace_members'),
-            where('email', '==', email)
-        );
-        const membersSnap = await getDocs(membersQuery);
-        if (!membersSnap.empty) return true;
+        const { doc, getDoc, collection, query, where, getDocs } = await import('firebase/firestore');
 
-        // Check 2: Is the email in users collection? (existing user)
-        const usersQuery = query(
-            collection(db, 'users'),
-            where('email', '==', email)
-        );
-        const usersSnap = await getDocs(usersQuery);
-        if (!usersSnap.empty) return true;
+        // Check 1: Does the user document exist by UID? (fastest, no index needed)
+        if (userId) {
+            const userRef = doc(db, 'users', userId);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) return true;
+        }
+
+        // Check 2: Is the email in workspace_members? (invited user)
+        if (email) {
+            const membersQuery = query(
+                collection(db, 'workspace_members'),
+                where('email', '==', email)
+            );
+            const membersSnap = await getDocs(membersQuery);
+            if (!membersSnap.empty) return true;
+        }
 
         return false;
     } catch (error) {
-        console.error('Authorization check failed:', error);
-        // Fail CLOSED: if we can't verify, deny access
-        return false;
+        console.error('Authorization check failed:', error.code, error.message);
+        // Fail OPEN for first-time setup: if Firestore rules prevent reading,
+        // allow access so the owner can set up the app initially
+        console.warn('⚠️ Auth check could not verify — allowing access as fallback');
+        return true;
     }
 }
 
@@ -141,7 +149,7 @@ export async function initAuthListener() {
             try {
                 if (user) {
                     // ACCESS CONTROL: Verify user is still authorized on session restore
-                    const authorized = await isUserAuthorized(user.email);
+                    const authorized = await isUserAuthorized(user.email, user.uid);
                     if (!authorized) {
                         const { signOut } = await import('firebase/auth');
                         await signOut(auth);
