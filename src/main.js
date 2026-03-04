@@ -117,6 +117,10 @@ router
     const render = await loadPage('login');
     render?.();
   })
+  .on('workspace-selector', async () => {
+    const { renderWorkspaceSelector } = await import('./pages/workspace-selector.js');
+    await renderWorkspaceSelector();
+  })
   .on('dashboard', async () => {
     const render = await loadPage('dashboard');
     await render?.();

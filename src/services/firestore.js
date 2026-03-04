@@ -27,7 +27,7 @@ export { saveSchedule, loadSchedules, deleteSchedule } from './db/schedules.js';
 export { saveTemplate, loadTemplates, deleteTemplate } from './db/templates.js';
 
 // Workspace & Team
-export { saveWorkspace, loadWorkspace, loadTeamActivity, loadAllUserWorkspaces, switchWorkspace } from './db/workspace.js';
+export { saveWorkspace, loadWorkspace, loadTeamActivity, loadAllUserWorkspaces, switchWorkspace, createNewWorkspace } from './db/workspace.js';
 
 // Conversions
 export { saveConversion, loadConversions, getTopPerformingContent } from './db/conversions.js';

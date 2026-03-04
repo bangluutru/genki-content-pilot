@@ -894,11 +894,17 @@
         "workspace": {
                 "title": "Workspace",
                 "current": "Current workspace",
-                "switchTo": "Switch workspace",
+                "switchTo": "Select Workspace",
                 "role": "Role",
                 "noWorkspace": "No workspace assigned",
                 "noWorkspaceDesc": "Contact admin to be invited to a workspace.",
-                "switchSuccess": "Switched to workspace"
+                "switchSuccess": "Switched to workspace",
+                "create": "Create New Workspace",
+                "nameLabel": "Workspace name",
+                "namePlaceholder": "e.g., Marketing Team, Product Team...",
+                "createBtn": "Create workspace",
+                "nameRequired": "Please enter workspace name",
+                "created": "Workspace created"
         },
         "repurpose": {
                 "title": "Repurpose to other channels",

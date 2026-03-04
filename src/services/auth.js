@@ -49,15 +49,22 @@ export async function signInWithGoogle() {
         // Load or auto-initialize workspace for RBAC
         const { loadWorkspace } = await import('./firestore.js');
         const workspace = await loadWorkspace();
+        const allWorkspaces = store.get('userWorkspaces') || [];
 
-        if (!workspace) {
+        if (!workspace && allWorkspaces.length === 0) {
             showToast('Bạn đã đăng nhập nhưng chưa thuộc workspace nào. Liên hệ admin.', 'warning');
-            router.navigate('login');
+            router.navigate('workspace-selector');
             return;
         }
 
         showToast(`Xin chào, ${user.displayName}!`, 'success');
-        router.navigate('dashboard');
+
+        // If multiple workspaces → show selector, else go to dashboard
+        if (allWorkspaces.length > 1) {
+            router.navigate('workspace-selector');
+        } else {
+            router.navigate('dashboard');
+        }
     } catch (error) {
         console.error('Sign-in error:', error);
 
@@ -211,6 +218,7 @@ export async function initAuthListener() {
 /** Auth guard for router */
 export function authGuard(path) {
     const publicRoutes = ['login'];
+    const authOnlyRoutes = ['workspace-selector']; // Needs auth but no workspace
     const user = store.get('user');
 
     if (!user && !publicRoutes.includes(path)) {
@@ -219,7 +227,8 @@ export function authGuard(path) {
     }
 
     if (user && path === 'login') {
-        router.navigate('dashboard');
+        const workspace = store.get('workspace');
+        router.navigate(workspace ? 'dashboard' : 'workspace-selector');
         return false;
     }
 

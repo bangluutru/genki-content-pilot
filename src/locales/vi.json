@@ -897,11 +897,17 @@
         "workspace": {
                 "title": "Workspace",
                 "current": "Workspace hiện tại",
-                "switchTo": "Chuyển workspace",
+                "switchTo": "Chọn Workspace",
                 "role": "Vai trò",
                 "noWorkspace": "Chưa thuộc workspace nào",
                 "noWorkspaceDesc": "Liên hệ admin để được mời vào workspace.",
-                "switchSuccess": "Đã chuyển sang workspace"
+                "switchSuccess": "Đã chuyển sang workspace",
+                "create": "Tạo Workspace mới",
+                "nameLabel": "Tên workspace",
+                "namePlaceholder": "VD: Team Marketing, Team Sản phẩm...",
+                "createBtn": "Tạo workspace",
+                "nameRequired": "Vui lòng nhập tên workspace",
+                "created": "Đã tạo workspace"
         },
         "repurpose": {
                 "title": "Chuyển đổi kênh khác",

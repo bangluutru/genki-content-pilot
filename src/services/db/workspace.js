@@ -27,6 +27,51 @@ export async function saveWorkspace(workspaceData) {
     return dataToSave;
 }
 
+/**
+ * Create a brand new workspace (super admin only — enforced by Firestore rules)
+ * @param {string} name - Workspace name
+ * @returns {Object} The created workspace
+ */
+export async function createNewWorkspace(name) {
+    const userId = uid();
+    if (!userId) throw new Error('Not authenticated');
+
+    const { db, doc, setDoc } = await getFirestore();
+    const workspaceId = crypto.randomUUID().replace(/-/g, '').slice(0, 20);
+
+    // 1. Create workspace_members FIRST (needed for RBAC read access)
+    const memberId = `${userId}_${workspaceId}`;
+    await setDoc(doc(db, 'workspace_members', memberId), {
+        workspaceId,
+        userId,
+        email: store.get('user')?.email || '',
+        displayName: store.get('user')?.displayName || '',
+        role: 'admin',
+        status: 'active',
+        joinedAt: new Date().toISOString(),
+    });
+
+    // 2. Create workspace
+    const workspaceData = {
+        id: workspaceId,
+        name,
+        tier: 'free',
+        ownerId: userId,
+        settings: {},
+        createdAt: new Date().toISOString(),
+    };
+    await setDoc(doc(db, 'workspaces', workspaceId), workspaceData);
+
+    // 3. Update state — add to userWorkspaces + set as active
+    const existing = store.get('userWorkspaces') || [];
+    const withRole = { ...workspaceData, role: 'admin' };
+    store.set('userWorkspaces', [...existing, withRole]);
+    store.set('workspace', withRole);
+    localStorage.setItem('activeWorkspaceId', workspaceId);
+
+    return withRole;
+}
+
 /** Load workspace — prioritizes saved preference, then first active membership */
 export async function loadWorkspace() {
     const userId = uid();
