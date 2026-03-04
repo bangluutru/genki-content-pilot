@@ -141,7 +141,6 @@ export function renderSidebar() {
       ? `<img src="${brandLogo}" alt="${brandName}" style="max-height: 36px; max-width: 140px; object-fit: contain; border-radius: 6px; flex-shrink: 0;" />`
       : `<span class="nav-icon">${icon('plane', 28)}</span>`
     }
-          <span class="logo-text" style="font-size: var(--font-xl); font-weight: 700;">${brandName}</span>
         </div>
       </div>
 
