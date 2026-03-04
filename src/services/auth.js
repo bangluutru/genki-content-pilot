@@ -48,7 +48,13 @@ export async function signInWithGoogle() {
 
         // Load or auto-initialize workspace for RBAC
         const { loadWorkspace } = await import('./firestore.js');
-        await loadWorkspace();
+        const workspace = await loadWorkspace();
+
+        if (!workspace) {
+            showToast('Bạn đã đăng nhập nhưng chưa thuộc workspace nào. Liên hệ admin.', 'warning');
+            router.navigate('login');
+            return;
+        }
 
         showToast(`Xin chào, ${user.displayName}!`, 'success');
         router.navigate('dashboard');

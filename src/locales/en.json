@@ -891,6 +891,15 @@
                 "ceoEmail": "CEO Email for Reports",
                 "ceoEmailHelp": "This email will receive automated weekly reports."
         },
+        "workspace": {
+                "title": "Workspace",
+                "current": "Current workspace",
+                "switchTo": "Switch workspace",
+                "role": "Role",
+                "noWorkspace": "No workspace assigned",
+                "noWorkspaceDesc": "Contact admin to be invited to a workspace.",
+                "switchSuccess": "Switched to workspace"
+        },
         "repurpose": {
                 "title": "Repurpose to other channels",
                 "generating": "Converting content...",

@@ -27,7 +27,7 @@ export async function saveWorkspace(workspaceData) {
     return dataToSave;
 }
 
-/** Load workspace */
+/** Load workspace — prioritizes saved preference, then first active membership */
 export async function loadWorkspace() {
     const userId = uid();
     if (!userId) return null;
@@ -35,7 +35,7 @@ export async function loadWorkspace() {
     try {
         const { db, collection, query, where, getDocs, doc, getDoc } = await getFirestore();
 
-        // 1. Check workspace_members to see which workspace user belongs to
+        // 1. Find all workspaces user belongs to
         const q = query(
             collection(db, 'workspace_members'),
             where('userId', '==', userId),
@@ -43,28 +43,83 @@ export async function loadWorkspace() {
         );
         const memberSnap = await getDocs(q);
 
-        if (!memberSnap.empty) {
-            // Load the first workspace found
-            const workspaceId = memberSnap.docs[0].data().workspaceId;
-            const ref = doc(db, 'workspaces', workspaceId);
-            const snap = await getDoc(ref);
-            if (snap.exists()) {
-                const workspace = { id: workspaceId, ...snap.data() };
-                store.set('workspace', workspace);
-                return workspace;
+        if (memberSnap.empty) {
+            // User has no workspace — do NOT auto-create
+            store.set('workspace', null);
+            store.set('userWorkspaces', []);
+            return null;
+        }
+
+        // 2. Build list of all memberships
+        const memberships = memberSnap.docs.map(d => ({
+            workspaceId: d.data().workspaceId,
+            role: d.data().role,
+        }));
+
+        // 3. Load workspace details for each membership
+        const workspaces = [];
+        for (const m of memberships) {
+            try {
+                const ref = doc(db, 'workspaces', m.workspaceId);
+                const snap = await getDoc(ref);
+                if (snap.exists()) {
+                    workspaces.push({ id: m.workspaceId, role: m.role, ...snap.data() });
+                }
+            } catch (e) {
+                console.warn('Could not load workspace:', m.workspaceId, e);
             }
         }
 
-        // 2. Fallback: Auto-initialize personal workspace if neither exists
-        return await initializePersonalWorkspace(userId);
+        store.set('userWorkspaces', workspaces);
+
+        if (workspaces.length === 0) {
+            store.set('workspace', null);
+            return null;
+        }
+
+        // 4. Select workspace: prefer saved choice, then first available
+        const savedWorkspaceId = localStorage.getItem('activeWorkspaceId');
+        const preferred = savedWorkspaceId
+            ? workspaces.find(w => w.id === savedWorkspaceId)
+            : null;
+        const active = preferred || workspaces[0];
+
+        store.set('workspace', active);
+        localStorage.setItem('activeWorkspaceId', active.id);
+        return active;
     } catch (err) {
         console.warn('Could not load workspace:', err);
+        store.set('workspace', null);
+        store.set('userWorkspaces', []);
     }
     return null;
 }
 
+/**
+ * Load all workspaces the current user belongs to
+ * @returns {Array} Workspace objects with role
+ */
+export async function loadAllUserWorkspaces() {
+    return store.get('userWorkspaces') || [];
+}
+
+/**
+ * Switch to a different workspace
+ * @param {string} workspaceId
+ */
+export async function switchWorkspace(workspaceId) {
+    const workspaces = store.get('userWorkspaces') || [];
+    const target = workspaces.find(w => w.id === workspaceId);
+    if (!target) return null;
+
+    store.set('workspace', target);
+    localStorage.setItem('activeWorkspaceId', workspaceId);
+    return target;
+}
+
 /** 
  * Initialize a personal workspace for a new or legacy user 
+ * NOTE: No longer auto-called. Only used when admin explicitly creates a workspace.
  * Ensures they have both a workspace doc and a workspace_members doc for RBAC
  */
 async function initializePersonalWorkspace(userId) {
@@ -72,7 +127,6 @@ async function initializePersonalWorkspace(userId) {
     const workspaceId = userId; // Personal workspace ID matches UID
 
     // 1. CRITICAL: Create Workspace Member FIRST to satisfy firestore.rules RBAC check
-    // If not, we won't have read/write permissions for workspaces
     const memberId = `${userId}_${workspaceId}`;
     const memberRef = doc(db, 'workspace_members', memberId);
     try {
@@ -110,7 +164,7 @@ async function initializePersonalWorkspace(userId) {
         }
     } catch (err) {
         console.warn('Failed to load/init workspace data:', err);
-        return null; // Stop execution to avoid partial state
+        return null;
     }
 
     store.set('workspace', workspaceData);

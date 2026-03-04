@@ -1,7 +1,7 @@
 import { store } from '../utils/state.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
-import { saveConnections, loadConnections, deleteConnection } from '../services/firestore.js';
+import { saveConnections, loadConnections, deleteConnection, switchWorkspace, loadAllUserWorkspaces } from '../services/firestore.js';
 import { testFacebookConnection } from '../services/facebook.js';
 import { testWordPressConnection } from '../services/wordpress.js';
 import { t } from '../utils/i18n.js';
@@ -57,6 +57,9 @@ export async function renderSettingsPage() {
           </button>
         </div>
       </div>
+
+      <!-- Workspace Switcher -->
+      ${renderWorkspaceSwitcher()}
 
       <!-- Facebook Connection -->
       <div class="card connection-card" style="margin-bottom: var(--space-6);">
@@ -194,7 +197,91 @@ export async function renderSettingsPage() {
   attachSettingsEvents();
 }
 
+/** Render workspace switcher card */
+function renderWorkspaceSwitcher() {
+  const workspace = store.get('workspace');
+  const allWorkspaces = store.get('userWorkspaces') || [];
+
+  if (allWorkspaces.length <= 1 && workspace) {
+    // Only 1 workspace — show info but no switcher
+    return `
+      <div class="card connection-card" style="margin-bottom: var(--space-6);">
+        <div class="flex items-center gap-4 mb-2">
+          <span style="display: inline-flex;">${icon('folder', 28)}</span>
+          <div>
+            <h3 style="margin: 0;">${t('workspace.current')}</h3>
+            <p class="text-sm text-muted">${workspace?.name || '—'} · ${t('workspace.role')}: ${t('roles.' + (workspace?.role || 'viewer'))}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (allWorkspaces.length > 1) {
+    // Multiple workspaces — show switcher
+    const workspaceList = allWorkspaces.map(ws => {
+      const isActive = ws.id === workspace?.id;
+      return `
+        <label style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 8px; cursor: pointer; 
+                      background: ${isActive ? 'var(--surface)' : 'transparent'}; border: 1px solid ${isActive ? 'var(--primary)' : 'var(--glass-border)'};"
+               class="workspace-option">
+          <input type="radio" name="workspace-switch" value="${ws.id}" ${isActive ? 'checked' : ''} 
+                 style="accent-color: var(--primary);">
+          <div style="flex: 1; min-width: 0;">
+            <span style="font-weight: ${isActive ? '600' : '400'};">${ws.name || ws.id}</span>
+            <span class="text-sm text-muted" style="margin-left: 8px;">${t('roles.' + (ws.role || 'viewer'))}</span>
+          </div>
+          ${isActive ? `<span class="badge badge-success" style="flex-shrink: 0;">${t('workspace.current')}</span>` : ''}
+        </label>
+      `;
+    }).join('');
+
+    return `
+      <div class="card connection-card" style="margin-bottom: var(--space-6);">
+        <div class="flex items-center gap-4 mb-4">
+          <span style="display: inline-flex;">${icon('folder', 28)}</span>
+          <div>
+            <h3 style="margin: 0;">${t('workspace.switchTo')}</h3>
+            <p class="text-sm text-muted">${t('workspace.current')}: ${workspace?.name || '—'}</p>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;" id="workspace-list">
+          ${workspaceList}
+        </div>
+      </div>
+    `;
+  }
+
+  // No workspace
+  return `
+    <div class="card connection-card" style="margin-bottom: var(--space-6);">
+      <div class="flex items-center gap-4">
+        <span style="display: inline-flex;">${icon('folder', 28)}</span>
+        <div>
+          <h3 style="margin: 0;">${t('workspace.noWorkspace')}</h3>
+          <p class="text-sm text-muted">${t('workspace.noWorkspaceDesc')}</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function attachSettingsEvents() {
+  // Workspace switch handler
+  const workspaceList = document.getElementById('workspace-list');
+  if (workspaceList) {
+    workspaceList.addEventListener('change', async (e) => {
+      if (e.target.name === 'workspace-switch') {
+        const workspaceId = e.target.value;
+        const result = await switchWorkspace(workspaceId);
+        if (result) {
+          showToast(`${t('workspace.switchSuccess')}: ${result.name}`, 'success');
+          // Reload page to reflect new workspace data
+          setTimeout(() => router.navigate('settings'), 300);
+        }
+      }
+    });
+  }
   const user = store.get('user');
 
   // Account & Personalization — Language toggle

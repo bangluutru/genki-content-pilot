@@ -894,6 +894,15 @@
                 "ceoEmail": "Email nhận báo cáo (CEO)",
                 "ceoEmailHelp": "Email này sẽ nhận các báo cáo tuần tự động từ hệ thống."
         },
+        "workspace": {
+                "title": "Workspace",
+                "current": "Workspace hiện tại",
+                "switchTo": "Chuyển workspace",
+                "role": "Vai trò",
+                "noWorkspace": "Chưa thuộc workspace nào",
+                "noWorkspaceDesc": "Liên hệ admin để được mời vào workspace.",
+                "switchSuccess": "Đã chuyển sang workspace"
+        },
         "repurpose": {
                 "title": "Chuyển đổi kênh khác",
                 "generating": "Đang chuyển đổi nội dung...",
