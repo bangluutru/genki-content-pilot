@@ -894,15 +894,94 @@ Section mới giúp bạn lưu **bộ nhận diện thị giác** của thương
 `
     },
     {
+        id: 'workspace',
+        title: '🏢 Workspace & Không gian Làm việc',
+        route: 'workspace-selector',
+        icon: 'folder',
+        shortSummary: 'Hiểu hệ thống Workspace, chuyển nhóm, nhận lời mời, và tạo workspace mới (Super Admin).',
+        content: `
+## Workspace — Không gian Làm việc riêng cho từng Nhóm
+
+Mỗi **Workspace** là một "phòng làm việc" riêng biệt, chứa toàn bộ nội dung, thành viên, và cài đặt riêng. Bạn có thể thuộc **nhiều workspace** cùng lúc (ví dụ: 1 cho Brand A, 1 cho Brand B).
+
+---
+
+### 🆕 Màn hình Chọn Workspace
+
+Khi bạn thuộc **2 workspace trở lên**, sau khi đăng nhập sẽ thấy **màn hình Workspace Selector**:
+
+**Giao diện:**
+- Danh sách tất cả workspace bạn tham gia
+- Mỗi thẻ hiển thị: **Tên workspace** + **Vai trò của bạn** (Admin/Editor/Viewer)
+- Click vào thẻ → vào workspace đó
+
+**Lưu ý:**
+- Nếu chỉ thuộc **1 workspace** → hệ thống tự động vào luôn, không hiện màn hình này
+- Workspace cuối cùng bạn chọn sẽ được **nhớ lại** cho lần đăng nhập sau
+
+---
+
+### Chuyển Workspace trong Cài đặt
+
+Bạn có thể chuyển workspace **bất kỳ lúc nào** mà không cần đăng xuất:
+
+1. Vào **Cài đặt** (sidebar trái)
+2. Section **"Chuyển Workspace"** hiển thị danh sách tất cả workspace
+3. Click chọn workspace muốn chuyển sang
+4. Trang tự động reload với dữ liệu workspace mới
+
+---
+
+### 🔒 Tạo Workspace Mới (Super Admin)
+
+Chỉ **Super Admin** (người quản trị hệ thống) mới có thể tạo workspace mới:
+
+1. Vào **màn hình Workspace Selector**
+2. Bấm **"+ Tạo Workspace"** (chỉ hiện với Super Admin)
+3. Nhập tên workspace → Bấm **"Tạo"**
+4. Workspace mới được tạo, bạn tự động là Admin của workspace đó
+
+> [!IMPORTANT]
+> Nếu bạn không thấy nút "Tạo Workspace", nghĩa là tài khoản chưa được cấp quyền Super Admin. Liên hệ quản trị viên hệ thống.
+
+---
+
+### 📬 Nhận Lời mời vào Workspace
+
+Khi ai đó mời bạn tham gia workspace:
+
+1. Bạn nhận **email mời** — có nút "Truy cập" dẫn đến ứng dụng
+2. Click nút → trang đăng nhập mở ra
+3. **Đăng nhập bằng đúng email được mời** (tài khoản Google)
+4. Hệ thống tự động liên kết tài khoản → bạn vào được workspace ngay
+
+> [!CAUTION]
+> Bạn **phải đăng nhập bằng đúng email** đã nhận lời mời. Nếu dùng email khác, hệ thống sẽ không nhận diện được lời mời.
+
+---
+
+### Hệ thống Phân quyền — 3 Vai trò
+
+| Vai trò | Quyền hạn | Dành cho |
+|---------|-----------|----------|
+| 🛡️ **Admin** | Toàn quyền: duyệt bài, quản lý team, mời thành viên, chỉnh sửa workspace, xem analytics | Marketing Manager |
+| ✏️ **Editor** | Tạo content, gửi duyệt, xem Thư viện, lên lịch đăng | Content Executive, Designer |
+| 👁️ **Viewer** | Chỉ xem nội dung, không tạo/sửa | Stakeholder, Ban giám đốc |
+
+> [!TIP]
+> Khi mời thành viên mới, chọn vai trò **Editor** cho người viết bài, và **Viewer** cho người chỉ cần theo dõi. Admin nên hạn chế — chỉ cấp cho người quản lý workspace.
+`
+    },
+    {
         id: 'team',
-        title: 'Quản lý Nhóm & Phân quyền',
+        title: 'Quản lý Nhóm & Công việc',
         route: 'team',
         icon: 'team',
-        shortSummary: 'Tổng quan công việc team, pipeline nội dung, và phân bổ task theo thành viên.',
+        shortSummary: 'Tổng quan công việc team, mời thành viên qua email, pipeline nội dung, và phân bổ task.',
         content: `
 ## Team Management — Nắm rõ Toàn cảnh Team
 
-Trang Team giúp Marketing Manager thấy **bức tranh toàn cảnh** hoạt động sản xuất nội dung của cả nhóm.
+Trang Team giúp Admin thấy **bức tranh toàn cảnh** hoạt động sản xuất nội dung của cả nhóm.
 
 ---
 
@@ -916,7 +995,7 @@ Section **"📊 Tổng quan công việc"** hiển thị 3 loại thông tin:
 |-----|---------|----------|
 | 📝 Tổng content | Tổng bài viết cả team | Đo tốc độ sản xuất |
 | ✏️ Bản nháp | Bài đang soạn | Thúc đẩy hoàn thành |
-| ⏳ Chờ duyệt | Bài chờ Manager approve | **Ưu tiên duyệt ngay** |
+| ⏳ Chờ duyệt | Bài chờ Admin approve | **Ưu tiên duyệt ngay** |
 | ✅ Đã duyệt | Bài đã OK, chờ đăng | Lên lịch đăng |
 | 🚀 Đã đăng | Bài live | Đo performance |
 | 🎨 Đang thiết kế | Bài chờ hình | Check Designer Hub |
@@ -937,18 +1016,36 @@ Mỗi dòng = 1 thành viên, hiển thị số bài theo từng trạng thái.
 
 ---
 
-### Quản lý Thành viên
+### 🆕 Mời Thành viên qua Email
 
-**Thêm thành viên mới:**
-1. Bấm **"Mời thành viên"**
-2. Nhập email (phải có tài khoản Google)
-3. Chọn vai trò: Executive (viết bài) / Designer (thiết kế)
-4. Hệ thống gửi lời mời qua email
+Admin có thể mời bất kỳ ai tham gia workspace:
 
-**Phân quyền theo vai trò:**
-- **Marketing Manager:** Toàn quyền — duyệt bài, quản lý team, xem analytics
-- **Content Executive:** Tạo content, gửi duyệt, xem Thư viện
-- **Designer:** Xem Kanban, nhận brief, upload hình
+1. Bấm **"+ Mời thành viên"** (góc phải trên)
+2. Nhập **email** người muốn mời (phải có tài khoản Google)
+3. Chọn **vai trò**: Editor (viết bài) hoặc Viewer (chỉ xem)
+4. Bấm **"Gửi lời mời"**
+
+**Sau khi gửi:**
+- Người được mời nhận email có nút **"Truy cập"**
+- Họ click → đăng nhập bằng Google → tự động vào workspace
+- Trạng thái hiển thị **"Invited"** trên danh sách cho đến khi họ đăng nhập
+
+**Quản lý thành viên:**
+- **Đổi vai trò:** Chọn vai trò mới từ dropdown bên cạnh tên thành viên
+- **Xóa thành viên:** Click nút 🗑️ → xác nhận → thành viên bị loại khỏi workspace
+
+> [!IMPORTANT]
+> Người được mời **phải đăng nhập bằng đúng email** đã nhận lời mời. Nếu dùng email Google khác, hệ thống không nhận diện được.
+
+---
+
+### Phân quyền theo Vai trò
+
+| Vai trò | Icon | Quyền chính |
+|---------|------|------------|
+| 🛡️ **Admin** | 👑 | Duyệt bài, quản lý team, mời/xóa thành viên, chỉnh workspace |
+| ✏️ **Editor** | ✏️ | Tạo content, gửi duyệt, xem Thư viện, lên lịch đăng |
+| 👁️ **Viewer** | 👁️ | Chỉ xem — không tạo, sửa, hoặc xóa nội dung |
 
 ---
 
@@ -957,7 +1054,7 @@ Mỗi dòng = 1 thành viên, hiển thị số bài theo từng trạng thái.
 Dòng thời gian hiển thị mọi hoạt động gần đây:
 - Ai tạo bài gì, lúc nào
 - Ai duyệt/reject bài nào
-- Ai đăng bài lên nền tảng nào
+- Ai mời thành viên mới
 
 > [!TIP]
 > Check trang Team **mỗi sáng thứ Hai** để nắm tổng quan tuần mới. Chú ý card "Chờ duyệt" — đây là bottleneck #1 của hầu hết team marketing.
@@ -1113,9 +1210,10 @@ export function getGuideByRoute(routeId) {
         'conversions': 'conversions',
         'templates': 'library',
         'brand': 'brand',
-        'settings': 'dashboard',
+        'settings': 'workspace',
         'team': 'team',
         'calendar': 'calendar',
+        'workspace-selector': 'workspace',
     };
 
     const id = mapping[routeId] || null;
