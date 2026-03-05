@@ -72,7 +72,7 @@ service cloud.firestore {
       allow read: if isAuthenticated() && (
         resource.data.userId == request.auth.uid || 
         isWorkspaceMember(resource.data.workspaceId) ||
-        (resource.data.status == 'invited' && resource.data.invitedEmail == request.auth.token.email)
+        resource.data.invitedEmail == request.auth.token.email
       );
       
       // Admins can manage members. Users can accept invitations (create)

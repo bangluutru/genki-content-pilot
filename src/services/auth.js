@@ -24,7 +24,20 @@ export async function signInWithGoogle() {
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
 
-        // ACCESS CONTROL: Check if user is authorized before granting access
+        const authData = {
+            uid: user.uid,
+            email: user.email,
+            displayName: user.displayName,
+            photoURL: user.photoURL,
+        };
+
+        // STEP 1: Link pending invitations FIRST (converts invited → active member)
+        await linkInvitedMember(authData.email, authData.uid);
+
+        // STEP 2: Create/update user profile in Firestore
+        await upsertUser(authData);
+
+        // STEP 3: ACCESS CONTROL — now the user doc exists and invitations are linked
         const authorized = await isUserAuthorized(user.email, user.uid);
         if (!authorized) {
             await signOut(auth);
@@ -33,20 +46,7 @@ export async function signInWithGoogle() {
             return;
         }
 
-        const authData = {
-            uid: user.uid,
-            email: user.email,
-            displayName: user.displayName,
-            photoURL: user.photoURL,
-        };
-
-        // Persist user profile to Firestore (creates if new)
-        await upsertUser(authData);
-
-        // Auto-link any pending invitations for this email
-        await linkInvitedMember(authData.email, authData.uid);
-
-        // Load or auto-initialize workspace for RBAC
+        // STEP 4: Load or auto-initialize workspace for RBAC
         const { loadWorkspace } = await import('./firestore.js');
         const workspace = await loadWorkspace();
         const allWorkspaces = store.get('userWorkspaces') || [];
@@ -140,15 +140,17 @@ async function isUserAuthorized(email, userId) {
         }
 
         // Check 2: Is the email in workspace_members? (pending invitation)
+        // Query by invitedEmail + status to match Firestore security rules
         if (email) {
             try {
                 const membersQuery = query(
                     collection(db, 'workspace_members'),
-                    where('email', '==', email)
+                    where('invitedEmail', '==', email),
+                    where('status', '==', 'invited')
                 );
                 const membersSnap = await getDocs(membersQuery);
                 if (!membersSnap.empty) {
-                    return true; // User has been invited
+                    return true; // User has a pending invitation
                 }
             } catch (e) {
                 console.warn('Auth check: workspace_members lookup failed:', e.code || e.message);
