@@ -64,8 +64,10 @@ service cloud.firestore {
     match /workspaces/{workspaceId} {
       // Members can read workspace details
       allow read: if isWorkspaceMember(workspaceId);
-      // Only admins can update workspace settings
-      allow write: if isWorkspaceAdmin(workspaceId);
+      // Only admins can update workspace settings (NOT create)
+      allow update: if isWorkspaceAdmin(workspaceId);
+      // Only admins can delete workspaces
+      allow delete: if isWorkspaceAdmin(workspaceId);
       // Only super admins can create new workspaces
       allow create: if isAuthenticated() && request.auth.uid in ["7qxzjNiNAlbeYFFnRlu3qvBBRMw2", "EYsMlTXMwPYjkuc7nEoMdn39CHr1"];
     }

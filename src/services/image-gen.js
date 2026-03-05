@@ -6,7 +6,7 @@
  * Only falls back to direct API call in local dev when VITE_GEMINI_API_KEY is set.
  */
 
-const DEV_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+const DEV_API_KEY = import.meta.env.PROD ? '' : (import.meta.env.VITE_GEMINI_API_KEY || '');
 const MODEL = 'gemini-2.0-flash-exp';
 
 const STYLE_PRESETS = {

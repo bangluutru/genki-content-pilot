@@ -7,7 +7,7 @@ import { store } from '../utils/state.js';
 
 import { getTopPerformingContent } from './firestore.js';
 
-const DEV_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || '';
+const DEV_API_KEY = import.meta.env.PROD ? '' : (import.meta.env.VITE_GEMINI_API_KEY || '');
 const MODEL = 'gemini-2.0-flash';
 
 // ===== Internal Helper — Shared Gemini API call =====
