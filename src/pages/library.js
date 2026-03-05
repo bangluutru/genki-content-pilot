@@ -121,15 +121,16 @@ function renderContentList(contents) {
     // Full content detail (expandable)
     const fbContent = c.facebook || '';
     const blogContent = c.blog || '';
-    const creatorName = c.userDisplayName || c.userEmail || c.userId || '';
+    const creatorName = c.userDisplayName || c.userEmail || '';
+    const creatorEmail = c.userEmail || '';
     const createdDate = c.createdAt ? new Date(c.createdAt).toLocaleString('vi-VN') : '';
 
     const detailHtml = `
       <div class="content-detail hidden" id="detail-${c.id}" style="margin-top: var(--space-4); border-top: 1px solid var(--border); padding-top: var(--space-4); animation: fadeIn 0.2s ease;">
-        ${creatorName ? `
+        ${creatorName || creatorEmail ? `
         <div class="flex items-center gap-2" style="margin-bottom: var(--space-3);">
           <span class="text-xs text-muted">${icon('team', 14)} ${t('team.members')}:</span>
-          <span class="text-sm" style="font-weight: 500;">${escapeHtml(creatorName)}</span>
+          <span class="text-sm" style="font-weight: 500;">${escapeHtml(creatorName)}${creatorEmail && creatorName !== creatorEmail ? ` · ${escapeHtml(creatorEmail)}` : ''}</span>
           ${createdDate ? `<span class="text-xs text-muted" style="margin-left: auto;">${createdDate}</span>` : ''}
         </div>
         ` : ''}

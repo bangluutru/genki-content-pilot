@@ -363,6 +363,10 @@ function renderMembers(members) {
             </div>
             <div class="text-sm text-muted">${m.email || ''}</div>
           </div>
+          <div style="text-align: right; margin-right: var(--space-2); min-width: 100px;">
+            ${m.lastLoginAt ? `<div class="text-xs text-muted" title="Đăng nhập: ${new Date(m.lastLoginAt?.toDate?.() || m.lastLoginAt).toLocaleString('vi-VN')}">🔑 ${timeAgo(m.lastLoginAt?.toDate?.() || m.lastLoginAt)}</div>` : ''}
+            ${m.lastActiveAt ? `<div class="text-xs" style="color: var(--color-success);" title="Hoạt động: ${new Date(m.lastActiveAt?.toDate?.() || m.lastActiveAt).toLocaleString('vi-VN')}">● ${timeAgo(m.lastActiveAt?.toDate?.() || m.lastActiveAt)}</div>` : ''}
+          </div>
           <span class="badge ${r.badge}">${icon(r.iconName, 14)} ${r.label}</span>
           ${!isMe && members.find(x => x.userId === currentUser?.uid)?.role === 'admin' ? `
             <select class="form-input" style="width: auto; padding: var(--space-1) var(--space-2); font-size: var(--font-xs);" 
