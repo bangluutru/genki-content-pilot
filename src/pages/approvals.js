@@ -4,7 +4,7 @@
 import { store } from '../utils/state.js';
 import { renderSidebar, attachSidebarEvents } from '../components/header.js';
 import { showToast } from '../components/toast.js';
-import { loadContents, approveContent, rejectContent } from '../services/firestore.js';
+import { loadContents, approveContent, rejectContent, getCurrentUserRole, currentWorkspaceId } from '../services/firestore.js';
 import { t } from '../utils/i18n.js';
 import { icon } from '../utils/icons.js';
 import { checkCompliance, highlightViolations } from '../services/compliance.js';
@@ -19,7 +19,9 @@ export async function renderApprovalsPage() {
   const rejected = allContents.filter(c => c.status === 'rejected');
 
   const user = store.get('user');
-  const isAdmin = user?.role === 'admin' || user?.email?.includes('admin'); // Simple check
+  const wsId = currentWorkspaceId();
+  const userRole = wsId ? await getCurrentUserRole(wsId) : null;
+  const isAdmin = userRole === 'admin';
 
   app.innerHTML = `
     ${renderSidebar()}
