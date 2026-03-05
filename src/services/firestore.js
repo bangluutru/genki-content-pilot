@@ -42,7 +42,7 @@ export { upsertUser, loadUserProfile } from './db/users.js';
 export { logActivity, loadActivityLogs } from './db/activity.js';
 
 // Workspace Members
-export { addWorkspaceMember, inviteMember, loadWorkspaceMembers, updateMemberRole, removeMember, getCurrentUserRole, linkInvitedMember } from './db/members.js';
+export { addWorkspaceMember, inviteMember, loadWorkspaceMembers, updateMemberRole, removeMember, getCurrentUserRole, linkInvitedMember, trackMemberLogin, updateMemberActivity } from './db/members.js';
 
 // Pillars & Angles (Subcollections)
 export { loadPillars, savePillar, savePillarsBulk, deletePillar, loadAngles, saveAngle, saveAnglesBulk, deleteAngle } from './db/pillars.js';

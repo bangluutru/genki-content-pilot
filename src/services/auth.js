@@ -6,7 +6,7 @@ import { store } from '../utils/state.js';
 import { router } from '../utils/router.js';
 import { showToast } from '../components/toast.js';
 import { upsertUser } from './db/users.js';
-import { linkInvitedMember } from './db/members.js';
+import { linkInvitedMember, trackMemberLogin, updateMemberActivity } from './db/members.js';
 
 /** Sign in with Google */
 export async function signInWithGoogle() {
@@ -55,6 +55,13 @@ export async function signInWithGoogle() {
             showToast('Bạn đã đăng nhập nhưng chưa thuộc workspace nào. Liên hệ admin.', 'warning');
             router.navigate('workspace-selector');
             return;
+        }
+
+        // STEP 5: Track login & start activity heartbeat
+        const activeWsId = workspace?.id || allWorkspaces[0]?.id;
+        if (activeWsId) {
+            trackMemberLogin(activeWsId).catch(() => { });
+            startActivityHeartbeat(activeWsId);
         }
 
         showToast(`Xin chào, ${user.displayName}!`, 'success');
@@ -235,4 +242,28 @@ export function authGuard(path) {
     }
 
     return true;
+}
+
+/** Activity heartbeat — updates lastActiveAt every 5 min while tab is visible */
+let _heartbeatInterval = null;
+function startActivityHeartbeat(workspaceId) {
+    // Clear any existing heartbeat
+    if (_heartbeatInterval) clearInterval(_heartbeatInterval);
+
+    const INTERVAL = 5 * 60 * 1000; // 5 minutes
+
+    _heartbeatInterval = setInterval(() => {
+        // Only update if tab is visible
+        if (document.visibilityState === 'visible') {
+            updateMemberActivity(workspaceId).catch(() => { });
+        }
+    }, INTERVAL);
+
+    // Also update once immediately
+    updateMemberActivity(workspaceId).catch(() => { });
+
+    // Clean up on page unload
+    window.addEventListener('beforeunload', () => {
+        if (_heartbeatInterval) clearInterval(_heartbeatInterval);
+    });
 }

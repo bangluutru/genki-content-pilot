@@ -243,3 +243,47 @@ export async function linkInvitedMember(email, realUserId) {
         console.warn('Could not link invited member:', error);
     }
 }
+
+/**
+ * Track member login — record lastLoginAt and increment loginCount
+ * Called once per sign-in session
+ * @param {string} workspaceId
+ */
+export async function trackMemberLogin(workspaceId) {
+    const userId = uid();
+    if (!userId || !workspaceId) return;
+
+    try {
+        const { db, doc, setDoc, serverTimestamp, increment } = await getFirestore();
+        const docId = `${userId}_${workspaceId}`;
+
+        await setDoc(doc(db, 'workspace_members', docId), {
+            lastLoginAt: serverTimestamp(),
+            loginCount: increment(1),
+        }, { merge: true });
+    } catch (error) {
+        console.warn('Could not track member login:', error);
+    }
+}
+
+/**
+ * Update member's lastActiveAt — heartbeat for activity tracking
+ * Called periodically (every 5 min) while user is active
+ * @param {string} workspaceId
+ */
+export async function updateMemberActivity(workspaceId) {
+    const userId = uid();
+    if (!userId || !workspaceId) return;
+
+    try {
+        const { db, doc, setDoc, serverTimestamp } = await getFirestore();
+        const docId = `${userId}_${workspaceId}`;
+
+        await setDoc(doc(db, 'workspace_members', docId), {
+            lastActiveAt: serverTimestamp(),
+        }, { merge: true });
+    } catch (error) {
+        console.warn('Could not update member activity:', error);
+    }
+}
+

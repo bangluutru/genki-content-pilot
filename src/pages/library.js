@@ -118,25 +118,73 @@ function renderContentList(contents) {
       </div>
     ` : '';
 
-    return `
-    <div class="card library-card" style="padding: var(--space-4); margin-bottom: var(--space-3);" data-id="${c.id}">
-      <div class="flex justify-between items-center" style="margin-bottom: var(--space-2);">
-        <div class="flex items-center gap-2">
-          <span class="badge ${c.status === 'published' ? 'badge-success' : 'badge-accent'}">
-            ${c.status === 'published' ? icon('check', 12) + ' ' + t('status.published') : icon('edit', 12) + ' ' + t('status.draft')}
-          </span>
-          <span class="badge badge-warning" style="text-transform: none;">${c.contentType || t('library.post')}</span>
+    // Full content detail (expandable)
+    const fbContent = c.facebook || '';
+    const blogContent = c.blog || '';
+    const creatorName = c.userDisplayName || c.userEmail || c.userId || '';
+    const createdDate = c.createdAt ? new Date(c.createdAt).toLocaleString('vi-VN') : '';
+
+    const detailHtml = `
+      <div class="content-detail hidden" id="detail-${c.id}" style="margin-top: var(--space-4); border-top: 1px solid var(--border); padding-top: var(--space-4); animation: fadeIn 0.2s ease;">
+        ${creatorName ? `
+        <div class="flex items-center gap-2" style="margin-bottom: var(--space-3);">
+          <span class="text-xs text-muted">${icon('team', 14)} ${t('team.members')}:</span>
+          <span class="text-sm" style="font-weight: 500;">${escapeHtml(creatorName)}</span>
+          ${createdDate ? `<span class="text-xs text-muted" style="margin-left: auto;">${createdDate}</span>` : ''}
         </div>
-        <span class="text-sm text-muted">${timeAgo(c.createdAt)}</span>
+        ` : ''}
+        ${c.brief ? `
+        <div style="margin-bottom: var(--space-3);">
+          <div class="text-xs text-muted" style="margin-bottom: var(--space-1); font-weight: 600;">Brief</div>
+          <div class="text-sm" style="background: var(--bg-tertiary); padding: var(--space-3); border-radius: var(--radius-md); line-height: 1.6;">${escapeHtml(c.brief)}</div>
+        </div>
+        ` : ''}
+        ${fbContent ? `
+        <div style="margin-bottom: var(--space-3);">
+          <div class="flex items-center gap-2" style="margin-bottom: var(--space-1);">
+            <span class="text-xs text-muted" style="font-weight: 600;">Facebook</span>
+            <button class="btn btn-ghost btn-sm copy-fb-detail" data-id="${c.id}" style="padding: 2px 8px; font-size: 11px;">${icon('clipboard', 12)} Copy</button>
+          </div>
+          <div class="text-sm" style="background: var(--bg-tertiary); padding: var(--space-3); border-radius: var(--radius-md); white-space: pre-wrap; line-height: 1.7; max-height: 400px; overflow-y: auto;">${escapeHtml(fbContent)}</div>
+        </div>
+        ` : ''}
+        ${blogContent ? `
+        <div style="margin-bottom: var(--space-3);">
+          <div class="flex items-center gap-2" style="margin-bottom: var(--space-1);">
+            <span class="text-xs text-muted" style="font-weight: 600;">Blog</span>
+            <button class="btn btn-ghost btn-sm copy-blog-detail" data-id="${c.id}" style="padding: 2px 8px; font-size: 11px;">${icon('clipboard', 12)} Copy</button>
+          </div>
+          <div class="text-sm" style="background: var(--bg-tertiary); padding: var(--space-3); border-radius: var(--radius-md); white-space: pre-wrap; line-height: 1.7; max-height: 400px; overflow-y: auto;">${escapeHtml(blogContent)}</div>
+        </div>
+        ` : ''}
+        ${c.hashtags ? `<div class="text-xs text-muted" style="margin-top: var(--space-2);">#${escapeHtml(c.hashtags)}</div>` : ''}
       </div>
+    `;
 
-      <p style="font-weight: 500; margin-bottom: var(--space-2);">
-        ${escapeHtml(truncate(c.brief || c.facebook?.split('\n')[0] || 'Untitled', 120))}
-      </p>
+    return `
+    <div class="card library-card" style="padding: var(--space-4); margin-bottom: var(--space-3); cursor: pointer; transition: border-color 0.2s;" data-id="${c.id}">
+      <div class="library-card-header" data-id="${c.id}">
+        <div class="flex justify-between items-center" style="margin-bottom: var(--space-2);">
+          <div class="flex items-center gap-2">
+            <span class="badge ${c.status === 'published' ? 'badge-success' : 'badge-accent'}">
+              ${c.status === 'published' ? icon('check', 12) + ' ' + t('status.published') : icon('edit', 12) + ' ' + t('status.draft')}
+            </span>
+            <span class="badge badge-warning" style="text-transform: none;">${c.contentType || t('library.post')}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-muted">${timeAgo(c.createdAt)}</span>
+            <span class="expand-icon text-muted" style="font-size: 12px; transition: transform 0.2s;">▼</span>
+          </div>
+        </div>
 
-      <p class="text-sm text-muted" style="margin-bottom: var(--space-3);">
-        ${escapeHtml(truncate(c.facebook || '', 150))}
-      </p>
+        <p style="font-weight: 500; margin-bottom: var(--space-2);">
+          ${escapeHtml(truncate(c.brief || c.facebook?.split('\n')[0] || 'Untitled', 120))}
+        </p>
+
+        <p class="text-sm text-muted" style="margin-bottom: var(--space-3);">
+          ${escapeHtml(truncate(c.facebook || '', 150))}
+        </p>
+      </div>
 
       <div class="flex gap-2" style="flex-wrap: wrap;">
         <button class="btn btn-ghost btn-sm copy-fb-btn" data-id="${c.id}">${icon('clipboard', 14)} ${t('library.copyFB')}</button>
@@ -147,6 +195,7 @@ function renderContentList(contents) {
         <button class="btn btn-ghost btn-sm btn-delete" data-id="${c.id}" style="margin-left: auto; color: var(--danger);">${icon('trash', 14)} ${t('actions.delete')}</button>
       </div>
 
+      ${detailHtml}
       ${timelineHtml}
 
       <div class="publish-result hidden" id="publish-result-${c.id}" style="margin-top: var(--space-3);"></div>
@@ -165,9 +214,26 @@ function attachLibraryEvents(allContents) {
   document.getElementById('filter-status')?.addEventListener('change', () => filterAndRender(allContents));
   document.getElementById('filter-type')?.addEventListener('change', () => filterAndRender(allContents));
 
-  // Copy & Delete (event delegation)
+  // Copy, Delete, Expand (event delegation)
   document.getElementById('library-list')?.addEventListener('click', async (e) => {
     const btn = e.target.closest('button');
+    const header = e.target.closest('.library-card-header');
+
+    // Click on card header (not a button) → toggle expand
+    if (header && !btn) {
+      const id = header.dataset.id;
+      const detailEl = document.getElementById(`detail-${id}`);
+      const card = header.closest('.library-card');
+      const expandIcon = card?.querySelector('.expand-icon');
+      if (detailEl) {
+        detailEl.classList.toggle('hidden');
+        if (expandIcon) {
+          expandIcon.style.transform = detailEl.classList.contains('hidden') ? '' : 'rotate(180deg)';
+        }
+      }
+      return;
+    }
+
     if (!btn) return;
 
     const id = btn.dataset.id;
@@ -178,7 +244,17 @@ function attachLibraryEvents(allContents) {
       showToast(t('library.copiedFB'), 'success');
     }
 
+    if (btn.classList.contains('copy-fb-detail') && content) {
+      await copyToClipboard(content.facebook || '');
+      showToast(t('library.copiedFB'), 'success');
+    }
+
     if (btn.classList.contains('copy-blog-btn') && content) {
+      await copyToClipboard(content.blog || '');
+      showToast(t('library.copiedBlog'), 'success');
+    }
+
+    if (btn.classList.contains('copy-blog-detail') && content) {
       await copyToClipboard(content.blog || '');
       showToast(t('library.copiedBlog'), 'success');
     }

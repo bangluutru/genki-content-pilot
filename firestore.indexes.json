@@ -29,20 +29,6 @@
             ]
         },
         {
-            "collectionGroup": "workspace_members",
-            "queryScope": "COLLECTION",
-            "fields": [
-                {
-                    "fieldPath": "userId",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "status",
-                    "order": "ASCENDING"
-                }
-            ]
-        },
-        {
             "collectionGroup": "activity_logs",
             "queryScope": "COLLECTION",
             "fields": [
@@ -57,7 +43,7 @@
             ]
         },
         {
-            "collectionGroup": "schedules",
+            "collectionGroup": "workspace_members",
             "queryScope": "COLLECTION",
             "fields": [
                 {
@@ -65,21 +51,7 @@
                     "order": "ASCENDING"
                 },
                 {
-                    "fieldPath": "scheduledDate",
-                    "order": "ASCENDING"
-                }
-            ]
-        },
-        {
-            "collectionGroup": "templates",
-            "queryScope": "COLLECTION",
-            "fields": [
-                {
-                    "fieldPath": "workspaceId",
-                    "order": "ASCENDING"
-                },
-                {
-                    "fieldPath": "createdAt",
+                    "fieldPath": "lastLoginAt",
                     "order": "DESCENDING"
                 }
             ]

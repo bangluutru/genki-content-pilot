@@ -11,11 +11,15 @@ export async function saveContent(content) {
     const workspaceId = currentWorkspaceId();
     if (!workspaceId) throw new Error('Not authenticated');
 
+    const user = store.get('user') || {};
+
     const data = {
         ...content,
         id: 'mock-' + Date.now().toString(36),
         workspaceId,
         userId,
+        userEmail: user.email || '',
+        userDisplayName: user.displayName || '',
         status: content.status || 'draft',
         createdAt: new Date(),
         updatedAt: new Date(),

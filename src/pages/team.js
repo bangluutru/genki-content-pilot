@@ -301,6 +301,12 @@ function renderTaskOverview(contents, members) {
           <td style="padding: var(--space-2) var(--space-3); text-align: center;">
             ${mc.published > 0 ? `<span class="badge badge-success" style="font-size: 11px;">${mc.published}</span>` : '<span class="text-muted text-xs">-</span>'}
           </td>
+          <td style="padding: var(--space-2) var(--space-3); text-align: center; white-space: nowrap;">
+            ${m.lastActiveAt ? `<span class="text-xs" title="${new Date(m.lastActiveAt?.toDate?.() || m.lastActiveAt).toLocaleString('vi-VN')}">${timeAgo(m.lastActiveAt?.toDate?.() || m.lastActiveAt)}</span>` : '<span class="text-muted text-xs">-</span>'}
+          </td>
+          <td style="padding: var(--space-2) var(--space-3); text-align: center;">
+            ${m.loginCount ? `<span class="text-xs">${m.loginCount}</span>` : '<span class="text-muted text-xs">-</span>'}
+          </td>
         </tr>
       `;
     }).join('');
@@ -316,6 +322,8 @@ function renderTaskOverview(contents, members) {
               <th style="padding: var(--space-2) var(--space-3); text-align: center; font-weight: 600;">${t('team.taskPending')}</th>
               <th style="padding: var(--space-2) var(--space-3); text-align: center; font-weight: 600;">${t('team.taskApproved')}</th>
               <th style="padding: var(--space-2) var(--space-3); text-align: center; font-weight: 600;">${t('team.taskPublished')}</th>
+              <th style="padding: var(--space-2) var(--space-3); text-align: center; font-weight: 600;">Online</th>
+              <th style="padding: var(--space-2) var(--space-3); text-align: center; font-weight: 600;">Logins</th>
             </tr>
           </thead>
           <tbody>${memberRows}</tbody>
