@@ -53,6 +53,11 @@ service cloud.firestore {
     match /users/{userId} {
       // Users can only read and write their own profile
       allow read, write: if isAuthenticated() && request.auth.uid == userId;
+
+      // Subcollections (preferences/ui for locale, theme, etc.)
+      match /{subcollection=**} {
+        allow read, write: if isAuthenticated() && request.auth.uid == userId;
+      }
     }
 
     // 2. Workspaces
