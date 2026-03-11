@@ -196,9 +196,18 @@ export async function renderCreatePage(params = {}) {
             <label for="brief-koc">👤 Auto-Brief: Chọn KOC / Affiliate</label>
             <select id="brief-koc" class="select">
               <option value="">-- Không sử dụng phong cách KOC --</option>
-              ${kocs.map(koc => `<option value="${koc.id}">${koc.name} ${koc.rating ? `(${koc.rating}⭐)` : ''}</option>`).join('')}
+              ${kocs.map(koc => `<option value="${koc.id}">${escapeHtml(koc.name)} ${koc.rating ? `(${koc.rating}⭐)` : ''} ${koc.style ? '✓' : ''}</option>`).join('')}
             </select>
-            <small class="text-muted" style="margin-top:4px; display:block;">AI sẽ tự động áp dụng văn phong, sở thích và tiêu chí của KOC này vào nội dung.</small>
+            ${kocs.length === 0 ? `
+              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                <small class="text-muted">Chưa có KOC nào.</small>
+                <a href="#/koc" class="btn btn-ghost btn-xs" style="font-size: var(--font-xs); padding: 2px 8px;">
+                  ${icon('plus', 12)} Thêm KOC
+                </a>
+              </div>
+            ` : `
+              <small class="text-muted" style="margin-top:4px; display:block;">AI sẽ tự động áp dụng văn phong, sở thích và tiêu chí của KOC này vào nội dung.</small>
+            `}
           </div>
 
 

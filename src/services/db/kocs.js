@@ -18,13 +18,17 @@ export async function saveKoc(kocData) {
         dataToSave.createdAt = new Date().toISOString();
     }
 
-    // fallback for local testing without valid Firebase connection
-    if (!hasFirebaseConfig() || !db) {
+    // Always save to localStorage as backup
+    const saveLocal = () => {
         let localKocs = JSON.parse(localStorage.getItem(`kocs_${wsId}`) || '[]');
         const idx = localKocs.findIndex(k => k.id === id);
         if (idx !== -1) localKocs[idx] = dataToSave;
         else localKocs.push(dataToSave);
         localStorage.setItem(`kocs_${wsId}`, JSON.stringify(localKocs));
+    };
+    saveLocal();
+
+    if (!hasFirebaseConfig() || !db) {
         return dataToSave;
     }
 
@@ -33,8 +37,8 @@ export async function saveKoc(kocData) {
         await setDoc(docRef, dataToSave, { merge: true });
         return dataToSave;
     } catch (e) {
-        console.error('saveKoc error:', e);
-        throw e;
+        console.warn('saveKoc Firestore failed, localStorage backup used:', e.message);
+        return dataToSave;
     }
 }
 
@@ -42,8 +46,11 @@ export async function loadKocs() {
     const wsId = currentWorkspaceId();
     if (!wsId) return [];
 
+    // Always try localStorage first (fast, always available)
+    const localKocs = JSON.parse(localStorage.getItem(`kocs_${wsId}`) || '[]');
+
     if (!hasFirebaseConfig() || !db) {
-        return JSON.parse(localStorage.getItem(`kocs_${wsId}`) || '[]');
+        return localKocs;
     }
 
     try {
@@ -52,13 +59,20 @@ export async function loadKocs() {
             where('workspaceId', '==', wsId),
             orderBy('createdAt', 'desc')
         );
-        const { getDocs } = await import('firebase/firestore'); // ensure getDocs is properly imported
+        const { getDocs } = await import('firebase/firestore');
         const snap = await getDocs(q);
-        return snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const firestoreKocs = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // Sync Firestore data back to localStorage for consistency
+        if (firestoreKocs.length > 0) {
+            localStorage.setItem(`kocs_${wsId}`, JSON.stringify(firestoreKocs));
+            return firestoreKocs;
+        }
+        // If Firestore is empty but localStorage has data, use localStorage
+        return localKocs;
     } catch (e) {
-        if (e.code === 'permission-denied') return []; // fallback if not configured
-        console.warn('loadKocs using fallback due to error:', e);
-        return JSON.parse(localStorage.getItem(`kocs_${wsId}`) || '[]');
+        console.warn('loadKocs Firestore error, using localStorage:', e.message);
+        return localKocs;
     }
 }
 
