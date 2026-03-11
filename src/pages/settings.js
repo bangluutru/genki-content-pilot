@@ -317,6 +317,7 @@ function attachSettingsEvents() {
       return;
     }
 
+    if (!resultEl) return;
     resultEl.classList.remove('hidden');
     resultEl.innerHTML = `<span class="text-muted">${icon('refresh', 16)} ${t('settings.testing')}</span>`;
 
@@ -327,8 +328,11 @@ function attachSettingsEvents() {
                 <span class="text-success">${icon('check', 14)} ${t('settings.testSuccess')}</span><br>
                 <span class="text-sm text-muted">Page: <strong>${result.pageName}</strong> · ${result.fanCount?.toLocaleString() || 0} followers</span>
             `;
-      document.getElementById('fb-status').className = 'badge badge-success';
-      document.getElementById('fb-status').innerHTML = `${icon('check', 14)} ${result.pageName}`;
+      const fbStatusEl = document.getElementById('fb-status');
+      if (fbStatusEl) {
+        fbStatusEl.className = 'badge badge-success';
+        fbStatusEl.innerHTML = `${icon('check', 14)} ${result.pageName}`;
+      }
     } else {
       resultEl.innerHTML = `<span class="text-danger">${icon('cross', 14)} ${result.error}</span>`;
     }
@@ -365,10 +369,15 @@ function attachSettingsEvents() {
   document.getElementById('btn-disconnect-fb')?.addEventListener('click', async () => {
     try {
       await deleteConnection('facebook');
-      document.getElementById('fb-page-id').value = '';
-      document.getElementById('fb-token').value = '';
-      document.getElementById('fb-status').className = 'badge badge-warning';
-      document.getElementById('fb-status').innerHTML = icon('cross', 14) + ' ' + t('settings.notConnected');
+      const fbPageId = document.getElementById('fb-page-id');
+      const fbToken = document.getElementById('fb-token');
+      const fbStatus = document.getElementById('fb-status');
+      if (fbPageId) fbPageId.value = '';
+      if (fbToken) fbToken.value = '';
+      if (fbStatus) {
+        fbStatus.className = 'badge badge-warning';
+        fbStatus.innerHTML = icon('cross', 14) + ' ' + t('settings.notConnected');
+      }
       document.getElementById('fb-result')?.classList.add('hidden');
       showToast(t('settings.disconnected'), 'info');
     } catch (error) {
@@ -388,6 +397,7 @@ function attachSettingsEvents() {
       return;
     }
 
+    if (!resultEl) return;
     resultEl.classList.remove('hidden');
     resultEl.innerHTML = `<span class="text-muted">${icon('refresh', 16)} ${t('settings.testing')}</span>`;
 
@@ -398,8 +408,11 @@ function attachSettingsEvents() {
                 <span class="text-success">${icon('check', 14)} ${t('settings.testSuccess')}</span><br>
                 <span class="text-sm text-muted">Site: <strong>${result.siteName || siteUrl}</strong> · User: ${result.userName}</span>
             `;
-      document.getElementById('wp-status').className = 'badge badge-success';
-      document.getElementById('wp-status').innerHTML = `${icon('check', 14)} ${result.siteName || t('settings.connected')}`;
+      const wpStatusEl = document.getElementById('wp-status');
+      if (wpStatusEl) {
+        wpStatusEl.className = 'badge badge-success';
+        wpStatusEl.innerHTML = `${icon('check', 14)} ${result.siteName || t('settings.connected')}`;
+      }
     } else {
       resultEl.innerHTML = `<span class="text-danger">${icon('cross', 14)} ${result.error}</span>`;
     }
@@ -464,11 +477,17 @@ function attachSettingsEvents() {
   document.getElementById('btn-disconnect-wp')?.addEventListener('click', async () => {
     try {
       await deleteConnection('wordpress');
-      document.getElementById('wp-url').value = '';
-      document.getElementById('wp-user').value = '';
-      document.getElementById('wp-password').value = '';
-      document.getElementById('wp-status').className = 'badge badge-warning';
-      document.getElementById('wp-status').innerHTML = icon('cross', 14) + ' ' + t('settings.notConnected');
+      const wpUrl = document.getElementById('wp-url');
+      const wpUser = document.getElementById('wp-user');
+      const wpPass = document.getElementById('wp-password');
+      const wpStatus = document.getElementById('wp-status');
+      if (wpUrl) wpUrl.value = '';
+      if (wpUser) wpUser.value = '';
+      if (wpPass) wpPass.value = '';
+      if (wpStatus) {
+        wpStatus.className = 'badge badge-warning';
+        wpStatus.innerHTML = icon('cross', 14) + ' ' + t('settings.notConnected');
+      }
       document.getElementById('wp-result')?.classList.add('hidden');
       showToast(t('settings.disconnected'), 'info');
     } catch (error) {

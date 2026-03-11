@@ -62,10 +62,14 @@ export async function handlePublish(getCurrentContent) {
     const blog = document.getElementById('content-blog')?.textContent || '';
 
     // Disable button + show loading
-    publishBtn.disabled = true;
-    publishBtn.innerHTML = '⏳ ' + t('create.publishing');
-    resultsEl.classList.remove('hidden');
-    resultsEl.innerHTML = `<span class="text-muted">${icon('refresh', 16)} ${t('create.processing')}</span>`;
+    if (publishBtn) {
+        publishBtn.disabled = true;
+        publishBtn.innerHTML = '⏳ ' + t('create.publishing');
+    }
+    if (resultsEl) {
+        resultsEl.classList.remove('hidden');
+        resultsEl.innerHTML = `<span class="text-muted">${icon('refresh', 16)} ${t('create.processing')}</span>`;
+    }
 
     const results = [];
     const publishedTo = [];

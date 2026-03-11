@@ -19,8 +19,10 @@ export async function saveBrand(brandData) {
         try {
             const { db, doc, setDoc, serverTimestamp } = await getFirestore();
             const ref = doc(db, 'brands', workspaceId);
+            // Strip undefined values — Firestore rejects them
+            const cleanData = JSON.parse(JSON.stringify(brandData));
             await setDoc(ref, {
-                ...brandData,
+                ...cleanData,
                 workspaceId,
                 userId,
                 updatedAt: serverTimestamp(),

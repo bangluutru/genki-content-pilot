@@ -246,50 +246,8 @@ function attachStrategyEvents(brand) {
       chip.style.color = '#fff';
     });
   });
-}
 
-function renderIdeas(ideas) {
-  const grid = document.getElementById('ideas-grid');
-  if (!grid) return;
-
-  if (!ideas || ideas.length === 0) {
-    grid.innerHTML = `<p>${t('strategy.noIdeas')}</p>`;
-    return;
-  }
-
-  grid.innerHTML = ideas.map(idea => `
-    <div class="card strategy-card" style="display: flex; flex-direction: column; height: 100%;">
-      <div style="margin-bottom: var(--space-4);">
-        <span class="badge badge-info" style="margin-bottom: var(--space-2); display: inline-block;">
-          ${idea.angle || 'Angle'}
-        </span>
-        <h4 style="font-size: var(--font-lg); font-weight: 700;">${idea.name}</h4>
-      </div>
-      
-      <p style="color: var(--text-muted); font-size: var(--font-sm); flex: 1; margin-bottom: var(--space-4);">
-        ${idea.description}
-      </p>
-
-      <div style="background: var(--surface-hover); padding: var(--space-3); border-radius: var(--radius-sm); margin-bottom: var(--space-4);">
-        <span style="font-size: var(--font-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">HOOK</span>
-        <p style="font-style: italic; margin-top: 4px;">"${idea.hook}"</p>
-      </div>
-
-      <button class="btn btn-outline btn-full btn-use-strategy" data-json='${JSON.stringify(idea).replace(/'/g, "&#39;")}'>
-        ${icon('publish', 16)} ${t('strategy.createCampaign')}
-      </button>
-    </div>
-  `).join('');
-
-  // Attach events to new buttons
-  document.querySelectorAll('.btn-use-strategy').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const idea = JSON.parse(e.target.dataset.json);
-      useStrategy(idea);
-    });
-  });
-
-  // Competitor Gap Scanner
+  // Competitor Gap Scanner (bind once, not inside renderIdeas)
   document.getElementById('btn-analyze-competitor')?.addEventListener('click', async () => {
     const input = document.getElementById('competitor-input')?.value?.trim();
     if (!input) { showToast('Nhập mô tả đối thủ trước', 'warning'); return; }
@@ -335,6 +293,49 @@ function renderIdeas(ideas) {
       btn.disabled = false;
       btn.innerHTML = `${icon('sparkle', 14)} ${t('strategy.analyzeGaps')}`;
     }
+  });
+}
+
+function renderIdeas(ideas) {
+  const grid = document.getElementById('ideas-grid');
+  if (!grid) return;
+
+  if (!ideas || ideas.length === 0) {
+    grid.innerHTML = `<p>${t('strategy.noIdeas')}</p>`;
+    return;
+  }
+
+  grid.innerHTML = ideas.map(idea => `
+    <div class="card strategy-card" style="display: flex; flex-direction: column; height: 100%;">
+      <div style="margin-bottom: var(--space-4);">
+        <span class="badge badge-info" style="margin-bottom: var(--space-2); display: inline-block;">
+          ${idea.angle || 'Angle'}
+        </span>
+        <h4 style="font-size: var(--font-lg); font-weight: 700;">${idea.name}</h4>
+      </div>
+      
+      <p style="color: var(--text-muted); font-size: var(--font-sm); flex: 1; margin-bottom: var(--space-4);">
+        ${idea.description}
+      </p>
+
+      <div style="background: var(--surface-hover); padding: var(--space-3); border-radius: var(--radius-sm); margin-bottom: var(--space-4);">
+        <span style="font-size: var(--font-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em;">HOOK</span>
+        <p style="font-style: italic; margin-top: 4px;">"${idea.hook}"</p>
+      </div>
+
+      <button class="btn btn-outline btn-full btn-use-strategy" data-json='${JSON.stringify(idea).replace(/'/g, "&#39;")}'>
+        ${icon('publish', 16)} ${t('strategy.createCampaign')}
+      </button>
+    </div>
+  `).join('');
+
+  // Attach events to new buttons
+  document.querySelectorAll('.btn-use-strategy').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const btnEl = e.currentTarget;
+      const idea = JSON.parse(btnEl.dataset.json);
+      useStrategy(idea);
+    });
   });
 }
 

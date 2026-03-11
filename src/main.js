@@ -259,3 +259,16 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+// Global error handler — catch unhandled promise rejections to prevent ugly yellow crash bar
+window.addEventListener('unhandledrejection', (event) => {
+  event.preventDefault(); // Suppress browser's default error UI
+  const msg = event.reason?.message || String(event.reason || 'Unknown error');
+  console.warn('[Global] Unhandled rejection:', msg);
+  // Show toast only if showToast is available (page rendered)
+  try {
+    import('./components/toast.js').then(({ showToast }) => {
+      showToast(`⚠️ ${msg}`, 'warning', 4000);
+    });
+  } catch { /* ignore if toast module not loaded */ }
+});

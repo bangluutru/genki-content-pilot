@@ -678,8 +678,8 @@ function attachCreateEvents() {
 
   // Regenerate
   document.getElementById('btn-regenerate')?.addEventListener('click', () => {
-    document.getElementById('step-preview').classList.add('hidden');
-    document.getElementById('step-brief').classList.remove('hidden');
+    document.getElementById('step-preview')?.classList.add('hidden');
+    document.getElementById('step-brief')?.classList.remove('hidden');
   });
 
   // Image generation — delegates to ai-handler
@@ -715,7 +715,7 @@ function attachCreateEvents() {
 
   const updatePublishBtn = () => {
     const anyOn = toggleFb?.checked || toggleWp?.checked;
-    publishBtn.disabled = !anyOn;
+    if (publishBtn) publishBtn.disabled = !anyOn;
   };
 
   toggleFb?.addEventListener('change', updatePublishBtn);

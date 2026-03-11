@@ -341,26 +341,25 @@ export async function renderBrandPage() {
     try {
       await saveBrand({
         name,
-        logoUrl: uploadedLogoUrl,
-        industry: document.getElementById('brand-industry')?.value,
-        targetAudience: document.getElementById('brand-target')?.value?.trim(),
-        tone: document.getElementById('brand-tone')?.value,
-        defaultHashtags: document.getElementById('brand-hashtags')?.value?.trim(),
+        logoUrl: uploadedLogoUrl || null,
+        industry: document.getElementById('brand-industry')?.value || '',
+        targetAudience: document.getElementById('brand-target')?.value?.trim() || '',
+        tone: document.getElementById('brand-tone')?.value || 'friendly',
 
         // Extract context library arrays from DOM
 
         prompts: Array.from(document.querySelectorAll('.context-item[data-type="prompt"]')).map(el => ({
           id: el.dataset.id,
-          name: el.querySelector('.ctx-name').value.trim(),
-          content: el.querySelector('.ctx-desc').value.trim()
+          name: el.querySelector('.ctx-name')?.value?.trim() || '',
+          content: el.querySelector('.ctx-desc')?.value?.trim() || ''
         })).filter(p => p.name),
 
-        archetype: document.getElementById('brand-archetype')?.value,
-        voice: document.getElementById('brand-voice')?.value?.trim(),
-        disclaimer: document.getElementById('brand-disclaimer')?.value?.trim(),
-        colorPrimary: document.getElementById('brand-color-primary')?.value,
-        colorSecondary: document.getElementById('brand-color-secondary')?.value,
-        fontFamily: document.getElementById('brand-font')?.value,
+        archetype: document.getElementById('brand-archetype')?.value || '',
+        voice: document.getElementById('brand-voice')?.value?.trim() || '',
+        disclaimer: document.getElementById('brand-disclaimer')?.value?.trim() || '',
+        colorPrimary: document.getElementById('brand-color-primary')?.value || '#8B5CF6',
+        colorSecondary: document.getElementById('brand-color-secondary')?.value || '#06B6D4',
+        fontFamily: document.getElementById('brand-font')?.value || '',
       });
 
       showToast(t('toasts.brandSaved'), 'success');

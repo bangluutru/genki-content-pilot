@@ -117,7 +117,8 @@ export async function renderCalendarPage() {
   // Quick time buttons
   document.querySelectorAll('.quick-time-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.getElementById('schedule-time').value = btn.dataset.time;
+      const timeEl = document.getElementById('schedule-time');
+      if (timeEl) timeEl.value = btn.dataset.time;
     });
   });
 
@@ -228,7 +229,8 @@ function openModal(date, schedules) {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
   });
 
-  document.getElementById('modal-title').innerHTML = `${icon('calendar', 20)} ${dateLabel}`;
+  const modalTitle = document.getElementById('modal-title');
+  if (modalTitle) modalTitle.innerHTML = `${icon('calendar', 20)} ${dateLabel}`;
   modal.dataset.date = date;
 
   // Show marketing events for this date
@@ -279,6 +281,7 @@ function openModal(date, schedules) {
 
   // Populate content dropdown
   const select = document.getElementById('schedule-content-select');
+  if (!select) return;
   const contents = store.get('contents') || [];
   select.innerHTML = `<option value="">— ${t('calendar.selectFromLibrary')} —</option>` +
     contents.map(c => `<option value="${c.id}" data-title="${(c.brief || c.facebook || 'Untitled').slice(0, 50)}">${truncate(c.brief || c.facebook || 'Untitled', 60)}</option>`).join('');
@@ -303,7 +306,8 @@ function openModal(date, schedules) {
       `;
       suggestionsEl.querySelectorAll('.smart-slot-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-          document.getElementById('schedule-time').value = btn.dataset.time;
+          const timeEl = document.getElementById('schedule-time');
+          if (timeEl) timeEl.value = btn.dataset.time;
           showToast(`${t('calendar.autoSchedule')}: ${btn.dataset.date} ${btn.dataset.time}`, 'info');
         });
       });

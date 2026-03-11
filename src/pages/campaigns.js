@@ -183,10 +183,10 @@ function attachCampaignEvents() {
 
   // Save
   saveBtn?.addEventListener('click', async () => {
-    const name = document.getElementById('campaign-name').value;
-    const goal = document.getElementById('campaign-goal').value;
-    const startDate = document.getElementById('campaign-start').value;
-    const endDate = document.getElementById('campaign-end').value;
+    const name = document.getElementById('campaign-name')?.value;
+    const goal = document.getElementById('campaign-goal')?.value;
+    const startDate = document.getElementById('campaign-start')?.value;
+    const endDate = document.getElementById('campaign-end')?.value;
 
     if (!name) {
       showToast(t('campaign.fillRequired'), 'error');

@@ -141,8 +141,8 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
     }
 
     // Show loading
-    document.getElementById('step-brief').classList.add('hidden');
-    document.getElementById('step-loading').classList.remove('hidden');
+    document.getElementById('step-brief')?.classList.add('hidden');
+    document.getElementById('step-loading')?.classList.remove('hidden');
 
     // Animate steps
     const steps = ['ai-step-0', 'ai-step-1', 'ai-step-2', 'ai-step-3', 'ai-step-4'];
@@ -191,12 +191,15 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
         setCurrentContent(currentContent);
 
         // Show preview
-        document.getElementById('step-loading').classList.add('hidden');
-        document.getElementById('step-preview').classList.remove('hidden');
+        document.getElementById('step-loading')?.classList.add('hidden');
+        document.getElementById('step-preview')?.classList.remove('hidden');
 
-        document.getElementById('content-facebook').textContent = finalContent.facebook;
-        document.getElementById('content-blog').textContent = finalContent.blog;
-        document.getElementById('content-story').textContent = finalContent.story;
+        const fbEl = document.getElementById('content-facebook');
+        const blogEl = document.getElementById('content-blog');
+        const storyEl = document.getElementById('content-story');
+        if (fbEl) fbEl.textContent = finalContent.facebook;
+        if (blogEl) blogEl.textContent = finalContent.blog;
+        if (storyEl) storyEl.textContent = finalContent.story;
 
         // Render hashtag optimizer panel (Phase 2)
         const hashtagPanel = document.getElementById('hashtag-panel');
@@ -305,8 +308,8 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
     } catch (error) {
         clearInterval(stepTimer);
         console.error('Generate error:', error);
-        document.getElementById('step-loading').classList.add('hidden');
-        document.getElementById('step-brief').classList.remove('hidden');
+        document.getElementById('step-loading')?.classList.add('hidden');
+        document.getElementById('step-brief')?.classList.remove('hidden');
         showToast(t('create.generateError', { error: error.message }), 'error', 5000);
     }
 }
@@ -430,7 +433,8 @@ export async function handleImageGen() {
             const img = document.getElementById('generated-image');
             openImageEditor(img.src, (newSrc) => {
                 img.src = newSrc;
-                document.getElementById('btn-download-image').href = newSrc;
+                const dlBtn = document.getElementById('btn-download-image');
+                if (dlBtn) dlBtn.href = newSrc;
             });
         });
 
