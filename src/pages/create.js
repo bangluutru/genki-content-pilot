@@ -199,9 +199,9 @@ export async function renderCreatePage(params = {}) {
               ${kocs.map(koc => `<option value="${koc.id}">${escapeHtml(koc.name)} ${koc.rating ? `(${koc.rating}⭐)` : ''} ${koc.style ? '✓' : ''}</option>`).join('')}
             </select>
             ${kocs.length === 0 ? `
-              <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
-                <small class="text-muted">Chưa có KOC nào.</small>
-                <a href="#/koc" class="btn btn-ghost btn-xs" style="font-size: var(--font-xs); padding: 2px 8px;">
+              <div style="margin-top: 8px; padding: 8px 12px; background: var(--bg-glass); border: 1px dashed var(--glass-border); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between;">
+                <small style="color: var(--text-muted);">⚠️ Chưa có KOC nào được thiết lập.</small>
+                <a href="#/koc" style="display: inline-flex; align-items: center; gap: 4px; padding: 4px 12px; font-size: var(--font-xs); color: var(--accent); border: 1px solid var(--accent); border-radius: var(--radius-sm); text-decoration: none; font-weight: 600; transition: all 0.2s;">
                   ${icon('plus', 12)} Thêm KOC
                 </a>
               </div>
