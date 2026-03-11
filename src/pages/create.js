@@ -666,7 +666,8 @@ function attachCreateEvents() {
   document.querySelectorAll('.copy-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const target = btn.dataset.target;
-      const content = document.getElementById(`content-${target}`)?.textContent;
+      const el = document.getElementById(`content-${target}`);
+      const content = el?.dataset?.raw || el?.textContent;
       if (content) {
         await copyToClipboard(content);
         showToast(t('create.copiedSuccess'), 'success');

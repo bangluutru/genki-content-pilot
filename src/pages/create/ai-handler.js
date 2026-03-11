@@ -14,6 +14,7 @@ import { runPredictionCheck } from './predictive-handler.js';
 import { showRepurposePanel } from './repurpose-handler.js';
 import { showABTestPanel } from './ab-test-handler.js';
 import { renderScorePanel } from './score-panel.js';
+import { renderMarkdown } from '../../utils/markdown.js';
 
 /**
  * Handle content generation from brief form OR directly from Angle context
@@ -197,9 +198,9 @@ export async function handleGenerate(setCurrentContent, onContentReady, angleCon
         const fbEl = document.getElementById('content-facebook');
         const blogEl = document.getElementById('content-blog');
         const storyEl = document.getElementById('content-story');
-        if (fbEl) fbEl.textContent = finalContent.facebook;
-        if (blogEl) blogEl.textContent = finalContent.blog;
-        if (storyEl) storyEl.textContent = finalContent.story;
+        if (fbEl) { fbEl.dataset.raw = finalContent.facebook; fbEl.innerHTML = renderMarkdown(finalContent.facebook); }
+        if (blogEl) { blogEl.dataset.raw = finalContent.blog; blogEl.innerHTML = renderMarkdown(finalContent.blog); }
+        if (storyEl) { storyEl.dataset.raw = finalContent.story; storyEl.innerHTML = renderMarkdown(finalContent.story); }
 
         // Render hashtag optimizer panel (Phase 2)
         const hashtagPanel = document.getElementById('hashtag-panel');
@@ -322,7 +323,7 @@ export async function handleVariation(type) {
     const activeTab = document.querySelector('.tab.active');
     const platform = activeTab?.dataset.tab || 'facebook';
     const contentEl = document.getElementById(`content-${platform}`);
-    const originalContent = contentEl?.textContent?.trim();
+    const originalContent = contentEl?.dataset?.raw || contentEl?.textContent?.trim();
 
     if (!originalContent) {
         showToast(t('create.createVariationFirst'), 'error');

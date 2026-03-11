@@ -75,20 +75,25 @@ export function runComplianceCheck(content) {
  */
 /** @deprecated Currently unused — reserved for future compliance workflow */
 export function addDisclaimerToContent() {
-  const fbContent = document.getElementById('content-facebook');
-  const blogContent = document.getElementById('content-blog');
-  const storyContent = document.getElementById('content-story');
+  // Import renderMarkdown dynamically to avoid circular deps
+  import('../../utils/markdown.js').then(({ renderMarkdown }) => {
+    const fbContent = document.getElementById('content-facebook');
+    const blogContent = document.getElementById('content-blog');
+    const storyContent = document.getElementById('content-story');
 
-  if (fbContent) {
-    fbContent.textContent = addDisclaimer(fbContent.textContent, 'tpcn');
-  }
-  if (blogContent) {
-    blogContent.textContent = addDisclaimer(blogContent.textContent, 'tpcn');
-  }
-  if (storyContent) {
-    storyContent.textContent = addDisclaimer(storyContent.textContent, 'tpcn');
-  }
+    const update = (el) => {
+      if (!el) return;
+      const raw = el.dataset?.raw || el.textContent || '';
+      const updated = addDisclaimer(raw, 'tpcn');
+      el.dataset.raw = updated;
+      el.innerHTML = renderMarkdown(updated);
+    };
 
-  document.getElementById('compliance-panel')?.classList.add('hidden');
-  showToast(t('create.addDisclaimer') + '!', 'success');
+    update(fbContent);
+    update(blogContent);
+    update(storyContent);
+
+    document.getElementById('compliance-panel')?.classList.add('hidden');
+    showToast(t('create.addDisclaimer') + '!', 'success');
+  });
 }

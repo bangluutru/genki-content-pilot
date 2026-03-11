@@ -57,9 +57,10 @@ export async function handlePublish(getCurrentContent) {
         return;
     }
 
-    // Get latest edited content
-    const facebook = document.getElementById('content-facebook')?.textContent || '';
-    const blog = document.getElementById('content-blog')?.textContent || '';
+    const fbEl = document.getElementById('content-facebook');
+    const blogEl = document.getElementById('content-blog');
+    const facebook = fbEl?.dataset?.raw || fbEl?.textContent || '';
+    const blog = blogEl?.dataset?.raw || blogEl?.textContent || '';
 
     // Disable button + show loading
     if (publishBtn) {
@@ -160,9 +161,12 @@ export async function handleSave(getCurrentContent) {
     if (!currentContent) return;
 
     try {
-        const facebook = document.getElementById('content-facebook')?.textContent || '';
-        const blog = document.getElementById('content-blog')?.textContent || '';
-        const story = document.getElementById('content-story')?.textContent || '';
+        const fbEl = document.getElementById('content-facebook');
+        const blogEl = document.getElementById('content-blog');
+        const storyEl = document.getElementById('content-story');
+        const facebook = fbEl?.dataset?.raw || fbEl?.textContent || '';
+        const blog = blogEl?.dataset?.raw || blogEl?.textContent || '';
+        const story = storyEl?.dataset?.raw || storyEl?.textContent || '';
         const context = window.__createContext;
 
         const contentPayload = {
